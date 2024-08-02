@@ -1,0 +1,55 @@
+.app-name-wrapper {
+    .app-name {
+        font-family: 'Tiro Devanagari Hindi';
+        font-size: 33px;
+    }
+
+    .app-tagline {
+        font-family: 'Koh Santepheap';
+        font-size: 30px;
+        margin-left: 16px;
+    }
+
+    .app-sub-name {
+        font-family: 'poppins';
+        color: #FFC683;
+        font-size: 13px;
+        line-height: 4px;
+    }
+}
+
+.top-bar-links {
+    a {
+        font-family: 'poppins';
+        font-size: 13px;
+        color: #FFFFFD;
+        text-decoration: none;
+        margin-left: 32px;
+    }
+}
+
+.layout-content {
+    background-image: url('../assets/background.png');
+    background-position-y: -7vh;
+}
+
+.top-bar-tabs {
+    min-height: 41px !important;
+    height: 41px;
+
+    .MuiButtonBase-root {
+        justify-content: flex-start;
+        min-height: 41px !important;
+        height: 41px;
+    }
+
+    .Mui-selected {
+        color: #A74600 !important;
+        background: #ffffff;
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    .MuiTabs-indicator {
+        display: none;
+    }
+}

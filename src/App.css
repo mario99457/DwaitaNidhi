@@ -1,0 +1,8 @@
+
+* {
+  --primary-color: #3f51b5;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif; /* Changed font family to Roboto */
+  }
