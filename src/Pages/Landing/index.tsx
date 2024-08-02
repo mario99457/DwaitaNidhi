@@ -4,6 +4,8 @@ import card1Img from "../../assets/LandingPageCards/image 5.png";
 import card2Img from "../../assets/LandingPageCards/image 6.png";
 import card3Img from "../../assets/LandingPageCards/image 7.png";
 import card4Img from "../../assets/LandingPageCards/image 8.png";
+import card5Img from "../../assets/LandingPageCards/image 9.png";
+
 import HomePageCard from "../../Components/HomePageCard";
 
 const Landing = () => {
@@ -53,11 +55,11 @@ const Landing = () => {
       },
     },
     {
-      image: card3Img,
+      image: card5Img,
       title: "Card 5",
       quote:
-        "यस्यवाक्कामधेनुर्नः कामितार्थान् प्रयच्छति । सेवे तं जययोगीन्द्रं कामबाणच्छिदं सदा ॥",
-      author: "-श्रीविजयेन्द्रतीर्थाः ",
+        "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
+      author: "-श्रीअप्पण्णाचार्याः",
       style: {
         background:
           "radial-gradient(92.71% 55.9% at 71.21% 40.48%, #7F1B63 0%, #820D45 100%)",
