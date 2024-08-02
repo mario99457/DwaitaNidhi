@@ -31,6 +31,7 @@ function TopBar() {
         color: "#ffffff",
         height: "130px",
         padding: "8px 8px 0",
+        boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25);",
       }}
     >
       <Toolbar>
@@ -87,7 +88,7 @@ function TopBar() {
         <Box
           sx={{
             flexGrow: 2,
-            paddingLeft: "10rem",
+            paddingLeft: "9rem",
           }}
         >
           <Tabs

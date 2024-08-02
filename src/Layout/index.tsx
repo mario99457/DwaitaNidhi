@@ -27,6 +27,7 @@ const Layout = ({ children }: LayoutProps) => {
           justifyContent: "space-between",
         }}
         height="calc(100% - 130px)"
+        className="layout-content"
       >
         <Box
           sx={{
@@ -34,7 +35,6 @@ const Layout = ({ children }: LayoutProps) => {
             overflowY: "auto",
             height: "100%",
           }}
-          className="layout-content"
         >
           {children}
         </Box>
