@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Box } from "@mui/material";
 import TopBar from "../Components/TopBar";
+import background from "../assets/background.png";
 
 interface LayoutProps {
   children: ReactNode;
@@ -25,6 +26,7 @@ const Layout = ({ children }: LayoutProps) => {
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
+          backgroundColor: "#e8e8e8",
         }}
         height="calc(100% - 130px)"
         className="layout-content"

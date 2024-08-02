@@ -48,7 +48,7 @@ function TopBar() {
           }}
         >
           <IconButton
-            sx={{ marginRight: "8px" }}
+            sx={{ marginRight: "8px", marginLeft: "6px" }}
             edge="start"
             color="inherit"
             aria-label="menu"
@@ -88,7 +88,7 @@ function TopBar() {
         <Box
           sx={{
             flexGrow: 2,
-            paddingLeft: "9rem",
+            paddingLeft: "11rem",
           }}
         >
           <Tabs
