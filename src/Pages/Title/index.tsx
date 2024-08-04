@@ -2,6 +2,9 @@ import { Box, Container, Typography } from "@mui/material";
 import React from "react";
 import { useParams } from "react-router-dom";
 import ToC_Icon from "../../assets/toc.svg";
+import SearchBox from "../../Components/SearchBox";
+import playButton from "../../assets/PlayButton.svg";
+import TreeView from "./Treeview";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -51,8 +54,10 @@ const TitlePage = () => {
       <Box
         sx={{ mt: "3rem", display: "flex", justifyContent: "space-between" }}
       >
-        <div style={{ display: "flex", cursor: "pointer" }}>
-          <img src={ToC_Icon} />
+        <div
+          style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
+        >
+          <img src={ToC_Icon} width={`18px`} height={`18px`} />
           <Typography
             variant="subtitle1"
             sx={{
@@ -66,8 +71,12 @@ const TitlePage = () => {
           </Typography>
         </div>
         <div className="search-box-wrapper">
-          
+          <SearchBox onSearch={() => {}} placeholder={""} />
+          <img src={playButton} />
         </div>
+      </Box>
+      <Box sx={{ maxHeight: "60%", overflow: "auto", mt: 4 }}>
+        <TreeView />
       </Box>
     </Box>
   );

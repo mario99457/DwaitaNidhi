@@ -17,6 +17,7 @@ const HomePageCard = ({ image, quote, author, style }: HomePageCardProps) => {
         marginTop: "22px",
         width: "713px",
         display: "flex",
+        height: "17%",
         ...style,
       }}
       className="card-wrapper"

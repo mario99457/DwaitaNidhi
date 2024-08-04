@@ -51,9 +51,6 @@
 }
 
 
-
-
-
 .top-bar-tabs {
     min-height: 41px !important;
     height: 41px;
@@ -75,5 +72,25 @@
 
     .MuiTabs-indicator {
         display: none;
+    }
+}
+
+.search-box-wrapper {
+    display: flex;
+    align-items: center;
+    ;
+
+    .search-box {
+        max-width: 250px;
+        margin-right: 17px;
+
+        .MuiInputBase-root {
+            height: 30px;
+            padding-right: 5px;
+
+            input {
+                padding: 0 14px;
+            }
+        }
     }
 }
