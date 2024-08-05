@@ -61,15 +61,21 @@ const TreeView = () => {
   };
 
   return (
-    <List sx={{ borderTop: "1px solid #dddddd" }}>
+    <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
       {tocData.chapters.map((chapter) => (
         <React.Fragment key={chapter.n}>
           <ListItem
             onClick={() => handleChapterClick(chapter.n)}
-            sx={{ cursor: "pointer", borderBottom: "1px solid #dddddd" }}
+            sx={{
+              cursor: "pointer",
+              borderBottom: "1px solid #dddddd",
+              py: 0.5,
+              px: "20px",
+            }}
+            className="treeview-list-item"
           >
             <ListItemText
-              primary={`${chapter.n}.${chapter.name}`}
+              primary={`${chapter.n}. ${chapter.name}`}
               primaryTypographyProps={{
                 fontFamily: "Tiro Devanagari Hindi",
                 fontSize: "26px",
@@ -89,10 +95,13 @@ const TreeView = () => {
                     sx={{
                       cursor: "pointer",
                       borderBottom: "1px solid #dddddd",
+                      py: 0.5,
+                      px: "20px",
                     }}
                     onClick={() =>
                       handleChapterClick(`${chapter.n}${subchapter.n}`)
                     }
+                    className="treeview-list-item"
                   >
                     <ListItemText
                       // primary={subchapter.name}
@@ -109,13 +118,21 @@ const TreeView = () => {
                           height: "8px",
                           background: "#A74600",
                           rotate: "45deg",
-                          marginRight: "2rem",
                         }}
                       ></div>
-                      <span style={{ color: "#999999", marginRight: "8px" }}>
+                      <span
+                        style={{
+                          color: "#787878",
+                          marginRight: "8px",
+                          marginLeft: "20px",
+                          fontFamily: "Tiro Devanagari Hindi",
+                        }}
+                      >
                         {chapter.n}.{subchapter.n}
                       </span>
-                      <span>{subchapter.name}</span>
+                      <span style={{ fontFamily: "Tiro Devanagari Hindi" }}>
+                        {subchapter.name}
+                      </span>
                     </ListItemText>
                     <IconButton>
                       {openChapters[`${chapter.n}${subchapter.n}`] ? (
@@ -131,23 +148,41 @@ const TreeView = () => {
                     unmountOnExit
                   >
                     <List component="div" disablePadding>
-                      {dummySolga.map((solga) => (
+                      {dummySolga.map((sloga) => (
                         <ListItem
                           //   onClick={() => handleChapterClick(chapter.n)}
                           sx={{
                             cursor: "pointer",
                             borderBottom: "1px solid #dddddd",
-                            pl: 8,
+                            pl: "60px",
+                            py: 0.5,
                           }}
                         >
                           <ListItemText
-                            primary={`${solga.s}`}
-                            // primaryTypographyProps={{
-                            //   fontFamily: "Tiro Devanagari Hindi",
-                            //   fontSize: "26px",
-                            //   color: "#A74600",
-                            // }}
-                          />
+                            primaryTypographyProps={{
+                              fontFamily: "Tiro Devanagari Hindi",
+                              fontSize: "16px",
+                              color: "#616161",
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div className="circle-bullet"></div>
+                            &nbsp;
+                            <span
+                              style={{
+                                color: "#787878",
+                                fontFamily: "Tiro Devanagari Hindi",
+                              }}
+                            >
+                              {sloga.n} &nbsp;
+                            </span>
+                            <span
+                              style={{ fontFamily: "Tiro Devanagari Hindi" }}
+                            >
+                              {sloga.s}
+                            </span>
+                          </ListItemText>
                         </ListItem>
                       ))}
                     </List>

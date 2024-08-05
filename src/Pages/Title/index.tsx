@@ -1,13 +1,19 @@
 import { Box, Container, Typography } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import ToC_Icon from "../../assets/toc.svg";
 import SearchBox from "../../Components/SearchBox";
 import playButton from "../../assets/PlayButton.svg";
 import TreeView from "./Treeview";
+import listIconSelected from "../../assets/list_selected.svg";
+import alphaIcon from "../../assets/alpha.svg";
+import listIcon from "../../assets/list.svg";
+import alphaIconSelected from "../../assets/alpha_selected.svg";
+import AlphaBetView from "./AlphaBetView";
 
 const TitlePage = () => {
   const { bookName } = useParams();
+  const [selectedView, setSelectedView] = useState("list");
   const bookToValueMap = {
     menu1: "ब्रह्मसूत्राणि",
     menu2: " भगवद्गीता",
@@ -22,6 +28,8 @@ const TitlePage = () => {
         margin: "auto",
         height: "100%",
         padding: "16px 38px",
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Typography
@@ -75,8 +83,23 @@ const TitlePage = () => {
           <img src={playButton} />
         </div>
       </Box>
-      <Box sx={{ maxHeight: "60%", overflow: "auto", mt: 4 }}>
-        <TreeView />
+      <Box sx={{ display: "flex", justifyContent: "end", mt: 4 }}>
+        <img
+          src={selectedView == "list" ? listIconSelected : listIcon}
+          style={{ cursor: "pointer" }}
+          onClick={() => setSelectedView("list")}
+        />
+        <img
+          src={selectedView == "alpha" ? alphaIconSelected : alphaIcon}
+          style={{ cursor: "pointer", marginLeft: "13px" }}
+          onClick={() => setSelectedView("alpha")}
+        />
+      </Box>
+      <Box
+        sx={{ flex: "1 1 auto", overflow: "auto", mt: 2 }}
+        className="treeview-box-wrapper"
+      >
+        {selectedView == "alpha" ? <AlphaBetView /> : <TreeView />}
       </Box>
     </Box>
   );

@@ -94,3 +94,17 @@
         }
     }
 }
+
+.treeview-list-item {
+    .MuiListItemText-root {
+        margin: 0;
+    }
+}
+
+.circle-bullet {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #999999;
+    margin-right: 6px;
+}
