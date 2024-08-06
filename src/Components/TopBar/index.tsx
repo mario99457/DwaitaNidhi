@@ -9,7 +9,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 function TopBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  console.log(pathname.split("/")[1]);
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
   const menu = [
@@ -101,6 +100,7 @@ function TopBar() {
                 label={item.label}
                 value={item.value}
                 sx={{ color: "#ffffff" }}
+                key={item.value}
               />
             ))}
           </Tabs>

@@ -26,7 +26,7 @@ const TitlePage = () => {
         width: "80%",
         background: "#FFFFFF",
         margin: "auto",
-        height: "100%",
+        minHeight: "100%",
         padding: "16px 38px",
         display: "flex",
         flexDirection: "column",
@@ -95,10 +95,7 @@ const TitlePage = () => {
           onClick={() => setSelectedView("alpha")}
         />
       </Box>
-      <Box
-        sx={{ flex: "1 1 auto", overflow: "auto", mt: 2 }}
-        className="treeview-box-wrapper"
-      >
+      <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
         {selectedView == "alpha" ? <AlphaBetView /> : <TreeView />}
       </Box>
     </Box>
