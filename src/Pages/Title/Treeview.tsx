@@ -9,7 +9,11 @@ import {
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import tocData from "./treeData.json";
 
-const TreeView = () => {
+interface ListViewProps {
+  handleSlogaClick: (selectedSloga: { i: string; s: string }) => void;
+}
+
+const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
   const [openChapters, setOpenChapters] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -145,6 +149,7 @@ const TreeView = () => {
                               py: 0.5,
                             }}
                             key={sloga.i}
+                            onClick={() => handleSlogaClick(sloga)}
                           >
                             <ListItemText
                               primaryTypographyProps={{

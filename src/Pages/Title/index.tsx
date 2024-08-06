@@ -1,6 +1,6 @@
 import { Box, Container, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ToC_Icon from "../../assets/toc.svg";
 import SearchBox from "../../Components/SearchBox";
 import playButton from "../../assets/PlayButton.svg";
@@ -14,10 +14,15 @@ import AlphaBetView from "./AlphaBetView";
 const TitlePage = () => {
   const { bookName } = useParams();
   const [selectedView, setSelectedView] = useState("list");
+  const navigate = useNavigate();
   const bookToValueMap = {
     menu1: "ब्रह्मसूत्राणि",
     menu2: " भगवद्गीता",
     menu3: "रामायणम्",
+  };
+
+  const handleSlogaClick = (selectedSloga: { i: string; s: string }) => {
+    navigate(`/${bookName}/${selectedSloga.i}`, { state: { selectedSloga } });
   };
 
   return (
@@ -96,7 +101,11 @@ const TitlePage = () => {
         />
       </Box>
       <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
-        {selectedView == "alpha" ? <AlphaBetView /> : <TreeView />}
+        {selectedView == "alpha" ? (
+          <AlphaBetView handleSlogaClick={handleSlogaClick} />
+        ) : (
+          <TreeView handleSlogaClick={handleSlogaClick} />
+        )}
       </Box>
     </Box>
   );

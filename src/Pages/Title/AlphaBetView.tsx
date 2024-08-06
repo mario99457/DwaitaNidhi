@@ -2,7 +2,11 @@ import React from "react";
 import { List, ListItem, ListItemText } from "@mui/material";
 import tocData from "./treeData.json";
 
-const AlphaBetView = () => {
+interface ListViewProps {
+  handleSlogaClick: (selectedSloga: { i: string; s: string }) => void;
+}
+
+const AlphaBetView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
   return (
     <List>
       {tocData.data.map((data) => (
@@ -13,6 +17,7 @@ const AlphaBetView = () => {
             px: "20px",
           }}
           key={data.i}
+          onClick={() => handleSlogaClick(data)}
         >
           <ListItemText
             primaryTypographyProps={{
