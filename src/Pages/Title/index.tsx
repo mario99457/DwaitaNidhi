@@ -10,6 +10,8 @@ import alphaIcon from "../../assets/alpha.svg";
 import listIcon from "../../assets/list.svg";
 import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
+import { Sloga } from "../../types/GlobalType.type";
+import tocData from "./treeData.json";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -21,8 +23,17 @@ const TitlePage = () => {
     menu3: "रामायणम्",
   };
 
-  const handleSlogaClick = (selectedSloga: { i: string; s: string }) => {
-    navigate(`/${bookName}/${selectedSloga.i}`, { state: { selectedSloga } });
+  const handleSlogaClick = (selectedSloga: Sloga) => {
+    const slogaIndex = tocData.data.findIndex(
+      (data) => data.i == selectedSloga.i
+    );
+
+    navigate(`/${bookName}/${selectedSloga.i}`, {
+      state: {
+        selectedSloga,
+        slogaIndex,
+      },
+    });
   };
 
   return (

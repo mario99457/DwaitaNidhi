@@ -8,9 +8,10 @@ import {
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import tocData from "./treeData.json";
+import { Sloga } from "../../types/GlobalType.type";
 
 interface ListViewProps {
-  handleSlogaClick: (selectedSloga: { i: string; s: string }) => void;
+  handleSlogaClick: (selectedSloga: Sloga) => void;
 }
 
 const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
@@ -141,7 +142,6 @@ const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
                       {cacheSloga[`${chapter.n}.${subchapter.n}`]?.map(
                         (sloga) => (
                           <ListItem
-                            //   onClick={() => handleChapterClick(chapter.n)}
                             sx={{
                               cursor: "pointer",
                               borderBottom: "1px solid #dddddd",

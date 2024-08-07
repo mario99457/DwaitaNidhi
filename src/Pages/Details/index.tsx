@@ -10,8 +10,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ToC_Icon from "../../assets/toc.svg";
 import prevButton from "../../assets/prev_button.svg";
@@ -28,7 +28,7 @@ interface Commentary {
   data: string;
 }
 const DetailPage = () => {
-  const { slogaNumber } = useParams();
+  const { slogaNumber, bookName } = useParams();
   const { state } = useLocation();
   const availableLanguages = [
     {
@@ -52,6 +52,7 @@ const DetailPage = () => {
       label: "മലയാളം",
     },
   ];
+  const navigate = useNavigate();
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
@@ -59,12 +60,38 @@ const DetailPage = () => {
     treeData.commentaries[0]
   );
 
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  // }, []);
+
   const handleLanguageChange = (event: SelectChangeEvent) => {
     setSelectedLanguage(event.target.value);
   };
 
   const handleCommentaryChange = (data: Commentary) => {
     setSelectedCommentary(data);
+  };
+
+  const handleNavigateSloga = (navigation: string) => {
+    const slogaIndex = state?.slogaIndex;
+    const previousSloga = treeData.data[slogaIndex - 1];
+    const nextSloga = treeData.data[slogaIndex + 1];
+    if (navigation == "next" && slogaIndex < treeData.data.length - 1) {
+      navigate(`/${bookName}/${nextSloga.i}`, {
+        state: {
+          selectedSloga: nextSloga,
+          slogaIndex: slogaIndex + 1,
+        },
+      });
+    }
+    if (navigation == "prev" && slogaIndex >= 0) {
+      navigate(`/${bookName}/${previousSloga.i}`, {
+        state: {
+          selectedSloga: previousSloga,
+          slogaIndex: slogaIndex - 1,
+        },
+      });
+    }
   };
 
   const breadcrumbs = [
@@ -125,7 +152,14 @@ const DetailPage = () => {
       </Box>
       <Box className="title-box-wrapper" sx={{ pt: 2 }}>
         <Box sx={{ display: "flex" }}>
-          <img src={prevButton} />
+          <img
+            src={prevButton}
+            alt="previous"
+            style={{
+              cursor: state.slogaIndex == 0 ? "not-allowed" : "pointer",
+            }}
+            onClick={() => handleNavigateSloga("prev")}
+          />
           <Container
             sx={{
               height: "60px",
@@ -143,7 +177,17 @@ const DetailPage = () => {
               {state?.selectedSloga?.s}
             </Typography>
           </Container>
-          <img src={nextButton} />
+          <img
+            src={nextButton}
+            alt="next"
+            style={{
+              cursor:
+                state.slogaIndex == treeData.data.length - 1
+                  ? "not-allowed"
+                  : "pointer",
+            }}
+            onClick={() => handleNavigateSloga("next")}
+          />
         </Box>
       </Box>
       <Stack
