@@ -5169,17 +5169,37 @@
         "e": "",
         "pc": ""
     }
-],
-"commentaries": {
-    "1": {
-        "name": "",
-        "author": "",
+],  
+"commentaries": [
+    {
+        "name": "भाष्यम",
+        "author": "श्रीमदाचार्यविरचितं  ",
         "data": "bhashya.txt"
     },
-   "2": {
-        "name": "",
-        "author": "",
+   {
+        "name": "शास्त्र",
+        "author": "श्रीमदाचार्यविरचितं  ",
+        "data": "sutradipika.txt"
+    },
+    {
+        "name": "शास्त्र 2",
+        "author": "श्रीमदाचार्यविरचितं  ",
+        "data": "sutradipika.txt"
+    },
+    {
+        "name": "शास्त्र 3",
+        "author": "श्रीमदाचार्यविरचितं  ",
+        "data": "sutradipika.txt"
+    },
+     {
+        "name": "शास्त्र 4",
+        "author": "श्रीमदाचार्यविरचितं  ",
+        "data": "sutradipika.txt"
+    },
+     {
+        "name": "शास्त्र 5",
+        "author": "श्रीमदाचार्यविरचितं  ",
         "data": "sutradipika.txt"
     }
-}
+]
 }
