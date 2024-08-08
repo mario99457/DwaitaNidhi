@@ -21,6 +21,7 @@ import Divider from "@mui/material/Divider";
 import SearchBox from "../../Components/SearchBox";
 import treeData from "../Title/treeData.json";
 import DetailsContent from "./DetailsContent";
+import DrawerMenu from "./DrawerMenu";
 
 interface Commentary {
   name: string;
@@ -59,6 +60,7 @@ const DetailPage = () => {
   const [selectedCommentary, setSelectedCommentary] = useState<Commentary>(
     treeData.commentaries[0]
   );
+  const [openDrawer, setOpenDrawer] = useState(false);
 
   // useEffect(() => {
   //   window.scrollTo(0, 0);
@@ -135,6 +137,8 @@ const DetailPage = () => {
         </Breadcrumbs>
         <div
           style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
+          onClick={() => setOpenDrawer(true)}
+          role="button"
         >
           <img src={ToC_Icon} width={`18px`} height={`18px`} />
           <Typography
@@ -294,6 +298,7 @@ const DetailPage = () => {
         </div>
       </Stack>
       <DetailsContent selectedCommentary={selectedCommentary} />
+      <DrawerMenu open={openDrawer} onClose={() => setOpenDrawer(false)} />
     </Box>
   );
 };
