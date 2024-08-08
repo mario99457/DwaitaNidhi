@@ -5,19 +5,19 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAppData } from "../../Store/AppContext";
 
 function TopBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { state } = useAppData();
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
-  const menu = [
-    { label: "ब्रह्मसूत्राणि", value: "menu1" },
-    { label: "भगवद्गीता", value: "menu2" },
-    { label: "रामायणम्", value: "menu3" },
-  ];
 
-  const handleMenuClick = (event: any, value: string) => {
+  const handleMenuClick = (
+    e: React.SyntheticEvent<Element, Event>,
+    value: string
+  ) => {
     setSelctedMenu(value);
     navigate(`/${value}`);
   };
@@ -95,12 +95,12 @@ function TopBar() {
             onChange={handleMenuClick}
             className="top-bar-tabs"
           >
-            {menu.map((item) => (
+            {state.books.map((item) => (
               <Tab
                 label={item.label}
-                value={item.value}
+                value={item.name}
                 sx={{ color: "#ffffff" }}
-                key={item.value}
+                key={item.name}
               />
             ))}
           </Tabs>

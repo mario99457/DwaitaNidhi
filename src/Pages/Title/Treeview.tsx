@@ -12,6 +12,8 @@ import { Sloga } from "../../types/GlobalType.type";
 
 interface ListViewProps {
   handleSlogaClick: (selectedSloga: Sloga) => void;
+  fromDetailPage?: boolean;
+  selectedSloga?: Sloga;
 }
 
 const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {

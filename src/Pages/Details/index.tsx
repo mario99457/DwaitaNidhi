@@ -97,7 +97,13 @@ const DetailPage = () => {
   };
 
   const breadcrumbs = [
-    <Link underline="hover" key="1" color="inherit" href="/" onClick={() => {}}>
+    <Link
+      underline="hover"
+      key="1"
+      color="inherit"
+      href={`/${bookName}`}
+      onClick={() => {}}
+    >
       <Typography
         key="2"
         color="text.primary"
