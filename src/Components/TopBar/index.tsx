@@ -6,18 +6,19 @@ import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlin
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
+import { Prefetch } from '../../Services/Common/GlobalServices'
+
 function TopBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   console.log(pathname.split("/")[1]);
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
-  const menu = [
-    { label: "ब्रह्मसूत्राणि", value: "menu1" },
-    { label: "भगवद्गीता", value: "menu2" },
-    { label: "रामायणम्", value: "menu3" },
-  ];
-
+  const requiredData = ["sutraani", "sutrartha", "bhashyam", "sutradipika", "books"];
+  Prefetch.prefetchRequiredServerData(requiredData, () => {
+      console.log('fetch completed')  
+  })  
+  
   const handleMenuClick = (event: any, value: string) => {
     setSelctedMenu(value);
     navigate(`/${value}`);
