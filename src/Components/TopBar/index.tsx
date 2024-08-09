@@ -15,20 +15,15 @@ function TopBar() {
   const { state } = useAppData();
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
-<<<<<<< HEAD
   const requiredData = ["sutraani", "sutrartha", "bhashyam", "sutradipika", "books"];
   Prefetch.prefetchRequiredServerData(requiredData, () => {
       console.log('fetch completed')  
-  })  
-  
-  const handleMenuClick = (event: any, value: string) => {
-=======
+  })    
 
   const handleMenuClick = (
     e: React.SyntheticEvent<Element, Event>,
     value: string
   ) => {
->>>>>>> develop
     setSelctedMenu(value);
     navigate(`/${value}`);
   };
