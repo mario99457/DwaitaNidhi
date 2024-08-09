@@ -1,6 +1,6 @@
 import { Box, Container, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ToC_Icon from "../../assets/toc.svg";
 import SearchBox from "../../Components/SearchBox";
 import playButton from "../../assets/PlayButton.svg";
@@ -10,14 +10,30 @@ import alphaIcon from "../../assets/alpha.svg";
 import listIcon from "../../assets/list.svg";
 import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
+import { Sloga } from "../../types/GlobalType.type";
+import tocData from "./treeData.json";
 
 const TitlePage = () => {
   const { bookName } = useParams();
   const [selectedView, setSelectedView] = useState("list");
+  const navigate = useNavigate();
   const bookToValueMap = {
     menu1: "ब्रह्मसूत्राणि",
     menu2: " भगवद्गीता",
     menu3: "रामायणम्",
+  };
+
+  const handleSlogaClick = (selectedSloga: Sloga) => {
+    const slogaIndex = tocData.data.findIndex(
+      (data) => data.i == selectedSloga.i
+    );
+
+    navigate(`/${bookName}/${selectedSloga.i}`, {
+      state: {
+        selectedSloga,
+        slogaIndex,
+      },
+    });
   };
 
   return (
@@ -26,7 +42,7 @@ const TitlePage = () => {
         width: "80%",
         background: "#FFFFFF",
         margin: "auto",
-        height: "100%",
+        minHeight: "100%",
         padding: "16px 38px",
         display: "flex",
         flexDirection: "column",
@@ -95,11 +111,12 @@ const TitlePage = () => {
           onClick={() => setSelectedView("alpha")}
         />
       </Box>
-      <Box
-        sx={{ flex: "1 1 auto", overflow: "auto", mt: 2 }}
-        className="treeview-box-wrapper"
-      >
-        {selectedView == "alpha" ? <AlphaBetView /> : <TreeView />}
+      <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
+        {selectedView == "alpha" ? (
+          <AlphaBetView handleSlogaClick={handleSlogaClick} />
+        ) : (
+          <TreeView handleSlogaClick={handleSlogaClick} />
+        )}
       </Box>
     </Box>
   );

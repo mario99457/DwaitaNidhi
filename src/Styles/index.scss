@@ -1,3 +1,5 @@
+@import url('./utils.scss');
+
 .app-name-wrapper {
     .app-name {
         font-family: 'Tiro Devanagari Hindi';
@@ -107,4 +109,17 @@
     border-radius: 50%;
     background: #999999;
     margin-right: 6px;
+}
+
+.commentary-tab {
+    color: #1858b9;
+    font-family: "Tiro Devanagari Hindi";
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.commentary-tab-active {
+    color: #a74600;
+    border-bottom: 1px solid #a74600;
 }

@@ -5,21 +5,30 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAppData } from "../../Store/AppContext";
 
 import { Prefetch } from '../../Services/Common/GlobalServices'
 
 function TopBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  console.log(pathname.split("/")[1]);
+  const { state } = useAppData();
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
+<<<<<<< HEAD
   const requiredData = ["sutraani", "sutrartha", "bhashyam", "sutradipika", "books"];
   Prefetch.prefetchRequiredServerData(requiredData, () => {
       console.log('fetch completed')  
   })  
   
   const handleMenuClick = (event: any, value: string) => {
+=======
+
+  const handleMenuClick = (
+    e: React.SyntheticEvent<Element, Event>,
+    value: string
+  ) => {
+>>>>>>> develop
     setSelctedMenu(value);
     navigate(`/${value}`);
   };
@@ -97,11 +106,12 @@ function TopBar() {
             onChange={handleMenuClick}
             className="top-bar-tabs"
           >
-            {menu.map((item) => (
+            {state.books.map((item) => (
               <Tab
                 label={item.label}
-                value={item.value}
+                value={item.name}
                 sx={{ color: "#ffffff" }}
+                key={item.name}
               />
             ))}
           </Tabs>
