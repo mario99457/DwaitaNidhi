@@ -8,56 +8,49 @@ import {
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import tocData from "./treeData.json";
+import { Sloga } from "../../types/GlobalType.type";
 
-const TreeView = () => {
+interface ListViewProps {
+  handleSlogaClick: (selectedSloga: Sloga) => void;
+  fromDetailPage?: boolean;
+  selectedSloga?: Sloga;
+}
+
+const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
   const [openChapters, setOpenChapters] = useState<{ [key: string]: boolean }>(
     {}
   );
-
-  const dummySolga = [
-    {
-      i: "11001",
-      s: "ॐ अथातो ब्रह्मजिज्ञासा ॐ ",
-      a: "1",
-      p: "1",
-      n: "1",
-      e: "",
-      pc: "",
-    },
-    {
-      i: "11002",
-      s: "ॐ जन्माद्यस्य यतः ॐ ",
-      a: "1",
-      p: "1",
-      n: "2",
-      e: "",
-      pc: "",
-    },
-    {
-      i: "11003",
-      s: "ॐ शास्त्रयोनित्वात् ॐ ",
-      a: "1",
-      p: "1",
-      n: "3",
-      e: "",
-      pc: "",
-    },
-    {
-      i: "11004",
-      s: "ॐ तत्तु समन्वयात् ॐ ",
-      a: "1",
-      p: "1",
-      n: "4",
-      e: "",
-      pc: "",
-    },
-  ];
+  const [cacheSloga, setCacheSloga] = useState<{ [key: string]: any[] }>({});
 
   const handleChapterClick = (chapterId: string) => {
     setOpenChapters((prevState) => ({
       ...prevState,
       [chapterId]: !prevState[chapterId],
     }));
+  };
+
+  const handleSubChapterClick = (chapterId: string, subchapterId: string) => {
+    const chapterKey = `${chapterId}.${subchapterId}`;
+    setOpenChapters((prevState) => ({
+      ...prevState,
+      [chapterKey]: !prevState[chapterKey],
+    }));
+    if (!cacheSloga[chapterKey]) {
+      const sloga = getSloga(chapterId, subchapterId);
+      setCacheSloga((prevState) => ({
+        ...prevState,
+        [chapterKey]: sloga,
+      }));
+    }
+  };
+
+  const getSloga = (chapterId: string, subchapterId: string) => {
+    const slogas = tocData.data.filter((data) => {
+      if (data.a == chapterId && data.p == subchapterId) {
+        return data;
+      }
+    });
+    return slogas;
   };
 
   return (
@@ -99,7 +92,7 @@ const TreeView = () => {
                       px: "20px",
                     }}
                     onClick={() =>
-                      handleChapterClick(`${chapter.n}${subchapter.n}`)
+                      handleSubChapterClick(chapter.n, subchapter.n)
                     }
                     className="treeview-list-item"
                   >
@@ -143,48 +136,53 @@ const TreeView = () => {
                     </IconButton>
                   </ListItem>
                   <Collapse
-                    in={openChapters[`${chapter.n}${subchapter.n}`]}
+                    in={openChapters[`${chapter.n}.${subchapter.n}`]}
                     timeout="auto"
                     unmountOnExit
                   >
                     <List component="div" disablePadding>
-                      {dummySolga.map((sloga) => (
-                        <ListItem
-                          //   onClick={() => handleChapterClick(chapter.n)}
-                          sx={{
-                            cursor: "pointer",
-                            borderBottom: "1px solid #dddddd",
-                            pl: "60px",
-                            py: 0.5,
-                          }}
-                        >
-                          <ListItemText
-                            primaryTypographyProps={{
-                              fontFamily: "Tiro Devanagari Hindi",
-                              fontSize: "16px",
-                              color: "#616161",
-                              display: "flex",
-                              alignItems: "center",
+                      {cacheSloga[`${chapter.n}.${subchapter.n}`]?.map(
+                        (sloga) => (
+                          <ListItem
+                            sx={{
+                              cursor: "pointer",
+                              borderBottom: "1px solid #dddddd",
+                              pl: "60px",
+                              py: 0.5,
                             }}
+                            key={sloga.i}
+                            onClick={() => handleSlogaClick(sloga)}
                           >
-                            <div className="circle-bullet"></div>
-                            &nbsp;
-                            <span
-                              style={{
-                                color: "#787878",
+                            <ListItemText
+                              primaryTypographyProps={{
                                 fontFamily: "Tiro Devanagari Hindi",
+                                fontSize: "16px",
+                                color: "#616161",
+                                display: "flex",
+                                alignItems: "center",
                               }}
                             >
-                              {sloga.n} &nbsp;
-                            </span>
-                            <span
-                              style={{ fontFamily: "Tiro Devanagari Hindi" }}
-                            >
-                              {sloga.s}
-                            </span>
-                          </ListItemText>
-                        </ListItem>
-                      ))}
+                              <div className="circle-bullet"></div>
+                              &nbsp;
+                              <span
+                                style={{
+                                  color: "#787878",
+                                  fontFamily: "Tiro Devanagari Hindi",
+                                }}
+                              >
+                                {sloga.i} &nbsp;
+                              </span>
+                              <span
+                                style={{
+                                  fontFamily: "Tiro Devanagari Hindi",
+                                }}
+                              >
+                                {sloga.s}
+                              </span>
+                            </ListItemText>
+                          </ListItem>
+                        )
+                      )}
                     </List>
                   </Collapse>
                 </React.Fragment>
