@@ -1,5 +1,5 @@
 import { Box, Container, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ToC_Icon from "../../assets/toc.svg";
 import SearchBox from "../../Components/SearchBox";
@@ -11,30 +11,28 @@ import listIcon from "../../assets/list.svg";
 import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
 import { Sloga } from "../../types/GlobalType.type";
-import tocData from "./treeData.json";
+// import { useAppData } from "../../Store/AppContext";
+import { Book } from "../../types/Context.type";
+import { getBookClass } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 
 const TitlePage = () => {
   const { bookName } = useParams();
+  // const { state } = useAppData();
   const [selectedView, setSelectedView] = useState("list");
   const navigate = useNavigate();
-  const bookToValueMap = {
-    menu1: "ब्रह्मसूत्राणि",
-    menu2: " भगवद्गीता",
-    menu3: "रामायणम्",
-  };
+  const [selectedBook, setSlectedBook] = useState<Book | null>(null);
 
   const handleSlogaClick = (selectedSloga: Sloga) => {
-    const slogaIndex = tocData.data.findIndex(
-      (data) => data.i == selectedSloga.i
-    );
-
-    navigate(`/${bookName}/${selectedSloga.i}`, {
-      state: {
-        selectedSloga,
-        slogaIndex,
-      },
-    });
+    navigate(`/${bookName}/${selectedSloga.i}`);
   };
+
+  useEffect(() => {
+    const book = CachedData.data.books.find((book) => book.name == bookName);
+    if (book) {
+      setSlectedBook(book);
+    }
+  }, [bookName]);
 
   return (
     <Box
@@ -56,7 +54,7 @@ const TitlePage = () => {
           fontWeight: "600",
         }}
       >
-        {bookToValueMap[bookName]}
+        {selectedBook?.title}
       </Typography>
       <Container
         sx={{
@@ -113,9 +111,17 @@ const TitlePage = () => {
       </Box>
       <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
         {selectedView == "alpha" ? (
-          <AlphaBetView handleSlogaClick={handleSlogaClick} />
+          <AlphaBetView
+            handleSlogaClick={handleSlogaClick}
+            toc={selectedBook?.chapters}
+            slogas={getBookClass(bookName || "")?.allSutras}
+          />
         ) : (
-          <TreeView handleSlogaClick={handleSlogaClick} />
+          <TreeView
+            handleSlogaClick={handleSlogaClick}
+            toc={selectedBook?.chapters}
+            slogas={getBookClass(bookName || "")?.allSutras}
+          />
         )}
       </Box>
     </Box>

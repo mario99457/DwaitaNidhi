@@ -5,25 +5,22 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useAppData } from "../../Store/AppContext";
+// import { useAppData } from "../../Store/AppContext";
+import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 
-import { Prefetch } from '../../Services/Common/GlobalServices'
-
-function TopBar() {
+function TopBar({ progress }) {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { state } = useAppData();
+  // const { state } = useAppData();
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
-  const requiredData = ["sutraani", "sutrartha", "bhashyam", "sutradipika", "books"];
-  Prefetch.prefetchRequiredServerData(requiredData, () => {
-      console.log('fetch completed')  
-  })    
 
   const handleMenuClick = (
     e: React.SyntheticEvent<Element, Event>,
     value: string
   ) => {
+    console.log("CachedData", value);
+    Sutraani.populateAllSutras();
     setSelctedMenu(value);
     navigate(`/${value}`);
   };
@@ -101,14 +98,15 @@ function TopBar() {
             onChange={handleMenuClick}
             className="top-bar-tabs"
           >
-            {state.books.map((item) => (
-              <Tab
-                label={item.label}
-                value={item.name}
-                sx={{ color: "#ffffff" }}
-                key={item.name}
-              />
-            ))}
+            {progress == 100 &&
+              CachedData.data.books?.map((item) => (
+                <Tab
+                  label={item.title}
+                  value={item.name}
+                  sx={{ color: "#ffffff" }}
+                  key={item.name}
+                />
+              ))}
           </Tabs>
         </Box>
         <Box

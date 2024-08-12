@@ -7,16 +7,24 @@ import {
   IconButton,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import tocData from "./treeData.json";
+// import tocData from "./treeData.json";
 import { Sloga } from "../../types/GlobalType.type";
+import { Chapters } from "../../types/Context.type";
+import Formatter from "../../Services/Common/Formatter";
 
 interface ListViewProps {
   handleSlogaClick: (selectedSloga: Sloga) => void;
   fromDetailPage?: boolean;
   selectedSloga?: Sloga;
+  toc: Chapters[] | undefined;
+  slogas: Sloga[] | undefined;
 }
 
-const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
+const TreeView: React.FC<ListViewProps> = ({
+  handleSlogaClick,
+  toc: tocData,
+  slogas,
+}) => {
   const [openChapters, setOpenChapters] = useState<{ [key: string]: boolean }>(
     {}
   );
@@ -45,17 +53,17 @@ const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
   };
 
   const getSloga = (chapterId: string, subchapterId: string) => {
-    const slogas = tocData.data.filter((data) => {
+    const filteredSloga = slogas?.filter((data: Sloga) => {
       if (data.a == chapterId && data.p == subchapterId) {
         return data;
       }
     });
-    return slogas;
+    return filteredSloga || [];
   };
 
   return (
     <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
-      {tocData.chapters.map((chapter) => (
+      {tocData?.map((chapter) => (
         <React.Fragment key={chapter.n}>
           <ListItem
             onClick={() => handleChapterClick(chapter.n)}
@@ -68,7 +76,9 @@ const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
             className="treeview-list-item"
           >
             <ListItemText
-              primary={`${chapter.n}. ${chapter.name}`}
+              primary={`${Formatter.toDevanagariNumeral(chapter.n)}. ${
+                chapter.name
+              }`}
               primaryTypographyProps={{
                 fontFamily: "Tiro Devanagari Hindi",
                 fontSize: "26px",
@@ -79,116 +89,120 @@ const TreeView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
               {openChapters[chapter.n] ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           </ListItem>
-          <Collapse in={openChapters[chapter.n]} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              {chapter.sub.map((subchapter) => (
-                <React.Fragment key={subchapter.n}>
-                  <ListItem
-                    key={subchapter.n}
-                    sx={{
-                      cursor: "pointer",
-                      borderBottom: "1px solid #dddddd",
-                      py: 0.5,
-                      px: "20px",
-                    }}
-                    onClick={() =>
-                      handleSubChapterClick(chapter.n, subchapter.n)
-                    }
-                    className="treeview-list-item"
-                  >
-                    <ListItemText
-                      // primary={subchapter.name}
-                      primaryTypographyProps={{
-                        fontFamily: "Tiro Devanagari Hindi",
-                        fontSize: "20px",
-                        display: "flex",
-                        alignItems: "center",
+          {chapter.sub && (
+            <Collapse in={openChapters[chapter.n]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {chapter.sub.map((subchapter) => (
+                  <React.Fragment key={subchapter.n}>
+                    <ListItem
+                      key={subchapter.n}
+                      sx={{
+                        cursor: "pointer",
+                        borderBottom: "1px solid #dddddd",
+                        py: 0.5,
+                        px: "20px",
                       }}
+                      onClick={() =>
+                        handleSubChapterClick(chapter.n, subchapter.n)
+                      }
+                      className="treeview-list-item"
                     >
-                      <div
-                        style={{
-                          width: "8px",
-                          height: "8px",
-                          background: "#A74600",
-                          rotate: "45deg",
-                        }}
-                      ></div>
-                      <span
-                        style={{
-                          color: "#787878",
-                          marginRight: "8px",
-                          marginLeft: "20px",
+                      <ListItemText
+                        // primary={subchapter.name}
+                        primaryTypographyProps={{
                           fontFamily: "Tiro Devanagari Hindi",
+                          fontSize: "20px",
+                          display: "flex",
+                          alignItems: "center",
                         }}
                       >
-                        {chapter.n}.{subchapter.n}
-                      </span>
-                      <span style={{ fontFamily: "Tiro Devanagari Hindi" }}>
-                        {subchapter.name}
-                      </span>
-                    </ListItemText>
-                    <IconButton>
-                      {openChapters[`${chapter.n}${subchapter.n}`] ? (
-                        <ExpandLess />
-                      ) : (
-                        <ExpandMore />
-                      )}
-                    </IconButton>
-                  </ListItem>
-                  <Collapse
-                    in={openChapters[`${chapter.n}.${subchapter.n}`]}
-                    timeout="auto"
-                    unmountOnExit
-                  >
-                    <List component="div" disablePadding>
-                      {cacheSloga[`${chapter.n}.${subchapter.n}`]?.map(
-                        (sloga) => (
-                          <ListItem
-                            sx={{
-                              cursor: "pointer",
-                              borderBottom: "1px solid #dddddd",
-                              pl: "60px",
-                              py: 0.5,
-                            }}
-                            key={sloga.i}
-                            onClick={() => handleSlogaClick(sloga)}
-                          >
-                            <ListItemText
-                              primaryTypographyProps={{
-                                fontFamily: "Tiro Devanagari Hindi",
-                                fontSize: "16px",
-                                color: "#616161",
-                                display: "flex",
-                                alignItems: "center",
+                        <div
+                          style={{
+                            width: "8px",
+                            height: "8px",
+                            background: "#A74600",
+                            rotate: "45deg",
+                          }}
+                        ></div>
+                        <span
+                          style={{
+                            color: "#787878",
+                            marginRight: "8px",
+                            marginLeft: "20px",
+                            fontFamily: "Tiro Devanagari Hindi",
+                          }}
+                        >
+                          {Formatter.toDevanagariNumeral(chapter.n)}.
+                          {Formatter.toDevanagariNumeral(subchapter.n)}
+                        </span>
+                        <span style={{ fontFamily: "Tiro Devanagari Hindi" }}>
+                          {subchapter.name}
+                        </span>
+                      </ListItemText>
+                      <IconButton>
+                        {openChapters[`${chapter.n}${subchapter.n}`] ? (
+                          <ExpandLess />
+                        ) : (
+                          <ExpandMore />
+                        )}
+                      </IconButton>
+                    </ListItem>
+                    <Collapse
+                      in={openChapters[`${chapter.n}.${subchapter.n}`]}
+                      timeout="auto"
+                      unmountOnExit
+                    >
+                      <List component="div" disablePadding>
+                        {cacheSloga[`${chapter.n}.${subchapter.n}`]?.map(
+                          (sloga) => (
+                            <ListItem
+                              sx={{
+                                cursor: "pointer",
+                                borderBottom: "1px solid #dddddd",
+                                pl: "60px",
+                                py: 0.5,
                               }}
+                              key={sloga.i}
+                              onClick={() => handleSlogaClick(sloga)}
                             >
-                              <div className="circle-bullet"></div>
-                              &nbsp;
-                              <span
-                                style={{
-                                  color: "#787878",
+                              <ListItemText
+                                primaryTypographyProps={{
                                   fontFamily: "Tiro Devanagari Hindi",
+                                  fontSize: "16px",
+                                  color: "#616161",
+                                  display: "flex",
+                                  alignItems: "center",
                                 }}
                               >
-                                {sloga.i} &nbsp;
-                              </span>
-                              <span
-                                style={{
-                                  fontFamily: "Tiro Devanagari Hindi",
-                                }}
-                              >
-                                {sloga.s}
-                              </span>
-                            </ListItemText>
-                          </ListItem>
-                        )
-                      )}
-                    </List>
-                  </Collapse>
-                </React.Fragment>
-              ))}
-            </List>
-          </Collapse>
+                                <div className="circle-bullet"></div>
+                                &nbsp;
+                                <span
+                                  style={{
+                                    color: "#787878",
+                                    fontFamily: "Tiro Devanagari Hindi",
+                                  }}
+                                >
+                                  {Formatter.toDevanagariNumeral(sloga.i)}{" "}
+                                  &nbsp;
+                                </span>
+                                <span
+                                  style={{
+                                    fontFamily: "Tiro Devanagari Hindi",
+                                  }}
+                                >
+                                  {sloga.s}
+                                </span>
+                              </ListItemText>
+                            </ListItem>
+                          )
+                        )}
+                      </List>
+                    </Collapse>
+                  </React.Fragment>
+                ))}
+              </List>
+            </Collapse>
+          )}
         </React.Fragment>
       ))}
     </List>

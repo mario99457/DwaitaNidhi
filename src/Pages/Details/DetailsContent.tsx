@@ -1,9 +1,11 @@
 import { Box, Stack, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import playButton from "../../assets/PlayButton.svg";
 import bookmark from "../../assets/bookmark.svg";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import details from "./details.json";
+import { Sutraani } from "../../Services/Common/GlobalServices";
+import { Sloga } from "../../types/GlobalType.type";
 
 interface DetailsContentProps {
   selectedCommentary: {
@@ -11,10 +13,18 @@ interface DetailsContentProps {
     author: string;
     data: string;
   };
+  selectedSloga: Sloga;
   style?: React.CSSProperties;
 }
 
-const DetailsContent = ({ selectedCommentary, style }: DetailsContentProps) => {
+const DetailsContent = ({
+  selectedCommentary,
+  style,
+  selectedSloga,
+}: DetailsContentProps) => {
+  useEffect(() => {
+    console.log(Sutraani.getCommentaries(selectedSloga));
+  }, []);
   return (
     <Box
       sx={{

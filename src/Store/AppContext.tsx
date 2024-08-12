@@ -1,7 +1,16 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
-import { AppContextType, AppAction, AppState } from "../types/Context.type";
+import {
+  AppContextType,
+  AppAction,
+  AppState,
+  Book,
+} from "../types/Context.type";
 
 const AppContext = createContext<AppContextType | null>(null);
+import CachedData, {
+  Prefetch,
+  Sutraani,
+} from "../Services/Common/GlobalServices";
 
 export const AppDataProvider = ({
   children,
@@ -11,19 +20,22 @@ export const AppDataProvider = ({
   const [state, dispatch] = useReducer(appsReducer, initialState);
 
   useEffect(() => {
-    fetch("/book.json")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("HTTP error " + response.status);
-        }
-        return response.json();
+    const requiredData = [
+      "sutraani",
+      "bhashyam",
+      "sutradipika",
+      "books",
+      "sutraaniSummary",
+    ];
+    Prefetch.prefetchRequiredServerData(requiredData, (e) => {
+      console.log("inside callback method");
+    })
+      .then((res) => {
+        console.log("inside then method", res, CachedData.data);
       })
-      .then((json) => {
-        localStorage.setItem("books", JSON.stringify(json));
-        dispatch({ type: "setBooks", books: json });
-        console.log(json);
-      })
-      .catch(function () {});
+      .catch((err) => {
+        console.log("inside promise reject method------", err);
+      });
   }, []);
 
   return (
@@ -46,10 +58,8 @@ function appsReducer(state: AppState, action: AppAction): AppState {
     case "setBooks": {
       return {
         ...state,
-        books: action.books.map((book) => ({
+        books: action.books.map((book: Book) => ({
           ...book,
-          chapters: [],
-          commentaries: [],
           data: [],
         })),
       };

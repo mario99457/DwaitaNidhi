@@ -19,9 +19,12 @@ import nextButton from "../../assets/next_button.svg";
 import playButton from "../../assets/PlayButton.svg";
 import Divider from "@mui/material/Divider";
 import SearchBox from "../../Components/SearchBox";
-import treeData from "../Title/treeData.json";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
+import { getBookClass } from "../../Services/Common/GlobalServices";
+import { Sloga } from "../../types/GlobalType.type";
+import Formatter from "../../Services/Common/Formatter";
+import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
   name: string;
@@ -30,26 +33,29 @@ interface Commentary {
 }
 const DetailPage = () => {
   const { slogaNumber, bookName } = useParams();
-  const { state } = useLocation();
+  const BookClass = getBookClass(bookName || "");
+  const selectedSloga: any =
+    BookClass?.allSutras.find((sloga: Sloga) => sloga.i == slogaNumber) || {};
+
   const availableLanguages = [
     {
-      id: "Sanskrit",
+      id: "ss",
       label: "संस्कृत",
     },
     {
-      id: "Telugu",
+      id: "te",
       label: "తెలుగు",
     },
     {
-      id: "Tamil",
+      id: "t",
       label: "தமிழ்",
     },
     {
-      id: "Kannada",
+      id: "k",
       label: "ಕನ್ನಡ",
     },
     {
-      id: "Malayalam",
+      id: "m",
       label: "മലയാളം",
     },
   ];
@@ -57,8 +63,9 @@ const DetailPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
+  const { state } = useAppData();
   const [selectedCommentary, setSelectedCommentary] = useState<Commentary>(
-    treeData.commentaries[0]
+    BookClass?.supportedCommentaries[0]
   );
   const [openDrawer, setOpenDrawer] = useState(false);
 
@@ -75,24 +82,13 @@ const DetailPage = () => {
   };
 
   const handleNavigateSloga = (navigation: string) => {
-    const slogaIndex = state?.slogaIndex;
-    const previousSloga = treeData.data[slogaIndex - 1];
-    const nextSloga = treeData.data[slogaIndex + 1];
-    if (navigation == "next" && slogaIndex < treeData.data.length - 1) {
-      navigate(`/${bookName}/${nextSloga.i}`, {
-        state: {
-          selectedSloga: nextSloga,
-          slogaIndex: slogaIndex + 1,
-        },
-      });
+    if (navigation == "next" && selectedSloga && selectedSloga.srno) {
+      const nextSloga: any = BookClass?.getRightArrow(selectedSloga);
+      navigate(`/${bookName}/${nextSloga?.i}`);
     }
-    if (navigation == "prev" && slogaIndex >= 0) {
-      navigate(`/${bookName}/${previousSloga.i}`, {
-        state: {
-          selectedSloga: previousSloga,
-          slogaIndex: slogaIndex - 1,
-        },
-      });
+    if (navigation == "prev" && selectedSloga && selectedSloga.srno) {
+      const prevSloga: any = BookClass?.getLeftArrow(selectedSloga);
+      navigate(`/${bookName}/${prevSloga?.i}`);
     }
   };
 
@@ -113,9 +109,13 @@ const DetailPage = () => {
       </Typography>
     </Link>,
     <Typography key="3" color="#A74600" fontFamily={"Tiro Devanagari Sanskrit"}>
-      ब्र.सू. {state?.selectedSloga?.i}
+      ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
     </Typography>,
   ];
+
+  if (!selectedSloga) {
+    return <>No Sutras found</>;
+  }
 
   return (
     <Box
@@ -166,7 +166,8 @@ const DetailPage = () => {
             src={prevButton}
             alt="previous"
             style={{
-              cursor: state.slogaIndex == 0 ? "not-allowed" : "pointer",
+              visibility: selectedSloga.srno == 1 ? "hidden" : "visible",
+              cursor: "pointer",
             }}
             onClick={() => handleNavigateSloga("prev")}
           />
@@ -184,17 +185,19 @@ const DetailPage = () => {
               lineHeight="39.9px"
               color="#BC4501"
             >
-              {state?.selectedSloga?.s}
+              {selectedSloga?.s}
             </Typography>
           </Container>
           <img
             src={nextButton}
             alt="next"
             style={{
-              cursor:
-                state.slogaIndex == treeData.data.length - 1
-                  ? "not-allowed"
-                  : "pointer",
+              cursor: "pointer",
+              visibility:
+                BookClass?.allSutras &&
+                selectedSloga.srno <= BookClass?.allSutras.length
+                  ? "visible"
+                  : "hidden",
             }}
             onClick={() => handleNavigateSloga("next")}
           />
@@ -212,7 +215,7 @@ const DetailPage = () => {
           fontWeight="400"
           color="#969696"
         >
-          ब्र.सू. {state?.selectedSloga?.i}
+          ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
         </Typography>
         <img src={playButton} />
       </Stack>
@@ -263,12 +266,9 @@ const DetailPage = () => {
           color="#BC4501"
           lineHeight="23.94px"
         >
-          इको गुणवृद्धी ॥१.१.३ ॥ इग्ग्रहणं किमर्थम् । ॥
-          इग्ग्रहणमात्सन्ध्यक्षरव्यञ्ञ्जननिवृत्त्यर्थम् ॥ इग्ग्रहणं क्रियते ।
-          किं प्रयोजनम् । आकारनिवृत्त्यर्थं सन्ध्यक्षरनिवृत्त्यर्थं
-          व्यञ्ञ्जननिवृत्त्यर्थं च । आकारनिवृत्त्यर्थं तावत् - याता वाता ।
-          आकारस्य गुणः प्राप्नोति । इग्ग्र्हणान्न भवति ।
-          सन्ध्यक्षरनिवृत्त्यर्थम्
+          {BookClass?.getSummary(selectedSloga.i)
+            ? BookClass?.getSummary(selectedSloga.i)[selectedLanguage]
+            : ""}
         </Typography>
       </Container>
       <Stack
@@ -282,7 +282,7 @@ const DetailPage = () => {
           spacing={2}
           divider={<Divider orientation="vertical" flexItem />}
         >
-          {treeData.commentaries.map((commentary) => (
+          {BookClass?.supportedCommentaries.map((commentary) => (
             <div
               key={commentary.name}
               onClick={() => handleCommentaryChange(commentary)}
@@ -303,7 +303,7 @@ const DetailPage = () => {
           <SearchBox onSearch={() => {}} placeholder={""} />
         </div>
       </Stack>
-      <DetailsContent selectedCommentary={selectedCommentary} />
+      <DetailsContent selectedCommentary={selectedCommentary} selectedSloga={selectedSloga} />
       <DrawerMenu open={openDrawer} onClose={() => setOpenDrawer(false)} />
     </Box>
   );

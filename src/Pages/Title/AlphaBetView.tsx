@@ -1,20 +1,28 @@
 import React from "react";
 import { List, ListItem, ListItemText } from "@mui/material";
-import tocData from "./treeData.json";
+import { Sloga } from "../../types/GlobalType.type";
+import { Chapters } from "../../types/Context.type";
+import Formatter from "../../Services/Common/Formatter";
 
 interface ListViewProps {
-  handleSlogaClick: (selectedSloga: { i: string; s: string }) => void;
+  handleSlogaClick: (selectedSloga: Sloga) => void;
+  toc: Chapters[] | undefined;
+  slogas: Sloga[] | undefined;
 }
 
-const AlphaBetView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
+const AlphaBetView: React.FC<ListViewProps> = ({
+  handleSlogaClick,
+  slogas,
+}) => {
   return (
     <List>
-      {tocData.data.map((data) => (
+      {slogas?.map((data) => (
         <ListItem
           sx={{
             borderTop: (theme) => `1px solid ${theme.palette.divider}`,
             borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
             px: "20px",
+            cursor: "pointer",
           }}
           key={data.i}
           onClick={() => handleSlogaClick(data)}
@@ -33,7 +41,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({ handleSlogaClick }) => {
                 fontFamily: "Tiro Devanagari Hindi",
               }}
             >
-              {data.i} &nbsp;
+              {Formatter.toDevanagariNumeral(data.i)} &nbsp;
             </span>
             <span
               style={{

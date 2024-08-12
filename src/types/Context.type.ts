@@ -17,17 +17,19 @@ type Commentaries = {
   };
 };
 
-type Book = {
+export type Chapters = {
+  n: string;
   name: string;
-  label: string;
-  chapters: {
+  sub: {
     n: string;
     name: string;
-    sub: {
-      n: string;
-      name: string;
-    }[];
   }[];
+};
+
+export type Book = {
+  name: string;
+  title: string;
+  chapters: Chapters[];
   data: Sloga[];
   commentaries: Commentaries[];
 };
@@ -37,7 +39,7 @@ export interface AppState {
 }
 
 export type AppAction =
-  | { type: "setBooks"; books: { name: string; label: string }[] }
+  | { type: "setBooks"; books: Book[] }
   | { type: "added"; id: number; text: string }
   | { type: "deleted"; id: number };
 
