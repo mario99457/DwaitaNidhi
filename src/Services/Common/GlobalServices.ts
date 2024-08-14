@@ -247,7 +247,7 @@ export default class CachedData {
           s.push(e);
         } else {
           a();
-          CachedData.data[e] = t;
+          CachedData.data[e] = t.data;
           n.push(e);
           if (CachedData.isFetchedDataStale(e, t)) {
             CachedData.staleKeys.push(e);
@@ -554,7 +554,6 @@ export class Sutraani {
 
   static getCommentaries(e) {
     return Sutraani.supportedCommentaries.map((t) => {
-      console.log("inside get commentaries", CachedData.data[t.key].data[e.i]);
       return {
         key: t.key,
         commname: t.name,
@@ -567,7 +566,7 @@ export class Sutraani {
           t.number && 0 < e[t.number]
             ? Formatter.toDevanagariNumeral(e[t.number])
             : "",
-        text: Formatter.formatSutraVyakhya(CachedData.data[t.key].data[e.i]),
+        text: Formatter.formatSutraVyakhya(CachedData.data[t.key][e.i]),
       };
     });
   }
@@ -596,7 +595,6 @@ export class Sutraani {
   static renderSutraListInLeftNav(e) {}
 
   static populateAllSutras() {
-    console.log("inside populate all sutra", CachedData.data.sutraani.data);
     0 == Sutraani.allSutras?.length &&
       (Sutraani.allSutras = CachedData.data?.sutraani?.data
         .sort((t, e) => t.i - e.i)
@@ -604,7 +602,7 @@ export class Sutraani {
   }
 
   static getSummary(i: string) {
-    return CachedData.data.sutraaniSummary.data[i];
+    return CachedData.data.sutraaniSummary[i];
   }
 }
 

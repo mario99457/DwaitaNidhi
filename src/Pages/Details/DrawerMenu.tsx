@@ -1,24 +1,37 @@
-import {
-  Box,
-  Divider,
-  Drawer,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemText,
-  Stack,
-  Typography,
-} from "@mui/material";
-import * as React from "react";
+import { Box, Drawer, Stack, Typography } from "@mui/material";
+import React, { useEffect } from "react";
 import listIcon from "../../assets/toc.svg";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import TreeView from "../Title/Treeview";
+import CachedData from "../../Services/Common/GlobalServices";
+import { Book } from "../../types/Context.type";
+import { Sloga } from "../../types/GlobalType.type";
 interface DrawerMenuProps {
   open: boolean;
   onClose: () => void;
+  bookName: string | undefined;
+  selectedSloga: Sloga;
+  slogas: Sloga[] | undefined;
 }
-const DrawerMenu: React.FC<DrawerMenuProps> = ({ open, onClose }) => {
+const DrawerMenu: React.FC<DrawerMenuProps> = ({
+  open,
+  onClose,
+  bookName,
+  selectedSloga,
+  slogas,
+}) => {
+  const [selectedBook, setSlectedBook] = React.useState<Book | null>(null);
+
+  useEffect(() => {
+    const book = CachedData.data.books.find(
+      (book: Book) => book.name == bookName
+    );
+    if (book) {
+      setSlectedBook(book);
+    }
+  }, []);
+
   return (
     <Drawer
       open={open}
@@ -50,7 +63,12 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({ open, onClose }) => {
             />
           </div>
         </Stack>
-        <TreeView handleSlogaClick={() => {}} />
+        <TreeView
+          toc={selectedBook?.chapters || []}
+          handleSlogaClick={() => {}}
+          selectedSloga={selectedSloga}
+          slogas={slogas}
+        />
       </Box>
     </Drawer>
   );

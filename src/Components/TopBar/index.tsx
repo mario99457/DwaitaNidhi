@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AppBar, Toolbar, IconButton, Box, Tabs, Tab } from "@mui/material";
 import appIcon from "../../assets/app_logo.svg";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-// import { useAppData } from "../../Store/AppContext";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
+import { Book } from "../../types/Context.type";
 
-function TopBar({ progress }) {
+interface TopBarProps {
+  progress: boolean;
+}
+
+const TopBar: React.FC<TopBarProps> = ({ progress }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  // const { state } = useAppData();
 
   const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
 
@@ -19,11 +22,15 @@ function TopBar({ progress }) {
     e: React.SyntheticEvent<Element, Event>,
     value: string
   ) => {
-    console.log("CachedData", value);
-    Sutraani.populateAllSutras();
     setSelctedMenu(value);
     navigate(`/${value}`);
   };
+
+  useEffect(() => {
+    if (selctedMenu && selctedMenu == "sutraani" && !progress) {
+      Sutraani.populateAllSutras();
+    }
+  }, [selctedMenu, progress]);
 
   return (
     <AppBar
@@ -98,15 +105,16 @@ function TopBar({ progress }) {
             onChange={handleMenuClick}
             className="top-bar-tabs"
           >
-            {progress == 100 &&
-              CachedData.data.books?.map((item) => (
-                <Tab
-                  label={item.title}
-                  value={item.name}
-                  sx={{ color: "#ffffff" }}
-                  key={item.name}
-                />
-              ))}
+            {!progress
+              ? CachedData.data.books?.map((item: Book) => (
+                  <Tab
+                    label={item.title}
+                    value={item.name}
+                    sx={{ color: "#ffffff" }}
+                    key={item.name}
+                  />
+                ))
+              : ""}
           </Tabs>
         </Box>
         <Box
@@ -121,6 +129,6 @@ function TopBar({ progress }) {
       </Box>
     </AppBar>
   );
-}
+};
 
 export default TopBar;

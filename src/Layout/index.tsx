@@ -1,7 +1,6 @@
 import { ReactNode, useState, useEffect } from "react";
-import { Box } from "@mui/material";
+import { Box, CircularProgress } from "@mui/material";
 import TopBar from "../Components/TopBar";
-import LinearProgress from "@mui/material/LinearProgress";
 import CachedData, {
   Prefetch,
   Sutraani,
@@ -12,7 +11,7 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(true);
 
   useEffect(() => {
     const requiredData = [
@@ -25,14 +24,12 @@ const Layout = ({ children }: LayoutProps) => {
     Prefetch.prefetchRequiredServerData(requiredData, (e) => {});
 
     const timer = setInterval(() => {
-      setProgress((oldProgress) => {
-        if (oldProgress === 100) {
-          clearInterval(timer);
-        }
-        const diff = Math.random() * 10;
-        return Math.min(oldProgress + diff, 100);
-      });
-    }, 100);
+      if (CachedData?.data?.books) {
+        console.log(CachedData.data);
+        setProgress(false);
+        clearInterval(timer);
+      }
+    }, 200);
 
     return () => {
       clearInterval(timer);
@@ -62,7 +59,7 @@ const Layout = ({ children }: LayoutProps) => {
         height="calc(100% - 130px)"
         className="layout-content"
       >
-        {progress == 100 ? (
+        {!progress ? (
           <Box
             sx={{
               width: "100%",
@@ -75,14 +72,12 @@ const Layout = ({ children }: LayoutProps) => {
         ) : (
           <Box
             sx={{
-              width: "90%",
-              height: "100%",
               position: "absolute",
               top: "50%",
-              left: "5%",
+              left: "50%",
             }}
           >
-            <LinearProgress variant="determinate" value={progress} />
+            <CircularProgress />
           </Box>
         )}
       </Box>

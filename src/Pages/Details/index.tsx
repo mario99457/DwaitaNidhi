@@ -11,7 +11,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ToC_Icon from "../../assets/toc.svg";
 import prevButton from "../../assets/prev_button.svg";
@@ -24,7 +24,7 @@ import DrawerMenu from "./DrawerMenu";
 import { getBookClass } from "../../Services/Common/GlobalServices";
 import { Sloga } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
-import { useAppData } from "../../Store/AppContext";
+// import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
   name: string;
@@ -33,9 +33,9 @@ interface Commentary {
 }
 const DetailPage = () => {
   const { slogaNumber, bookName } = useParams();
+  const [selectedSloga, setSelectedSloga] = useState<Sloga | null>(null);
+
   const BookClass = getBookClass(bookName || "");
-  const selectedSloga: any =
-    BookClass?.allSutras.find((sloga: Sloga) => sloga.i == slogaNumber) || {};
 
   const availableLanguages = [
     {
@@ -63,15 +63,19 @@ const DetailPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
-  const { state } = useAppData();
   const [selectedCommentary, setSelectedCommentary] = useState<Commentary>(
     BookClass?.supportedCommentaries[0]
   );
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  // useEffect(() => {
-  //   window.scrollTo(0, 0);
-  // }, []);
+  useEffect(() => {
+    const sloga = BookClass?.allSutras.find(
+      (sloga: Sloga) => sloga.i == slogaNumber
+    );
+    if (sloga) {
+      setSelectedSloga(sloga);
+    }
+  }, [slogaNumber]);
 
   const handleLanguageChange = (event: SelectChangeEvent) => {
     setSelectedLanguage(event.target.value);
@@ -195,7 +199,8 @@ const DetailPage = () => {
               cursor: "pointer",
               visibility:
                 BookClass?.allSutras &&
-                selectedSloga.srno <= BookClass?.allSutras.length
+                selectedSloga &&
+                selectedSloga?.srno <= BookClass?.allSutras.length
                   ? "visible"
                   : "hidden",
             }}
@@ -303,8 +308,17 @@ const DetailPage = () => {
           <SearchBox onSearch={() => {}} placeholder={""} />
         </div>
       </Stack>
-      <DetailsContent selectedCommentary={selectedCommentary} selectedSloga={selectedSloga} />
-      <DrawerMenu open={openDrawer} onClose={() => setOpenDrawer(false)} />
+      <DetailsContent
+        selectedCommentary={selectedCommentary}
+        selectedSloga={selectedSloga}
+      />
+      <DrawerMenu
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+        bookName={bookName}
+        selectedSloga={selectedSloga}
+        slogas={BookClass?.allSutras}
+      />
     </Box>
   );
 };

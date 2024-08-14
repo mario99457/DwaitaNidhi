@@ -3,15 +3,17 @@ import React, { useEffect } from "react";
 import playButton from "../../assets/PlayButton.svg";
 import bookmark from "../../assets/bookmark.svg";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import details from "./details.json";
+// import details from "./details.json";
 import { Sutraani } from "../../Services/Common/GlobalServices";
 import { Sloga } from "../../types/GlobalType.type";
+import Parser from "html-react-parser";
 
 interface DetailsContentProps {
   selectedCommentary: {
     name: string;
     author: string;
     data: string;
+    key: string;
   };
   selectedSloga: Sloga;
   style?: React.CSSProperties;
@@ -22,9 +24,13 @@ const DetailsContent = ({
   style,
   selectedSloga,
 }: DetailsContentProps) => {
+  const [commentaries, setCommentaries] = React.useState<any[]>([]);
+
   useEffect(() => {
-    console.log(Sutraani.getCommentaries(selectedSloga));
-  }, []);
+    console.log(Sutraani.getCommentaries(selectedSloga), selectedCommentary);
+    setCommentaries(Sutraani.getCommentaries(selectedSloga));
+  }, [selectedSloga]);
+
   return (
     <Box
       sx={{
@@ -76,7 +82,10 @@ const DetailsContent = ({
         lineHeight="23.94px"
         marginTop="27px"
       >
-        {details.data}
+        {Parser(
+          commentaries.find((data) => data.key == selectedCommentary.key)
+            ?.text || ""
+        )}
       </Typography>
     </Box>
   );

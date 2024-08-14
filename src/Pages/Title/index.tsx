@@ -11,14 +11,12 @@ import listIcon from "../../assets/list.svg";
 import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
 import { Sloga } from "../../types/GlobalType.type";
-// import { useAppData } from "../../Store/AppContext";
 import { Book } from "../../types/Context.type";
 import { getBookClass } from "../../Services/Common/GlobalServices";
 import CachedData from "../../Services/Common/GlobalServices";
 
 const TitlePage = () => {
   const { bookName } = useParams();
-  // const { state } = useAppData();
   const [selectedView, setSelectedView] = useState("list");
   const navigate = useNavigate();
   const [selectedBook, setSlectedBook] = useState<Book | null>(null);
@@ -28,7 +26,9 @@ const TitlePage = () => {
   };
 
   useEffect(() => {
-    const book = CachedData.data.books.find((book) => book.name == bookName);
+    const book = CachedData.data.books.find(
+      (book: Book) => book.name == bookName
+    );
     if (book) {
       setSlectedBook(book);
     }

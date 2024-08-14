@@ -79,16 +79,16 @@ export default class TagProcessor {
         }))
     }
     static processSutraReferences(t) {
-        return t.replaceAll(/<{SK([0123456789०१२३४५६७८९]+)}>/, (function(t, e) {
+        return t.replaceAll(/<{SK([0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
             var a = Formatter.toEnglishNumeral(e);
             return `<a class="sutra-text-color" href="/sutraani/sk${a}" data-nav="/sutraani/sk${a}">(कौमुदी-${Formatter.toDevanagariNumeral(e)})</a>`
-        })).replaceAll(/<{([0123456789०१२३४५६७८९]+)}>/, (function(t, e) {
+        })).replaceAll(/<{([0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
             var a = Formatter.toEnglishNumeral(e);
             return ` <aclass="sutra-text-color" href="/sutraani/sk${a}" data-nav="/sutraani/sk${a}">(कौमुदी-${Formatter.toDevanagariNumeral(e)})</a>`
-        })).replaceAll(/<{LSK([0123456789०१२३४५६७८९]+)}>/, (function(t, e) {
+        })).replaceAll(/<{LSK([0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
             var a = Formatter.toEnglishNumeral(e);
             return `<a class="sutra-text-color" href="/sutraani/lsk${a}" data-nav="/sutraani/lsk${a}">(लघुकौमुदी-${Formatter.toDevanagariNumeral(e)})</a>`
-        })).replaceAll(/<{([0123456789०१२३४५६७८९]+\.[0123456789०१२३४५६७८९]+)}>/, (function(t, e) {
+        })).replaceAll(/<{([0123456789०१२३४५६७८९]+\.[0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
             var a = Formatter.toEnglishNumeral(e);
             return `<a class="sutra-text-color" href="/dhatu/${a}" data-nav="/dhatu/${a}">${Formatter.toDevanagariNumeral(e)}</a>`
         }))
