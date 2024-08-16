@@ -1,10 +1,8 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Box, CircularProgress } from "@mui/material";
 import TopBar from "../Components/TopBar";
-import CachedData, {
-  Prefetch,
-  Sutraani,
-} from "../Services/Common/GlobalServices";
+import CachedData, { Prefetch } from "../Services/Common/GlobalServices";
+import NavigationMenu from "../Components/NavigationMenu";
 
 interface LayoutProps {
   children: ReactNode;
@@ -12,6 +10,11 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const [progress, setProgress] = useState(true);
+  const [expandNavigationMenu, setExpandNavigationMenu] = useState(false);
+
+  const toggleMenu = () => {
+    setExpandNavigationMenu(!expandNavigationMenu);
+  };
 
   useEffect(() => {
     const requiredData = [
@@ -48,27 +51,32 @@ const Layout = ({ children }: LayoutProps) => {
         // },
       }}
     >
-      <TopBar progress={progress} />
+      <TopBar
+        toggleMenu={toggleMenu}
+        expandNavigationMenu={expandNavigationMenu}
+      />
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           justifyContent: "space-between",
-          backgroundColor: "#e8e8e8",
         }}
-        height="calc(100% - 130px)"
+        height="calc(100% - 55px)"
         className="layout-content"
       >
         {!progress ? (
-          <Box
-            sx={{
-              width: "100%",
-              overflowY: "auto",
-              height: "100%",
-            }}
-          >
-            {children}
-          </Box>
+          <>
+            <NavigationMenu expandNavigationMenu={expandNavigationMenu} />
+            <Box
+              sx={{
+                width: "100%",
+                overflowY: "auto",
+                height: "100%",
+              }}
+            >
+              {children}
+            </Box>
+          </>
         ) : (
           <Box
             sx={{

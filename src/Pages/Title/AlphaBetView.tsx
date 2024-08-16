@@ -29,7 +29,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
         >
           <ListItemText
             primaryTypographyProps={{
-              fontFamily: "Tiro Devanagari Hindi",
+              fontFamily: "Tiro Devanagari Sanskrit",
               fontSize: "20px",
               display: "flex",
               alignItems: "center",
@@ -38,14 +38,14 @@ const AlphaBetView: React.FC<ListViewProps> = ({
             <span
               style={{
                 color: "#787878",
-                fontFamily: "Tiro Devanagari Hindi",
+                fontFamily: "Tiro Devanagari Sanskrit",
               }}
             >
               {Formatter.toDevanagariNumeral(data.i)} &nbsp;
             </span>
             <span
               style={{
-                fontFamily: "Tiro Devanagari Hindi",
+                fontFamily: "Tiro Devanagari Sanskrit",
               }}
             >
               {data.s}

@@ -1,11 +1,16 @@
 import { Box, Container } from "@mui/material";
 import React from "react";
-import card1Img from "../../assets/LandingPageCards/image 5.png";
+import card1Img from "../../assets/LandingPageCards/image 10.png";
 import card2Img from "../../assets/LandingPageCards/image 6.png";
 import card3Img from "../../assets/LandingPageCards/image 7.png";
 import card4Img from "../../assets/LandingPageCards/image 8.png";
 import card5Img from "../../assets/LandingPageCards/image 9.png";
+import { Swiper, SwiperSlide } from "swiper/react";
 
+import "swiper/css";
+import "swiper/css/pagination";
+import "swiper/css/navigation";
+import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import HomePageCard from "../../Components/HomePageCard";
 
 const Landing = () => {
@@ -17,12 +22,11 @@ const Landing = () => {
         "वेदव्यास ! गुणावास ! विद्याधीश ! सतां वश । मां निराशं गतक्लेशं कुर्वनाशं हरेsनिशम् ॥",
       author: "-श्रीमद्वादिराजतीर्थाः",
       style: {
-        background:
-          "radial-gradient(109.98% 75.16% at 67.69% 32.14%, #1858B9 0%, #083C8A 100%)",
+        background: "#4D0301",
       },
     },
     {
-      image: card2Img,
+      image: card1Img,
       title: "Card 2",
       quote:
         "अभ्रमं भङ्गरहितं अजडं विमलं सदा | आनन्दतीर्थमतुलं भजे तापत्रयापहम् || ",
@@ -33,7 +37,7 @@ const Landing = () => {
       },
     },
     {
-      image: card3Img,
+      image: card1Img,
       title: "Card 3",
       quote:
         "यस्यवाक्कामधेनुर्नः कामितार्थान् प्रयच्छति । सेवे तं जययोगीन्द्रं कामबाणच्छिदं सदा ॥",
@@ -44,7 +48,7 @@ const Landing = () => {
       },
     },
     {
-      image: card4Img,
+      image: card1Img,
       title: "Card 4",
       quote:
         "अर्थिकल्पितकल्पोsयं प्रत्यर्थिगजकेसरी। व्यासतीर्थगुरुर्भूयादस्मदिsर्थ सिद्धये।। ",
@@ -55,7 +59,7 @@ const Landing = () => {
       },
     },
     {
-      image: card5Img,
+      image: card1Img,
       title: "Card 5",
       quote:
         "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
@@ -67,19 +71,42 @@ const Landing = () => {
     },
   ];
   return (
-    <Container sx={{ display: "flex", justifyContent: "center" }}>
-      <Box sx={{ textAlign: "center", padding: "16px", width: "fit-content" }}>
+    <>
+      <Swiper
+        // spaceBetween={30}
+        centeredSlides={true}
+        // autoplay={{
+        //   delay: 2500,
+        //   disableOnInteraction: false,
+        // }}
+        pagination={{
+          clickable: true,
+        }}
+        navigation={{
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        }}
+        modules={[Autoplay, Pagination, Navigation]}
+        className="mySwiper"
+      >
         {cards.map((card) => (
-          <HomePageCard
-            key={card.title}
-            image={card.image}
-            quote={card.quote}
-            author={card.author}
-            style={card.style}
-          />
+          <SwiperSlide key={card.title}>
+            <HomePageCard
+              key={card.title}
+              image={card.image}
+              quote={card.quote}
+              author={card.author}
+              style={card.style}
+            />
+          </SwiperSlide>
         ))}
-      </Box>
-    </Container>
+      </Swiper>
+      <div className="swiper-button-group">
+        <div className="swiper-button-prev"></div>
+        <div className="swiper-button-next"></div>
+        <div className="swiper-pagination"></div>
+      </div>
+    </>
   );
 };
 

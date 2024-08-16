@@ -14,10 +14,9 @@ const HomePageCard = ({ image, quote, author, style }: HomePageCardProps) => {
     <Box
       sx={{
         borderRadius: "9px",
-        marginTop: "22px",
-        width: "713px",
-        display: "flex",
-        height: "17%",
+        width: "768px",
+        display: "block",
+        height: "590px",
         ...style,
       }}
       className="card-wrapper"

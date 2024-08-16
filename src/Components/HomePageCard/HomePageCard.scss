@@ -1,10 +1,7 @@
 .card-wrapper {
     .card-content {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: end;
-        padding: 17px 17px 10px 0;
+        height: 25%;
+        padding: 16px 17px 0px 0;
 
         .card-quote {
             font-family: 'Tiro Devanagari Hindi';
@@ -23,10 +20,7 @@
 
     }
 
-    .card-image img {
-        border-radius: 11px 0 0 11px;
-        height: 100%;
-        clip-path: polygon(0 1%, 81% 0, 100% 100%, 0% 100%);
-
+    .card-image {
+        height: 75%;
     }
 }

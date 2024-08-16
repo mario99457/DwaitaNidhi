@@ -1,36 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { AppBar, Toolbar, IconButton, Box, Tabs, Tab } from "@mui/material";
+import React from "react";
+import { AppBar, Toolbar, IconButton, Box } from "@mui/material";
 import appIcon from "../../assets/app_logo.svg";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
-
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
-import { Book } from "../../types/Context.type";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import MenuIcon from "@mui/icons-material/Menu";
+import { useNavigate } from "react-router-dom";
 
 interface TopBarProps {
-  progress: boolean;
+  toggleMenu: () => void;
+  expandNavigationMenu: boolean;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ progress }) => {
+const TopBar: React.FC<TopBarProps> = ({
+  toggleMenu,
+  expandNavigationMenu,
+}) => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
-
-  const [selctedMenu, setSelctedMenu] = useState(pathname.split("/")[1] ?? "");
-
-  const handleMenuClick = (
-    e: React.SyntheticEvent<Element, Event>,
-    value: string
-  ) => {
-    setSelctedMenu(value);
-    navigate(`/${value}`);
-  };
-
-  useEffect(() => {
-    if (selctedMenu && selctedMenu == "sutraani" && !progress) {
-      Sutraani.populateAllSutras();
-    }
-  }, [selctedMenu, progress]);
 
   return (
     <AppBar
@@ -38,12 +24,31 @@ const TopBar: React.FC<TopBarProps> = ({ progress }) => {
       sx={{
         bgcolor: "#600000",
         color: "#ffffff",
-        height: "130px",
-        padding: "8px 8px 0",
+        height: "55px",
+        // padding: "8px 8px 0",
         boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25);",
       }}
     >
-      <Toolbar>
+      <Toolbar
+        sx={{
+          minHeight: "55px !important",
+          padding: "0 30px 0 10px !important",
+        }}
+      >
+        <IconButton
+          size="large"
+          edge="start"
+          color="inherit"
+          aria-label="open drawer"
+          sx={{ mr: 2 }}
+          onClick={toggleMenu}
+        >
+          {expandNavigationMenu ? (
+            <ArrowBackIcon sx={{ color: "#F18B41" }} />
+          ) : (
+            <MenuIcon sx={{ color: "#F18B41" }} />
+          )}
+        </IconButton>
         <Box
           sx={{
             cursor: "pointer",
@@ -52,7 +57,6 @@ const TopBar: React.FC<TopBarProps> = ({ progress }) => {
             flexGrow: 2,
           }}
           onClick={() => {
-            setSelctedMenu("");
             navigate("/");
           }}
         >
@@ -67,9 +71,9 @@ const TopBar: React.FC<TopBarProps> = ({ progress }) => {
           <div className="app-name-wrapper">
             <span className="app-name"> द्वैत निधि</span>
             <span className="app-tagline">Dwaita Nidhi</span>
-            <div className="app-sub-name">
-              A collection of works by Sri acharya with searchable commentaries
-            </div>
+          </div>
+          <div className="app-sub-name">
+            A collection of works by Sri acharya
           </div>
         </Box>
         <Box
@@ -80,53 +84,15 @@ const TopBar: React.FC<TopBarProps> = ({ progress }) => {
             height: "100%",
             justifyContent: "end",
             paddingTop: "8px",
+            alignItems: "center",
           }}
           className="top-bar-links"
         >
-          <Link to={"/"}>Contact Us</Link>
-          <Link to={"/"}>How it works</Link>
-          <Link to={"/"}>Login</Link>
+          <SearchOutlinedIcon sx={{ color: "#fffffd" }} />
+          <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} />
+          <span style={{ fontSize: "13px", color: "#fffffd" }}>Login</span>
         </Box>
       </Toolbar>
-      <Box
-        sx={{
-          display: "flex",
-          marginTop: "6px",
-        }}
-      >
-        <Box
-          sx={{
-            flexGrow: 2,
-            paddingLeft: "11rem",
-          }}
-        >
-          <Tabs
-            value={selctedMenu}
-            onChange={handleMenuClick}
-            className="top-bar-tabs"
-          >
-            {!progress
-              ? CachedData.data.books?.map((item: Book) => (
-                  <Tab
-                    label={item.title}
-                    value={item.name}
-                    sx={{ color: "#ffffff" }}
-                    key={item.name}
-                  />
-                ))
-              : ""}
-          </Tabs>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <SearchOutlinedIcon />
-          <BookmarkBorderOutlinedIcon sx={{ mx: 4 }} />
-        </Box>
-      </Box>
     </AppBar>
   );
 };

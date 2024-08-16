@@ -475,16 +475,18 @@ export class Sutraani {
     {
       name: "सूत्रदीपिका",
       key: "sutradipika",
+      author: "श्रीजगन्नाथयति विरचिता",
       lang: "s",
       number: "",
-      hidden: !0,
+      hidden: false,
     },
     {
       name: "भाष्यम्",
       key: "bhashyam",
+      author: "श्रीमदानन्दतीर्थ भगवद्पादाचार्य विरचितं",
       lang: "s",
       number: "",
-      hidden: !0,
+      hidden: true,
     },
   ];
   static requiredServerData = () => [
@@ -557,6 +559,7 @@ export class Sutraani {
       return {
         key: t.key,
         commname: t.name,
+        author: t.author,
         hidden: t.hidden,
         editHref: "", //Sutraani.getEditCommentaryTag(t.key, e),
         show: true,

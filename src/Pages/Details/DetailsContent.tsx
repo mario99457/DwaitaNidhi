@@ -1,5 +1,5 @@
-import { Box, Stack, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import playButton from "../../assets/PlayButton.svg";
 import bookmark from "../../assets/bookmark.svg";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
@@ -7,29 +7,36 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { Sutraani } from "../../Services/Common/GlobalServices";
 import { Sloga } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 interface DetailsContentProps {
   selectedCommentary: {
     name: string;
     author: string;
-    data: string;
     key: string;
   };
   selectedSloga: Sloga;
   style?: React.CSSProperties;
+  key: string;
+  defaultExpanded?: boolean;
 }
 
 const DetailsContent = ({
   selectedCommentary,
   style,
   selectedSloga,
+  defaultExpanded,
 }: DetailsContentProps) => {
-  const [commentaries, setCommentaries] = React.useState<any[]>([]);
+  const [commentaries, setCommentaries] = useState<any[]>([]);
+  const [expanded, setExpanded] = useState(defaultExpanded || false);
 
   useEffect(() => {
-    console.log(Sutraani.getCommentaries(selectedSloga), selectedCommentary);
     setCommentaries(Sutraani.getCommentaries(selectedSloga));
   }, [selectedSloga]);
+
+  useEffect(() => {
+    setExpanded(defaultExpanded || false);
+  }, [defaultExpanded]);
 
   return (
     <Box
@@ -38,9 +45,10 @@ const DetailsContent = ({
         marginTop: "16px",
         background: "#f4f4f4",
         padding: "20px 28px",
-        minHeight: "300px",
+        minHeight: "100px",
         ...style,
       }}
+      id={selectedCommentary.key}
     >
       <Stack
         className="detail-header"
@@ -71,22 +79,27 @@ const DetailsContent = ({
         <div className="d-flex align-items-center">
           <img src={playButton} alt="play" />
           <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} />
-          <KeyboardArrowDownIcon
+          <IconButton
+            onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}
-          />
+          >
+            {expanded ? <ExpandLess /> : <ExpandMore />}
+          </IconButton>
         </div>
       </Stack>
-      <Typography
-        fontFamily="Tiro Devanagari Hindi"
-        fontSize="18px"
-        lineHeight="23.94px"
-        marginTop="27px"
-      >
-        {Parser(
-          commentaries.find((data) => data.key == selectedCommentary.key)
-            ?.text || ""
-        )}
-      </Typography>
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Typography
+          fontFamily="Tiro Devanagari Hindi"
+          fontSize="18px"
+          lineHeight="23.94px"
+          marginTop="27px"
+        >
+          {Parser(
+            commentaries.find((data) => data.key == selectedCommentary.key)
+              ?.text || ""
+          )}
+        </Typography>
+      </Collapse>
     </Box>
   );
 };

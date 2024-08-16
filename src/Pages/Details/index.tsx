@@ -29,7 +29,10 @@ import Formatter from "../../Services/Common/Formatter";
 interface Commentary {
   name: string;
   author: string;
-  data: string;
+  key: string;
+  lang: string;
+  number: string;
+  hidden: boolean;
 }
 const DetailPage = () => {
   const { slogaNumber, bookName } = useParams();
@@ -63,9 +66,8 @@ const DetailPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
-  const [selectedCommentary, setSelectedCommentary] = useState<Commentary>(
-    BookClass?.supportedCommentaries[0]
-  );
+  const [selectedCommentary, setSelectedCommentary] =
+    useState<Commentary | null>(null);
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
@@ -288,30 +290,39 @@ const DetailPage = () => {
           divider={<Divider orientation="vertical" flexItem />}
         >
           {BookClass?.supportedCommentaries.map((commentary) => (
-            <div
-              key={commentary.name}
+            <Link
+              href={`#${commentary.key}`}
+              key={commentary.key}
               onClick={() => handleCommentaryChange(commentary)}
-              role="tab"
-              aria-selected={selectedCommentary.name === commentary.name}
-              className={`commentary-tab ${
-                commentary.name == selectedCommentary.name
-                  ? "commentary-tab-active"
-                  : ""
-              }`}
-              tabIndex={0}
+              sx={{ textDecoration: "none" }}
             >
-              {commentary.name}
-            </div>
+              <div
+                key={commentary.name}
+                role="tab"
+                aria-selected={selectedCommentary?.name === commentary.name}
+                className={`commentary-tab`}
+                tabIndex={0}
+              >
+                {commentary.name}
+              </div>
+            </Link>
           ))}
         </Stack>
         <div className="search-box-wrapper">
           <SearchBox onSearch={() => {}} placeholder={""} />
         </div>
       </Stack>
-      <DetailsContent
-        selectedCommentary={selectedCommentary}
-        selectedSloga={selectedSloga}
-      />
+      {BookClass?.supportedCommentaries.map((commentary: Commentary) => (
+        <DetailsContent
+          selectedCommentary={commentary}
+          selectedSloga={selectedSloga}
+          key={commentary.key}
+          defaultExpanded={
+            !commentary.hidden || selectedCommentary?.key == commentary.key
+          }
+        />
+      ))}
+
       <DrawerMenu
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
