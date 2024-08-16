@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   List,
   ListItem,
@@ -25,21 +25,34 @@ const TreeView: React.FC<ListViewProps> = ({
   toc: tocData,
   slogas,
 }) => {
-  const [openChapters, setOpenChapters] = useState<{ [key: string]: boolean }>(
-    {}
-  );
+  const [closedChapters, setClosedChapters] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [cacheSloga, setCacheSloga] = useState<{ [key: string]: any[] }>({});
 
   const handleChapterClick = (chapterId: string) => {
-    setOpenChapters((prevState) => ({
+    setClosedChapters((prevState) => ({
       ...prevState,
       [chapterId]: !prevState[chapterId],
     }));
   };
 
+  useEffect(() => {
+    const slogaObject: any = {};
+    tocData?.map((chapter) => {
+      chapter.sub?.map((subchapter) => {
+        slogaObject[`${chapter.n}.${subchapter.n}`] = getSloga(
+          chapter.n,
+          subchapter.n
+        );
+      });
+    });
+    setCacheSloga(slogaObject);
+  }, [tocData]);
+
   const handleSubChapterClick = (chapterId: string, subchapterId: string) => {
     const chapterKey = `${chapterId}.${subchapterId}`;
-    setOpenChapters((prevState) => ({
+    setClosedChapters((prevState) => ({
       ...prevState,
       [chapterKey]: !prevState[chapterKey],
     }));
@@ -86,11 +99,15 @@ const TreeView: React.FC<ListViewProps> = ({
               }}
             />
             <IconButton>
-              {openChapters[chapter.n] ? <ExpandLess /> : <ExpandMore />}
+              {!closedChapters[chapter.n] ? <ExpandLess /> : <ExpandMore />}
             </IconButton>
           </ListItem>
           {chapter.sub && (
-            <Collapse in={openChapters[chapter.n]} timeout="auto" unmountOnExit>
+            <Collapse
+              in={!closedChapters[chapter.n]}
+              timeout="auto"
+              unmountOnExit
+            >
               <List component="div" disablePadding>
                 {chapter.sub.map((subchapter) => (
                   <React.Fragment key={subchapter.n}>
@@ -122,6 +139,7 @@ const TreeView: React.FC<ListViewProps> = ({
                             height: "8px",
                             background: "#A74600",
                             rotate: "45deg",
+                            flexShrink: "0",
                           }}
                         ></div>
                         <span
@@ -140,7 +158,7 @@ const TreeView: React.FC<ListViewProps> = ({
                         </span>
                       </ListItemText>
                       <IconButton>
-                        {openChapters[`${chapter.n}${subchapter.n}`] ? (
+                        {!closedChapters[`${chapter.n}.${subchapter.n}`] ? (
                           <ExpandLess />
                         ) : (
                           <ExpandMore />
@@ -148,7 +166,7 @@ const TreeView: React.FC<ListViewProps> = ({
                       </IconButton>
                     </ListItem>
                     <Collapse
-                      in={openChapters[`${chapter.n}.${subchapter.n}`]}
+                      in={!closedChapters[`${chapter.n}.${subchapter.n}`]}
                       timeout="auto"
                       unmountOnExit
                     >

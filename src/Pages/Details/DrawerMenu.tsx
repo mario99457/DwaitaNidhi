@@ -37,7 +37,6 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
       open={open}
       onClose={onClose}
       anchor="right"
-      PaperProps={{ sx: { marginTop: "130px" } }}
     >
       <Box sx={{ width: 410 }}>
         <Stack
