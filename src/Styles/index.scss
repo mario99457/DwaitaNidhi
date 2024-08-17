@@ -140,7 +140,7 @@
 .swiper-button-next {
     position: absolute;
     top: 97%;
-    left: 60%;
+    left: 65%;
 }
 
 .swiper-button-prev {
@@ -152,4 +152,5 @@
 .swiper-button-prev::after,
 .swiper-button-next::after {
     font-size: 19px;
+    color: #616161;
 }

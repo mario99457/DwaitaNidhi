@@ -119,6 +119,10 @@ const DetailPage = () => {
     </Typography>,
   ];
 
+  const handleSearch = (searchTerm: string) => {
+    console.log("inside search", searchTerm);
+  };
+
   if (!selectedSloga) {
     return <>No Sutras found</>;
   }
@@ -137,7 +141,7 @@ const DetailPage = () => {
     >
       <Box
         sx={{
-          display: "flex",
+          display: "none",
           justifyContent: "space-between",
           px: 0,
           pb: 4,
@@ -309,7 +313,7 @@ const DetailPage = () => {
           ))}
         </Stack>
         <div className="search-box-wrapper">
-          <SearchBox onSearch={() => {}} placeholder={""} />
+          <SearchBox onSearch={handleSearch} placeholder={""} />
         </div>
       </Stack>
       {BookClass?.supportedCommentaries.map((commentary: Commentary) => (

@@ -27,6 +27,7 @@ interface NavigationMenuProps {
 }
 
 interface NavigationItem {
+  name?: string;
   key: string;
   label: string;
   icon: React.ReactNode;
@@ -93,10 +94,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   ];
 
   useEffect(() => {
-    setSelectedBook(pathname.split("/")[1] || "dashboard");
+    setSelectedBook(pathname.split("/")[1] || "");
   }, [pathname]);
 
   useEffect(() => {
+    Sutraani.populateAllSutras();
     if (
       selectedBook &&
       CachedData.data.books.find((book: Book) => book.name == selectedBook)
@@ -104,8 +106,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       setSelectedMenu("books");
       setExpandedMenu({ books: true });
     }
-    if (selectedBook && selectedBook == "sutraani") {
-      Sutraani.populateAllSutras();
+    if (!selectedBook) {
+      setSelectedMenu("home");
+      setExpandedMenu({});
     }
   }, [selectedBook]);
 
@@ -268,7 +271,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   </List>
                 </Collapse>
               )}
-              {/* {!expandNavigationMenu && (
+              {!expandNavigationMenu && item.subMenu && (
                 <Menu
                   id="basic-menu"
                   anchorEl={anchorEl}
@@ -276,6 +279,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   onClose={handleClose}
                   MenuListProps={{
                     "aria-labelledby": "basic-button",
+                    className: "sidebar-menu-list",
                   }}
                   anchorOrigin={{
                     vertical: "center",
@@ -286,17 +290,16 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                     horizontal: "left",
                   }}
                 >
-                  {Boolean(item.subMenu?.length) &&
-                    item.subMenu?.map((subItem) => (
-                      <MenuItem
-                        key={subItem.key}
-                        onClick={() => handleSubMenuClick(subItem, item)}
-                      >
-                        {subItem.label}
-                      </MenuItem>
-                    ))}
+                  {item.subMenu.map((subItem) => (
+                    <MenuItem
+                      key={subItem.key}
+                      onClick={() => handleSubMenuClick(subItem, item)}
+                    >
+                      {subItem.label}
+                    </MenuItem>
+                  ))}
                 </Menu>
-              )} */}
+              )}
             </React.Fragment>
           ))}
         </List>
