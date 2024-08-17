@@ -1,8 +1,10 @@
 import { ReactNode, useState, useEffect } from "react";
-import { Box, CircularProgress } from "@mui/material";
+import { Box, CircularProgress, useMediaQuery, useTheme } from "@mui/material";
 import TopBar from "../Components/TopBar";
+import TopBarSmall from "../Components/TopBar/TopBarMobile";
 import CachedData, { Prefetch } from "../Services/Common/GlobalServices";
 import NavigationMenu from "../Components/NavigationMenu";
+import NavigationMenuSmall from "../Components/NavigationMenu/NavigationMenuSmall";
 
 interface LayoutProps {
   children: ReactNode;
@@ -11,6 +13,8 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const [progress, setProgress] = useState(true);
   const [expandNavigationMenu, setExpandNavigationMenu] = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const toggleMenu = () => {
     setExpandNavigationMenu(!expandNavigationMenu);
@@ -45,16 +49,19 @@ const Layout = ({ children }: LayoutProps) => {
         gap: 3,
         overflowY: "hidden",
         height: "100vh",
-        // height: {
-        //   xs: "calc(100vh - 40px)",
-        //   lg: "100vh",
-        // },
       }}
     >
-      <TopBar
-        toggleMenu={toggleMenu}
-        expandNavigationMenu={expandNavigationMenu}
-      />
+      {isMobile ? (
+        <TopBarSmall
+          toggleMenu={toggleMenu}
+          expandNavigationMenu={expandNavigationMenu}
+        />
+      ) : (
+        <TopBar
+          toggleMenu={toggleMenu}
+          expandNavigationMenu={expandNavigationMenu}
+        />
+      )}
       <Box
         sx={{
           display: "flex",
@@ -66,7 +73,14 @@ const Layout = ({ children }: LayoutProps) => {
       >
         {!progress ? (
           <>
-            <NavigationMenu expandNavigationMenu={expandNavigationMenu} />
+            {isMobile ? (
+              <NavigationMenuSmall
+                expandNavigationMenu={expandNavigationMenu}
+                toggleMenu={toggleMenu}
+              />
+            ) : (
+              <NavigationMenu expandNavigationMenu={expandNavigationMenu} />
+            )}
             <Box
               sx={{
                 width: "100%",

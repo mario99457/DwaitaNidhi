@@ -6,11 +6,23 @@
         font-size: 28px;
     }
 
+    .app-name-small {
+        font-size: 20px;
+    }
+
     .app-tagline {
         font-family: 'Koh Santepheap';
         font-size: 28px;
         margin-left: 16px;
     }
+
+    .app-tagline-small {
+        font-size: 20px;
+    }
+}
+
+.app-name-wrap-small {
+    white-space: nowrap;
 }
 
 .app-sub-name {

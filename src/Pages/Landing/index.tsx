@@ -1,6 +1,7 @@
-import { Box, Container } from "@mui/material";
+import { Box, Container, useMediaQuery, useTheme } from "@mui/material";
 import React from "react";
 import card1Img from "../../assets/LandingPageCards/image 10.png";
+import card1Small from "../../assets/LandingPageCards/image 10_small.png";
 import card2Img from "../../assets/LandingPageCards/image 6.png";
 import card3Img from "../../assets/LandingPageCards/image 7.png";
 import card4Img from "../../assets/LandingPageCards/image 8.png";
@@ -12,11 +13,15 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import HomePageCard from "../../Components/HomePageCard";
+import HomePageCardSmall from "../../Components/HomePageCard/HomePageCardSmall";
 
 const Landing = () => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const cards = [
     {
-      image: card1Img,
+      image: isMobile ? card1Small : card1Img,
       title: "Card 1",
       quote:
         "वेदव्यास ! गुणावास ! विद्याधीश ! सतां वश । मां निराशं गतक्लेशं कुर्वनाशं हरेsनिशम् ॥",
@@ -26,7 +31,7 @@ const Landing = () => {
       },
     },
     {
-      image: card1Img,
+      image: isMobile ? card1Small : card1Img,
       title: "Card 2",
       quote:
         "अभ्रमं भङ्गरहितं अजडं विमलं सदा | आनन्दतीर्थमतुलं भजे तापत्रयापहम् || ",
@@ -37,7 +42,7 @@ const Landing = () => {
       },
     },
     {
-      image: card1Img,
+      image: isMobile ? card1Small : card1Img,
       title: "Card 3",
       quote:
         "यस्यवाक्कामधेनुर्नः कामितार्थान् प्रयच्छति । सेवे तं जययोगीन्द्रं कामबाणच्छिदं सदा ॥",
@@ -48,7 +53,7 @@ const Landing = () => {
       },
     },
     {
-      image: card1Img,
+      image: isMobile ? card1Small : card1Img,
       title: "Card 4",
       quote:
         "अर्थिकल्पितकल्पोsयं प्रत्यर्थिगजकेसरी। व्यासतीर्थगुरुर्भूयादस्मदिsर्थ सिद्धये।। ",
@@ -59,7 +64,7 @@ const Landing = () => {
       },
     },
     {
-      image: card1Img,
+      image: isMobile ? card1Small : card1Img,
       title: "Card 5",
       quote:
         "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
@@ -73,12 +78,12 @@ const Landing = () => {
   return (
     <>
       <Swiper
-        // spaceBetween={30}
+        spaceBetween={30}
         centeredSlides={true}
-        autoplay={{
-          delay: 2500,
-          disableOnInteraction: false,
-        }}
+        // autoplay={{
+        //   delay: 2500,
+        //   disableOnInteraction: false,
+        // }}
         pagination={{
           clickable: true,
         }}
@@ -91,13 +96,23 @@ const Landing = () => {
       >
         {cards.map((card) => (
           <SwiperSlide key={card.title}>
-            <HomePageCard
-              key={card.title}
-              image={card.image}
-              quote={card.quote}
-              author={card.author}
-              style={card.style}
-            />
+            {isMobile ? (
+              <HomePageCardSmall
+                key={card.title}
+                image={card.image}
+                quote={card.quote}
+                author={card.author}
+                style={card.style}
+              />
+            ) : (
+              <HomePageCard
+                key={card.title}
+                image={card.image}
+                quote={card.quote}
+                author={card.author}
+                style={card.style}
+              />
+            )}
           </SwiperSlide>
         ))}
       </Swiper>
