@@ -7,7 +7,7 @@ import Formatter from "../../Services/Common/Formatter";
 interface ListViewProps {
   handleSlogaClick: (selectedSloga: Sloga) => void;
   toc: Chapters[] | undefined;
-  slogas: Sloga[] | undefined;
+  slogas: (t?: any) => any;
 }
 
 const AlphaBetView: React.FC<ListViewProps> = ({
@@ -16,7 +16,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
 }) => {
   return (
     <List>
-      {slogas?.map((data) => (
+      {slogas("z")?.sutras.map((data: Sloga) => (
         <ListItem
           sx={{
             borderTop: (theme) => `1px solid ${theme.palette.divider}`,

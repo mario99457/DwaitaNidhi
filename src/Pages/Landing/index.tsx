@@ -80,10 +80,10 @@ const Landing = () => {
       <Swiper
         spaceBetween={30}
         centeredSlides={true}
-        // autoplay={{
-        //   delay: 2500,
-        //   disableOnInteraction: false,
-        // }}
+        autoplay={{
+          delay: 2500,
+          disableOnInteraction: false,
+        }}
         pagination={{
           clickable: true,
         }}
@@ -116,7 +116,7 @@ const Landing = () => {
           </SwiperSlide>
         ))}
       </Swiper>
-      <div className="swiper-button-group">
+      <div className={`swiper-button-group ${isMobile ? "swiper-mobile" : ""}`}>
         <div className="swiper-button-prev"></div>
         <div className="swiper-button-next"></div>
         <div className="swiper-pagination"></div>

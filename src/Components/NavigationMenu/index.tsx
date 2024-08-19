@@ -185,6 +185,8 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                     justifyContent: expandNavigationMenu ? "initial" : "center",
                     //   px: 2.5,
                   }}
+                  // onMouseEnter={(e) => setAnchorEl(e.currentTarget)}
+                  // onMouseLeave={(e) => setAnchorEl(null)}
                   onClick={(e) => handleMenuItemClick(e, item)}
                 >
                   <ListItemIcon

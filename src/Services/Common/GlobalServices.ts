@@ -581,7 +581,7 @@ export class Sutraani {
     const t = Sutraani.allSutras.find((t) => t.srno == e.srno + 1);
     return t;
   }
-  static getSutraList(t: any) {
+  static getSutraList(t?: any): any {
     var e = [...Sutraani.allSutras];
     return "" == t
       ? {

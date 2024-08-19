@@ -130,6 +130,22 @@
 .swiper {
     width: 100%;
     height: 100%;
+
+    .swiper-pagination {
+        position: fixed;
+        bottom: 8px;
+    }
+}
+
+.mySwiper .swiper-wrapper {
+    margin-top: 3rem;
+
+    .swiper-slide-active,
+    .swiper-slide-next,
+    .swiper-slide-prev {
+        align-items: flex-start;
+    }
+
 }
 
 .swiper-slide {
@@ -149,15 +165,27 @@
     align-items: center;
 }
 
+.swiper-mobile {
+    .swiper-button-next {
+        top: 98%;
+        left: 65%;
+    }
+
+    .swiper-button-prev {
+        top: 98%;
+        left: 25%;
+    }
+}
+
 .swiper-button-next {
-    position: absolute;
-    top: 97%;
-    left: 65%;
+    position: fixed;
+    top: calc(100% - 18px);
+    left: 62%;
 }
 
 .swiper-button-prev {
-    position: absolute;
-    top: 97%;
+    position: fixed;
+    top: calc(100% - 18px);
     left: 40%;
 }
 

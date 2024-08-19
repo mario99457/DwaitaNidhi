@@ -114,7 +114,7 @@ const TitlePage = () => {
           <AlphaBetView
             handleSlogaClick={handleSlogaClick}
             toc={selectedBook?.chapters}
-            slogas={getBookClass(bookName || "")?.allSutras}
+            slogas={getBookClass(bookName || "")?.getSutraList}
           />
         ) : (
           <TreeView

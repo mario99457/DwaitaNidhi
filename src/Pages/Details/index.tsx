@@ -66,8 +66,9 @@ const DetailPage = () => {
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
-  const [selectedCommentary, setSelectedCommentary] =
-    useState<Commentary | null>(null);
+  const [selectedCommentary, setSelectedCommentary] = useState<{
+    [key: string]: any;
+  }>({});
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
@@ -84,7 +85,10 @@ const DetailPage = () => {
   };
 
   const handleCommentaryChange = (data: Commentary) => {
-    setSelectedCommentary(data);
+    setSelectedCommentary((prevState) => ({
+      ...prevState,
+      [data.key]: { expanded: true },
+    }));
   };
 
   const handleNavigateSloga = (navigation: string) => {
@@ -231,7 +235,7 @@ const DetailPage = () => {
         <img src={playButton} />
       </Stack>
       <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
-      <Container
+      <Box
         sx={{
           mt: 2,
           background: "#FCF4CD",
@@ -281,7 +285,7 @@ const DetailPage = () => {
             ? BookClass?.getSummary(selectedSloga.i)[selectedLanguage]
             : ""}
         </Typography>
-      </Container>
+      </Box>
       <Stack
         sx={{ mt: 4 }}
         direction="row"
@@ -303,7 +307,7 @@ const DetailPage = () => {
               <div
                 key={commentary.name}
                 role="tab"
-                aria-selected={selectedCommentary?.name === commentary.name}
+                // aria-selected={selectedCommentary?.name === commentary.name}
                 className={`commentary-tab`}
                 tabIndex={0}
               >
@@ -322,7 +326,7 @@ const DetailPage = () => {
           selectedSloga={selectedSloga}
           key={commentary.key}
           defaultExpanded={
-            !commentary.hidden || selectedCommentary?.key == commentary.key
+            !commentary.hidden || selectedCommentary?.[commentary.key]
           }
         />
       ))}

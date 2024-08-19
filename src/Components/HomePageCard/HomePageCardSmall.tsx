@@ -24,7 +24,7 @@ const HomePageCardSmall = ({
           lg: "768px",
         },
         display: "block",
-        height: "590px",
+        height: "auto",
         ...style,
       }}
       className="card-wrapper"

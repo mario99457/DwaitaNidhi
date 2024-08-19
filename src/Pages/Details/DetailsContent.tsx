@@ -18,7 +18,7 @@ interface DetailsContentProps {
   selectedSloga: Sloga;
   style?: React.CSSProperties;
   key: string;
-  defaultExpanded?: boolean;
+  defaultExpanded?: boolean | { expanded: boolean };
 }
 
 const DetailsContent = ({
@@ -35,7 +35,9 @@ const DetailsContent = ({
   }, [selectedSloga]);
 
   useEffect(() => {
-    setExpanded(defaultExpanded || false);
+    if (defaultExpanded && typeof defaultExpanded === "object") {
+      setExpanded(defaultExpanded.expanded);
+    } else setExpanded(defaultExpanded || false);
   }, [defaultExpanded]);
 
   return (

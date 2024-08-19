@@ -16,7 +16,7 @@ const HomePageCard = ({ image, quote, author, style }: HomePageCardProps) => {
         borderRadius: "9px",
         width: "768px",
         display: "block",
-        height: "590px",
+        height: "auto",
         ...style,
       }}
       className="card-wrapper"
