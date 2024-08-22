@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ToC_Icon from "../../assets/toc.svg";
@@ -24,7 +24,6 @@ import DrawerMenu from "./DrawerMenu";
 import { getBookClass } from "../../Services/Common/GlobalServices";
 import { Sloga } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
-// import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
   name: string;
@@ -37,6 +36,7 @@ interface Commentary {
 const DetailPage = () => {
   const { slogaNumber, bookName } = useParams();
   const [selectedSloga, setSelectedSloga] = useState<Sloga | null>(null);
+  const selectedKey = useRef("");
 
   const BookClass = getBookClass(bookName || "");
 
@@ -89,7 +89,17 @@ const DetailPage = () => {
       ...prevState,
       [data.key]: { expanded: true },
     }));
+    selectedKey.current = data.key;
   };
+
+  useEffect(() => {
+    if (selectedKey.current) {
+      setTimeout(() => {
+        const section = document.querySelector(`#${selectedKey.current}`);
+        section?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 500);
+    }
+  }, [selectedCommentary]);
 
   const handleNavigateSloga = (navigation: string) => {
     if (navigation == "next" && selectedSloga && selectedSloga.srno) {
@@ -299,7 +309,7 @@ const DetailPage = () => {
         >
           {BookClass?.supportedCommentaries.map((commentary) => (
             <Link
-              href={`#${commentary.key}`}
+              // href={`#${commentary.key}`}
               key={commentary.key}
               onClick={() => handleCommentaryChange(commentary)}
               sx={{ textDecoration: "none" }}

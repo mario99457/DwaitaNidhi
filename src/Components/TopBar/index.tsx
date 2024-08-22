@@ -5,7 +5,7 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface TopBarProps {
   toggleMenu: () => void;
@@ -17,6 +17,7 @@ const TopBar: React.FC<TopBarProps> = ({
   expandNavigationMenu,
 }) => {
   const navigate = useNavigate();
+  const pathName = useLocation().pathname;
 
   return (
     <AppBar
@@ -88,7 +89,14 @@ const TopBar: React.FC<TopBarProps> = ({
           }}
           className="top-bar-links"
         >
-          <SearchOutlinedIcon sx={{ color: "#fffffd" }} />
+          {!pathName.includes("search") && (
+            <SearchOutlinedIcon
+              sx={{ color: "#fffffd", cursor: "pointer" }}
+              onClick={() => {
+                navigate("/search");
+              }}
+            />
+          )}
           <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} />
           <span style={{ fontSize: "13px", color: "#fffffd" }}>Login</span>
         </Box>
