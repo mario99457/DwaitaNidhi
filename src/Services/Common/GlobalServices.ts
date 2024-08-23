@@ -1,6 +1,7 @@
 import localforage from "localforage";
 import Utils from "./Utils";
-import Formatter from "./Formatter";
+import Formatter, { E, F } from "./Formatter";
+import GlobalSearch from "./Search";
 
 class ApiEndpoints {
   static FetchTimeoutMs: number = 4e3;
@@ -607,6 +608,36 @@ export class Sutraani {
   static getSummary(i: string) {
     return CachedData.data.sutraaniSummary[i];
   }
+
+  static generateScore(t, e) {
+    e = (e = E(e)).replaceAll(" ", "").replaceAll("ऽ", "");
+    var a = t.s.trim().replaceAll(" ", "").replaceAll("ऽ", ""), i = 9e4 - t.i;
+    
+    return Sutraani.partialMatchWithSutraNumber(t, e) ? 81e4 + i : a == e ? 72e4 + i : a.startsWith(e) ? 63e4 + i : 0 <= a.indexOf(e) ? 54e4 + i : 0
+  }
+
+  static partialMatchWithSutraNumber(t, e) {
+    return null != (e = e.match(/([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)){0,1}){0,1}){0,1}){0,1}/)) && (void 0 !== e[3] ? t.a == e[1] && t.p == e[2] && (t.n + "").startsWith(e[3] + "") : void 0 !== e[2] ? t.a == e[1] && t.p == e[2] : void 0 !== e[1] && t.a == e[1])
+  }
+
+  static searchSutraani(i: string) {
+    var a = GlobalSearch.getDevanagariSearchStrings(i);
+    Sutraani.populateAllSutras();        
+    Sutraani.allSutras.forEach((t => {
+        t.searchData = {
+            score: 0,
+            datanav: "/sutraani/" + t["n"]
+      }
+    })), 
+    Sutraani.allSutras.forEach((e => a.forEach((t => e.searchData.score = Math.max(e.searchData.score, Sutraani.generateScore(e, t))))));
+      var i = Sutraani.allSutras.filter((t => 0 < t.searchData.score)).sort(((t, e) => e.searchData.score - t.searchData.score)).map((t => ({
+          sutranum: F(`${t.a}.${t.p}.` + t.n, a),            
+          sutra: F(t.s, a),
+          datanav: t.searchData.datanav
+      })));
+      
+      return i;
+  }
 }
 
 export function getBookClass(name: string) {
@@ -615,3 +646,60 @@ export function getBookClass(name: string) {
   }
   return null;
 }
+
+Array.prototype.intersect = function(...t) {
+  return [this, ...t].reduce(((t, e) => t.filter((t => e.includes(t)))))
+}, Array.prototype.between = function(t) {
+  return this[0] <= t && t <= this[1]
+}, Array.prototype.findFirst = function(t) {
+  for (var e = 0; e < this.length; ++e)
+      if (0 <= t.indexOf(this[e])) return this[e];
+  return null
+}, Array.prototype.rotate = function(t) {
+  return t %= this.length, this.slice(t, this.length).concat(this.slice(0, t))
+}, Array.prototype.getLast = function() {
+  return this[this.length - 1]
+}, Array.prototype.setLast = function(t) {
+  return 0 == this.length ? this.push(t) : this[this.length - 1] = t, this
+}, Array.prototype.getSecondLast = function() {
+  return this[this.length - 2]
+}, Array.prototype.setSecondLast = function(t) {
+  if (0 != this.length) return 1 == this.length ? this.unshift(t) : this[this.length - 2] = t, this
+}, Array.prototype.removeLast = function() {
+  for (var t = [], e = 0; e < this.length - 1; ++e) t.push(this[e]);
+  return t
+};
+
+String.prototype.getLastChar = function() {
+  return this[this.length - 1]
+}, String.prototype.getSecondLastChar = function() {
+  return this[this.length - 2]
+}, String.prototype.removeLastChar = function() {
+  return this.slice(0, -1)
+}, String.prototype.find = function(t) {
+  return this.split("").find(t)
+}, String.prototype.clone = function() {
+  return this
+}, String.prototype.replaceAll = function(t, e) {
+  return t = RegExp(t, "ig"), this.replace(t, e)
+}, String.prototype.toNumber = function() {
+  return parseInt(this, 10) || 0
+}, String.prototype.firstUpper = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1)
+}, String.prototype.last = function() {
+  return this[this.length - 1]
+}, String.prototype.isAllRoman = function() {
+  return /^[a-zA-Z0-9]+$/.test(this)
+}, String.prototype.levenstein = function(t) {
+  var e, a, i = t + "",
+      n = [],
+      s = Math.min;
+  if (!this || !i) return (i || this).length;
+  for (e = 0; e <= i.length; n[e] = [e++]);
+  for (a = 0; a <= this.length; n[0][a] = a++);
+  for (e = 1; e <= i.length; e++)
+      for (a = 1; a <= this.length; a++) n[e][a] = i.charAt(e - 1) == this.charAt(a - 1) ? n[e - 1][a - 1] : n[e][a] = s(n[e - 1][a - 1] + 1, s(n[e][a - 1] + 1, n[e - 1][a] + 1));
+  return n[i.length][this.length]
+}, Number.prototype.toNumber = function() {
+  return this.valueOf()
+};

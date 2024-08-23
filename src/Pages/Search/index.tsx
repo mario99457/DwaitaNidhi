@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
-import CachedData from "../../Services/Common/GlobalServices";
+import CachedData, { getBookClass } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
@@ -23,14 +23,6 @@ export const StyledChip = styled(Chip)<{ selected: boolean }>(
     border: selected ? "none" : "1px solid #D5D5D5",
   })
 );
-
-interface SearchResultData {
-  name: string;
-  author: string;
-  lastVisited: string;
-  content: string;
-  path: string;
-}
 
 const dummyResult = [
   {
@@ -73,6 +65,8 @@ const SearchPage = () => {
   });
   const [searchResult, setSearchResult] = useState<SearchResultData[]>([]);
 
+  var searchResults = getBookClass().
+
   return (
     <Box sx={{ padding: "22px 20%" }}>
       <Typography
@@ -81,7 +75,7 @@ const SearchPage = () => {
         fontWeight={600}
         color="#BC4501"
       >
-        अन्वेषण
+        Search
       </Typography>
       <Stack direction="row" mt={3} spacing={2}>
         <TextField
@@ -126,12 +120,12 @@ const SearchPage = () => {
             setSearchResult(dummyResult);
           }}
         >
-          उपस्थापयतु
+          GO
         </Button>
       </Stack>
       <Stack direction="row" mt={3} spacing={2}>
         <StyledChip
-          label={`सर्वे ${
+          label={`All ${
             searchResult.length ? `(${searchResult.length})` : ""
           }`}
           selected={selectedOption == "all"}

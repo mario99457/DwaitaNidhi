@@ -90,3 +90,23 @@ export default class Formatter {
         return e
     }
 }
+
+export function F(t, e = "") {
+    return Formatter.formatSutraVyakhya(t, { highlight: e });
+}
+
+export function E(t, e = "") {
+    return Formatter.toEnglishNumeral(t);
+}
+
+export function H(t, e = "") {
+    return Formatter.highlightString(t, e);
+}
+
+export function TH(t, e = "") {
+    return Formatter.trimAndHighlightString(t, e);
+}
+
+export function P(t, e = "") {
+    return Formatter.toPlainText(t);
+}

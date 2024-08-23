@@ -12,7 +12,7 @@ import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
 import { Sloga } from "../../types/GlobalType.type";
 import { Book } from "../../types/Context.type";
-import { getBookClass } from "../../Services/Common/GlobalServices";
+import { getBookClass, Sutraani } from "../../Services/Common/GlobalServices";
 import CachedData from "../../Services/Common/GlobalServices";
 
 const TitlePage = () => {
@@ -93,7 +93,7 @@ const TitlePage = () => {
           </Typography>
         </div>
         <div className="search-box-wrapper">
-          <SearchBox onSearch={() => {}} placeholder={""} />
+          <SearchBox onSearch={Sutraani.searchSutraani} placeholder={"Type in English or Devanagari"} />
           <img src={playButton} />
         </div>
       </Box>
