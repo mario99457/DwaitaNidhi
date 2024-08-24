@@ -5,9 +5,16 @@ import SearchIcon from "@mui/icons-material/Search";
 interface SearchBoxProps {
   onSearch: (searchTerm: string) => void;
   placeholder?: string;
+  textFieldStyle?: React.CSSProperties;
+  isMobile?: boolean;
 }
 
-const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, placeholder }) => {
+const SearchBox: React.FC<SearchBoxProps> = ({
+  onSearch,
+  placeholder,
+  textFieldStyle,
+  isMobile,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = () => {
@@ -39,16 +46,20 @@ const SearchBox: React.FC<SearchBoxProps> = ({ onSearch, placeholder }) => {
               cursor: "pointer",
               width: "24px",
               height: "24px",
-              background: "#E4E4E4",
+              background: isMobile ? "transparent" : "#E4E4E4",
               borderRadius: "7px",
             }}
           >
             <SearchIcon sx={{}} />
           </InputAdornment>
         ),
+        sx: {
+          borderRadius: isMobile ? "28px" : "",
+        },
       }}
       sx={{
         width: "400px",
+        ...textFieldStyle,
       }}
     />
   );

@@ -65,7 +65,12 @@ const SearchPage = () => {
   });
   const [searchResult, setSearchResult] = useState<SearchResultData[]>([]);
 
-  var searchResults = getBookClass().
+  // var searchResults = getBookClass().
+
+  const handleSearch = () => {
+    const result = getBookClass("sutraani")?.searchSutraani(searchParam);
+    console.log("result---------------", result);
+  };
 
   return (
     <Box sx={{ padding: "22px 20%" }}>
@@ -117,7 +122,8 @@ const SearchPage = () => {
             },
           }}
           onClick={() => {
-            setSearchResult(dummyResult);
+            handleSearch();
+            // setSearchResult(dummyResult);
           }}
         >
           GO
@@ -125,9 +131,7 @@ const SearchPage = () => {
       </Stack>
       <Stack direction="row" mt={3} spacing={2}>
         <StyledChip
-          label={`All ${
-            searchResult.length ? `(${searchResult.length})` : ""
-          }`}
+          label={`All ${searchResult.length ? `(${searchResult.length})` : ""}`}
           selected={selectedOption == "all"}
           onClick={() => {
             setSelectedOption("all");

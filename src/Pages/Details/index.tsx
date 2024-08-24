@@ -9,6 +9,8 @@ import {
   SelectChangeEvent,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -37,6 +39,8 @@ const DetailPage = () => {
   const { slogaNumber, bookName } = useParams();
   const [selectedSloga, setSelectedSloga] = useState<Sloga | null>(null);
   const selectedKey = useRef("");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const BookClass = getBookClass(bookName || "");
 
@@ -144,11 +148,14 @@ const DetailPage = () => {
   return (
     <Box
       sx={{
-        width: "80%",
+        width: {
+          lg: "80%",
+          xs: "100%",
+        },
         background: "#FFFFFF",
         margin: "auto",
         minHeight: "100%",
-        padding: "16px 38px",
+        padding: { lg: "16px 38px", xs: "16px" },
         display: "flex",
         flexDirection: "column",
       }}
@@ -184,6 +191,20 @@ const DetailPage = () => {
           </Typography>
         </div>
       </Box>
+      {isMobile && (
+        <>
+          <SearchBox
+            onSearch={handleSearch}
+            placeholder={"Type in English or Devanagari"}
+            textFieldStyle={{
+              width: "100%",
+              borderRadius: "28px",
+            }}
+            isMobile={true}
+          />
+          <Divider sx={{ mt: 4 }} />
+        </>
+      )}
       <Box className="title-box-wrapper" sx={{ pt: 2 }}>
         <Box sx={{ display: "flex" }}>
           <img
@@ -251,7 +272,7 @@ const DetailPage = () => {
           background: "#FCF4CD",
           borderRadius: "6px",
           minHeight: "100px",
-          padding: "10px 36px 10px 20px",
+          padding: { lg: "10px 36px 10px 20px", xs: "10px 20px 10px 20px" },
         }}
       >
         <Stack
@@ -326,9 +347,11 @@ const DetailPage = () => {
             </Link>
           ))}
         </Stack>
-        <div className="search-box-wrapper">
-          <SearchBox onSearch={handleSearch} placeholder={""} />
-        </div>
+        {!isMobile && (
+          <div className="search-box-wrapper">
+            <SearchBox onSearch={handleSearch} placeholder={""} />
+          </div>
+        )}
       </Stack>
       {BookClass?.supportedCommentaries.map((commentary: Commentary) => (
         <DetailsContent

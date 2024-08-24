@@ -55,6 +55,7 @@ const Layout = ({ children }: LayoutProps) => {
         <TopBarSmall
           toggleMenu={toggleMenu}
           expandNavigationMenu={expandNavigationMenu}
+          progress={progress}
         />
       ) : (
         <TopBar

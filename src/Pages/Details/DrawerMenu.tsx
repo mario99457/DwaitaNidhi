@@ -28,16 +28,13 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
       (book: Book) => book.name == bookName
     );
     if (book) {
+      console.log(book);
       setSlectedBook(book);
     }
   }, []);
 
   return (
-    <Drawer
-      open={open}
-      onClose={onClose}
-      anchor="right"
-    >
+    <Drawer open={open} onClose={onClose} anchor="right">
       <Box sx={{ width: 410 }}>
         <Stack
           sx={{ padding: "20px 16px 14px", background: "#E8E8E8" }}

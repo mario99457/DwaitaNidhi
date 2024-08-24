@@ -153,7 +153,9 @@ const TreeView: React.FC<ListViewProps> = ({
                           {Formatter.toDevanagariNumeral(chapter.n)}.
                           {Formatter.toDevanagariNumeral(subchapter.n)}
                         </span>
-                        <span style={{ fontFamily: "Tiro Devanagari Sanskrit" }}>
+                        <span
+                          style={{ fontFamily: "Tiro Devanagari Sanskrit" }}
+                        >
                           {subchapter.name}
                         </span>
                       </ListItemText>
@@ -177,7 +179,10 @@ const TreeView: React.FC<ListViewProps> = ({
                               sx={{
                                 cursor: "pointer",
                                 borderBottom: "1px solid #dddddd",
-                                pl: "60px",
+                                pl: {
+                                  lg: "60px",
+                                  xs: "40px",
+                                },
                                 py: 0.5,
                               }}
                               key={sloga.i}
@@ -198,6 +203,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                   style={{
                                     color: "#787878",
                                     fontFamily: "Tiro Devanagari Sanskrit",
+                                    flexShrink: "0",
                                   }}
                                 >
                                   {Formatter.toDevanagariNumeral(sloga.i)}{" "}
