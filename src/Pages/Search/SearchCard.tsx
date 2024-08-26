@@ -28,7 +28,6 @@ const SearchCard: React.FC<SearchCardProps> = ({
       <CardContent>
         <Stack direction="row" justifyContent="space-between">
           <Typography
-            fontFamily="Tiro Devanagari Hindi"
             fontSize="18px"
             lineHeight="37px"
             fontWeight="400"
@@ -44,7 +43,6 @@ const SearchCard: React.FC<SearchCardProps> = ({
           </div>
         </Stack>
         <Typography
-          fontFamily="Tiro Devanagari Hindi"
           fontSize="14px"
           color="#616161"
           lineHeight="21px"

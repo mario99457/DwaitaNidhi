@@ -44,7 +44,6 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
           <div className="d-flex">
             <img src={listIcon} />
             <Typography
-              fontFamily={"Tiro Devanagari Hindi"}
               fontSize="22px"
               ml="8px"
             >

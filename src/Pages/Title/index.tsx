@@ -99,7 +99,7 @@ const TitlePage = () => {
             borderRadius: "6px",
             marginTop: "16px",
             color: "#BC4501",
-            fontFamily: "Tiro Devanagari Hindi",
+            fontFamily: "Vesper Libre",
             fontSize: "18px",
           }}
         >

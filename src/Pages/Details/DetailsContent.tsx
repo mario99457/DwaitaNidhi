@@ -60,7 +60,7 @@ const DetailsContent = ({
         <div className="d-flex align-items-end">
           <Typography
             color="#A74600"
-            fontFamily={"Tiro Devanagari Hindi"}
+            fontFamily={"Vesper Libre"}
             lineHeight="45.58px"
             fontSize="26px"
             minWidth="90px"
@@ -70,7 +70,7 @@ const DetailsContent = ({
           <Typography
             color="#616161"
             fontSize="16px"
-            fontFamily={"Tiro Devanagari Hindi"}
+            fontFamily={"Vesper Libre"}
             lineHeight="21.2px"
             marginLeft={5}
             marginBottom={1}
@@ -91,9 +91,9 @@ const DetailsContent = ({
       </Stack>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Typography
-          fontFamily="Tiro Devanagari Hindi"
+          fontFamily="Vesper Libre"
           fontSize="18px"
-          lineHeight="23.94px"
+          lineHeight="33px"
           marginTop="27px"
         >
           {Parser(

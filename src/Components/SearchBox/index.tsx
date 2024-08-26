@@ -46,7 +46,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
               cursor: "pointer",
               width: "24px",
               height: "24px",
-              background: isMobile ? "transparent" : "#E4E4E4",
+              background: isMobile ? "transparent": "#E4E4E4",
               borderRadius: "7px",
             }}
           >

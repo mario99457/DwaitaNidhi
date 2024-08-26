@@ -124,15 +124,11 @@ const DetailPage = () => {
       href={`/${bookName}`}
       onClick={() => {}}
     >
-      <Typography
-        key="2"
-        color="text.primary"
-        fontFamily={"Tiro Devanagari Sanskrit"}
-      >
+      <Typography key="2" color="text.primary" fontFamily={"Vesper Libre"}>
         Home
       </Typography>
     </Link>,
-    <Typography key="3" color="#A74600" fontFamily={"Tiro Devanagari Sanskrit"}>
+    <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
       ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
     </Typography>,
   ];
@@ -149,7 +145,7 @@ const DetailPage = () => {
     <Box
       sx={{
         width: {
-          lg: "80%",
+          lg: "90%",
           xs: "100%",
         },
         background: "#FFFFFF",
@@ -181,7 +177,7 @@ const DetailPage = () => {
           <Typography
             variant="subtitle1"
             sx={{
-              fontFamily: "Tiro Devanagari Hindi",
+              fontFamily: "Vesper Libre",
               fontSize: "16px",
               fontWeight: "400",
               marginLeft: "10px",
@@ -225,7 +221,7 @@ const DetailPage = () => {
             }}
           >
             <Typography
-              fontFamily="Tiro Devanagari Hindi"
+              fontFamily="Vesper Libre"
               fontSize="30px"
               lineHeight="39.9px"
               color="#BC4501"
@@ -256,7 +252,7 @@ const DetailPage = () => {
         sx={{ mt: 5, mb: 2 }}
       >
         <Typography
-          fontFamily="Tiro Devanagari Sanskrit"
+          fontFamily="Vesper Libre"
           fontSize="22px"
           fontWeight="400"
           color="#969696"
@@ -282,7 +278,7 @@ const DetailPage = () => {
           sx={{ mb: 2 }}
         >
           <Typography
-            fontFamily="Tiro Devanagari Hindi"
+            fontFamily="Vesper Libre"
             fontSize="24px"
             fontWeight="400"
             color="#A74600"
@@ -306,7 +302,7 @@ const DetailPage = () => {
           </FormControl>
         </Stack>
         <Typography
-          fontFamily="Tiro Devanagari Hindi"
+          fontFamily="Vesper Libre"
           fontSize="18px"
           fontWeight={400}
           color="#BC4501"

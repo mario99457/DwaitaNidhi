@@ -93,7 +93,7 @@ const TreeView: React.FC<ListViewProps> = ({
                 chapter.name
               }`}
               primaryTypographyProps={{
-                fontFamily: "Tiro Devanagari Sanskrit",
+                fontFamily: "Vesper Libre",
                 fontSize: "26px",
                 color: "#A74600",
               }}
@@ -127,7 +127,7 @@ const TreeView: React.FC<ListViewProps> = ({
                       <ListItemText
                         // primary={subchapter.name}
                         primaryTypographyProps={{
-                          fontFamily: "Tiro Devanagari Sanskrit",
+                          fontFamily: "Vesper Libre",
                           fontSize: "20px",
                           display: "flex",
                           alignItems: "center",
@@ -147,14 +147,14 @@ const TreeView: React.FC<ListViewProps> = ({
                             color: "#787878",
                             marginRight: "8px",
                             marginLeft: "20px",
-                            fontFamily: "Tiro Devanagari Sanskrit",
+                            fontFamily: "Vesper Libre",
                           }}
                         >
                           {Formatter.toDevanagariNumeral(chapter.n)}.
                           {Formatter.toDevanagariNumeral(subchapter.n)}
                         </span>
                         <span
-                          style={{ fontFamily: "Tiro Devanagari Sanskrit" }}
+                          style={{ fontFamily: "Vesper Libre" }}
                         >
                           {subchapter.name}
                         </span>
@@ -190,8 +190,8 @@ const TreeView: React.FC<ListViewProps> = ({
                             >
                               <ListItemText
                                 primaryTypographyProps={{
-                                  fontFamily: "Tiro Devanagari Sanskrit",
-                                  fontSize: "16px",
+                                  fontFamily: "Vesper Libre",
+                                  fontSize: "18px",
                                   color: "#616161",
                                   display: "flex",
                                   alignItems: "center",
@@ -202,7 +202,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                 <span
                                   style={{
                                     color: "#787878",
-                                    fontFamily: "Tiro Devanagari Sanskrit",
+                                    fontFamily: "Vesper Libre",
                                     flexShrink: "0",
                                   }}
                                 >
@@ -211,7 +211,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                 </span>
                                 <span
                                   style={{
-                                    fontFamily: "Tiro Devanagari Sanskrit",
+                                    fontFamily: "Vesper Libre",
                                   }}
                                 >
                                   {sloga.s}

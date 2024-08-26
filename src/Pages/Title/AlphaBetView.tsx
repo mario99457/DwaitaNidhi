@@ -30,7 +30,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
         >
           <ListItemText
             primaryTypographyProps={{
-              fontFamily: "Tiro Devanagari Sanskrit",
+              fontFamily: "Vesper Libre",
               fontSize: "20px",
               display: "flex",
               alignItems: "center",
@@ -39,7 +39,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
             <span
               style={{
                 color: "#787878",
-                fontFamily: "Tiro Devanagari Sanskrit",
+                fontFamily: "Vesper Libre",
                 flexShrink: "0",
               }}
             >
@@ -47,7 +47,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
             </span>
             <span
               style={{
-                fontFamily: "Tiro Devanagari Sanskrit",
+                fontFamily: "Vesper Libre",
               }}
             >
               {data.s}
