@@ -103,7 +103,9 @@ class ApiEndpoints {
       if (ApiEndpoints.gitHubServer) {
         n = ApiEndpoints.gitHubServer + ApiEndpoints.allEndPoints[e];
         fetch(n)
-          .then((t) => (e.endsWith(".wasm") ? t.arrayBuffer() : t.text()))
+          .then((t) => {
+            (e.endsWith(".wasm") ? t.arrayBuffer() : t.text())
+          })
           .then((t) => {
             e.endsWith(".tsv") || e.endsWith(".wasm") || (t = JSON.parse(t)),
               a(t);
