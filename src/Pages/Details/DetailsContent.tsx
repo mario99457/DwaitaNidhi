@@ -2,7 +2,6 @@ import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import playButton from "../../assets/PlayButton.svg";
 import bookmark from "../../assets/bookmark.svg";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 // import details from "./details.json";
 import { Sutraani } from "../../Services/Common/GlobalServices";
 import { Sloga } from "../../types/GlobalType.type";

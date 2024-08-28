@@ -1,6 +1,7 @@
 import Sanscript from "@indic-transliteration/sanscript";
 import Formatter from "./Formatter";
 import Query from "./Query";
+import { ArrayExtension } from "./GlobalServices";
 
 export default class GlobalSearch {
     static DebouceDelayMs = 550;
@@ -66,28 +67,29 @@ export default class GlobalSearch {
         value: "dhatu"
     }];
     static getOriginalSearchString() {
-        return $("#global-search")[0].value
+        return "" //return text from searchbox
     }
-    static setSearchString(t) {
-        $("#global-search").val(t)
+    static setSearchString(t : any) {
+        //assign value to search box
+        t;
     }
     static clearSearchString() {
-        $("#global-search").val("")
+        //clear search box
     }
-    static getDevanagariSearchStrings(t) {
-        var a, i;
-        return t && t.trim() ? (t = t.replaceAll(":", "ः")) == Sanscript.t(t, "hk", "devanagari") ? t.endsWith("्") ? [t] : [t, t + "्"] : (a = [...new Set([t, t.toLowerCase()])], i = [], ["itrans", "slp1", "hk", "iast"].forEach((e => a.forEach((t => {
+    static getDevanagariSearchStrings(t : any) {
+        var a : any, i : any;
+        return t && t.trim() ? (t = t.replaceAll(":", "ः")) == Sanscript.t(t, "hk", "devanagari") ? t.endsWith("्") ? [t] : [t, t + "्"] : (a = [...new Set([t, t.toLowerCase()])], i = [], ["itrans", "slp1", "hk", "iast"].forEach((e => a.forEach(((t : any) => {
             "" != t && (i.push(Sanscript.t(t, e, "devanagari")), -1 == ["aeiou"].indexOf(t.slice(-1))) && i.push(Sanscript.t(t + "a", e, "devanagari"))
-        })))), i = (i = [...new Set(i)]).filter((t => t.split("").every((t => !["a".charCodeAt(), "z".charCodeAt()].between(t.charCodeAt()) && !Object.keys(Formatter.diacriticsMap).includes(t) && !["A".charCodeAt(), "Z".charCodeAt()].between(t.charCodeAt())))))) : []
+        })))), i = (i = [...new Set(i)]).filter(((t : any) => t.split("").every(((t : any) => !ArrayExtension.between(["a".charCodeAt(0), "z".charCodeAt(0)], t.charCodeAt()) && !Object.keys(Formatter.diacriticsMap).includes(t) && !ArrayExtension.between(["A".charCodeAt(0), "Z".charCodeAt(0)], t.charCodeAt())))))) : []
     }
     static initializeGlobalSearch() {
-        $("body").off("input"), $("body").on("input", "#global-search", _.debounce((() => {
+        // $("body").off("input"), $("body").on("input", "#global-search", _.debounce((() => {
             GlobalSearch.searchFieldDirty = !0;
             var t = [{
                     key: "search",
                     value: GlobalSearch.getOriginalSearchString()
                 }],
-                e = ((e = ((e = ((e = Query.getQueryValue("tab")) && t.push({
+                e : any = ((e = ((e = ((e = Query.getQueryValue("tab")) && t.push({
                     key: "tab",
                     value: e
                 }), Query.getQueryValue("filters"))) && t.push({
@@ -97,7 +99,7 @@ export default class GlobalSearch {
                     key: "page",
                     value: e
                 }), Query.clearEverythingAndSetQueryValues(t));
-            Router.loadUrl(document.location.pathname + e.trim() ? "?" + e : "")
-        }), GlobalSearch.DebouceDelayMs))
+            // Router.loadUrl(document.location.pathname + e.trim() ? "?" + e : "")
+        // }), GlobalSearch.DebouceDelayMs))
     }
 }

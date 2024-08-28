@@ -28,7 +28,7 @@ const Layout = ({ children }: LayoutProps) => {
       "books",
       "sutraaniSummary",
     ];
-    Prefetch.prefetchRequiredServerData(requiredData, (e) => {});
+    Prefetch.prefetchRequiredServerData(requiredData, () => {});
 
     const timer = setInterval(() => {
       if (CachedData?.data?.books) {

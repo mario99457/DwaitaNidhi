@@ -28,37 +28,37 @@ export default class Formatter {
         uu: "oo",
         ii: "ee"
     };
-    static toDevanagariNumeral(t) {
+    static toDevanagariNumeral(t : any) {
         t += "";
         for (var e = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], a = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"], i = 0; i < a.length; ++i) t = t.replaceAll(e[i], a[i]);
         return t
     }
-    static toEnglishNumeral(t) {
+    static toEnglishNumeral(t : any) {
         t += "";
         for (var e = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"], a = ["०", "१", "२", "३", "४", "५", "६", "७", "८", "९"], i = 0; i < a.length; ++i) t = t.replaceAll(a[i], e[i]);
         return t
     }
-    static replaceDiacritics(t) {
+    static replaceDiacritics(t : any) {
         for (var [e, a] of(t = t.toLowerCase(), Object.entries(Formatter.diacriticsMap))) t = t.replaceAll(e, a);
         return t
     }
-    static isSwara(t) {
+    static isSwara(t : any) {
         return 0 <= ["अ", "आ", "इ", "ई", "उ", "ऊ", "ऋ", "ॠ", "ऌ", "ए", "ऐ", "ओ", "औ"].indexOf(t)
     }
-    static formatExternalResourcesLinks(t) {
+    static formatExternalResourcesLinks(t : any) {
         var e = new RegExp("docs.google.com.*pub", "g"),
             a = t.match(e);
         if (null != a)
             for (var i = 0; i < a.length; ++i) t = t.replace(a[i], Formatter.toEnglishNumeral(a[i]));
         return t
     }
-    static formatSutraVyakhya(t, e = {}) {
+    static formatSutraVyakhya(t : any, e : any = {}) {
         return t && t.trim() ? (t = Formatter.toDevanagariNumeral(t), t = TagProcessor.processCustomTags(t), t = TagProcessor.processSutraNumberTag(t, e.includeAnchor), t = TagProcessor.processSutraReferences(t), t = Formatter.formatExternalResourcesLinks(t), Formatter.highlightString(t, e.highlight || Query.getQueryValue("highlight"))) : ""
     }
-    static toPlainText(e) {
+    static toPlainText(e : any) {
         return e && ([...Object.keys(TagProcessor.customTagExpansions), "\\+", "!", "=", "\\[", "\\]", "\\{", "\\}", "#", ";", "\\&", "\\^", "\\$", "→"].map((t => new RegExp(t, "g"))).forEach((t => e = e.replaceAll(t, ""))), e = (e = (e = e.replace(/<[^>]*>/g, "")).replaceAll("<", "")).replaceAll(">", "")), e
     }
-    static trimAndHighlightString(t, e) {
+    static trimAndHighlightString(t : any, e : any) {
         if (t && t.trim()) {
             e = e || [Query.getQueryValue("highlight")], Array.isArray(e) || (e = [e]), t = Formatter.toPlainText(t);
             for (var a = 0; a < e.length; ++a) {
@@ -69,44 +69,44 @@ export default class Formatter {
         }
         return ""
     }
-    static highlightString(a, t) {
-        return t = t || [Query.getQueryValue("highlight")], Array.isArray(t) || (t = [t]), a && a.trim() && t.forEach((t => {
+    static highlightString(a : any, t : any) {
+        return t = t || [Query.getQueryValue("highlight")], Array.isArray(t) || (t = [t]), a && a.trim() && t.forEach(((t : any) => {
             var e;
             0 < t.trim().length && (e = `<span class='highlight-string'>${t}</span>`, a = Formatter.replaceText(a, t, e))
         })), a
     }
-    static replaceText(t, e, a) {
-        var i = [];
-        return t.split(/(<[^>]+>)/g).forEach((t => {
+    static replaceText(t : any, e : any, a : any) {
+        var i : any[] = [];
+        return t.split(/(<[^>]+>)/g).forEach(((t : any) => {
             t.startsWith("<") ? i.push(t) : i.push(t.replaceAll(e, a))
         })), i.join("")
     }
-    static locateNearestSpaceBefore(t, e) {
+    static locateNearestSpaceBefore(t : any, e : any) {
         for (; 0 <= e && " " != t[e];) --e;
         return e
     }
-    static locateNearestSpaceAfter(t, e) {
+    static locateNearestSpaceAfter(t : any, e : any) {
         for (; e < t.length && " " != t[e];) ++e;
         return e
     }
 }
 
-export function F(t, e = "") {
+export function F(t : any, e : any) {
     return Formatter.formatSutraVyakhya(t, { highlight: e });
 }
 
-export function E(t, e = "") {
+export function E(t : any) {
     return Formatter.toEnglishNumeral(t);
 }
 
-export function H(t, e = "") {
+export function H(t : any, e = "") {
     return Formatter.highlightString(t, e);
 }
 
-export function TH(t, e = "") {
+export function TH(t : any, e = "") {
     return Formatter.trimAndHighlightString(t, e);
 }
 
-export function P(t, e = "") {
+export function P(t : any) {
     return Formatter.toPlainText(t);
 }

@@ -73,7 +73,7 @@ class ApiEndpoints {
         i = ApiEndpoints.gitHubServerUrls[a];
         console.log("Attempting to reach github server: ", i + "README.md");
         fetch(i + "README.md")
-          .then((t) => {
+          .then((t : any) => {
             if (t && 200 == t.status) {
               ApiEndpoints.gitHubServer = i;
               console.log("Successfully contacted GitHub URL: ", i);
@@ -83,8 +83,8 @@ class ApiEndpoints {
               ApiEndpoints.chooseGitHubServer(e, a + 1);
             }
           })
-          .catch((t) => {
-            console.log("Unable to contact GitHub URL: ", i);
+          .catch((t : any) => {
+            console.log("Unable to contact GitHub URL: ", t);
             ApiEndpoints.chooseGitHubServer(e, a + 1);
           });
       }
@@ -104,10 +104,10 @@ class ApiEndpoints {
         n = ApiEndpoints.gitHubServer + ApiEndpoints.allEndPoints[e];
         fetch(n)
           .then((t) => (e.endsWith(".wasm") ? t.arrayBuffer() : t.text()))
-          .then((t) => {
-            e.endsWith(".tsv") || e.endsWith(".wasm") || (t = JSON.parse(t)),
-              a(t);
-          })
+            .then((t) => {
+              e.endsWith(".tsv") || e.endsWith(".wasm") || (t = JSON.parse(t)),
+                a(t);
+            })
           .catch((t) => {
             console.log(`Error: Server returned error for ${n}:`, t);
             i(t);
@@ -136,7 +136,7 @@ export default class CachedData {
   };
   static fetchDone: { [key: string]: boolean } = {};
   static initializeLocalForage(e: () => void): void {
-    localforage.getItem(CachedData.CACHE_VERSION_KEY).then(function (t) {
+    localforage.getItem(CachedData.CACHE_VERSION_KEY).then(function (t : any) {
       if (t != CachedData.CACHE_VERSION_VALUE) {
         console.log("New User. Welcome !");
         console.log("Localforage is cleared.");
@@ -146,11 +146,11 @@ export default class CachedData {
               CachedData.CACHE_VERSION_KEY,
               CachedData.CACHE_VERSION_VALUE
             )
-            .then(function (t) {
-              console.log("Localforage is initialized.");
+            .then(function (t : any) {
+              console.log("Localforage is initialized." + t);
               e();
             })
-            .catch(function (t) {});
+            .catch(function () {});
         });
       } else {
         console.log("Existing User. Welcome back !");
@@ -174,9 +174,8 @@ export default class CachedData {
     n: () => void = () => {},
     s: (t: string) => void = () => {}
   ): void {
-    let r: string[], e: string[], o: number;
+    let r: string[], o: number;
     r = [];
-    e = [];
     o = t.length;
     t.forEach((e) => {
       if (CachedData.fetchDone[e]) {
@@ -243,7 +242,7 @@ export default class CachedData {
     s = [];
     r = t.length;
     t.forEach((e) => {
-      localforage.getItem(e).then(function (t) {
+      localforage.getItem(e).then(function (t : any) {
         if (null === t || CachedData.isFetchedDataExpired(e, t)) {
           s.push(e);
         } else {
@@ -268,7 +267,7 @@ export default class CachedData {
   static _fetchFromServer(
     i: string,
     n: () => void = () => {},
-    s: (t: any, e: string) => void = () => {},
+    s: (t: any, e: any) => void = () => {},
     r: boolean = !1
   ): void {
     let o: number;
@@ -278,7 +277,7 @@ export default class CachedData {
       (t) => {
         let e: number, a: number;
         e = (Utils.getTime() - o) / 1e3;
-        a = Utils.getStorageOfObjectMB(t, i);
+        a = Utils.getStorageOfObjectMB(t);
         console.log(`Server Success: ${i} : ${a} MB : ${e} sec`);
         CachedData.setValueInLocalForage(i, t, s);
         if (r) {
@@ -300,13 +299,13 @@ export default class CachedData {
   static setValueInLocalForage(
     t: string,
     e: any,
-    a: () => void = () => {}
+    a: (t: any, e: any) => void = () => {}
   ): void {
     e = {
       data: e,
       time: Utils.getTime(),
     };
-    localforage.setItem(t, e).catch((t) => a());
+    localforage.setItem(t, e).catch((t) => a(t, e));
   }
   static getValueFromLocalForage(t: string, e: (t: any) => void): void {
     localforage.getItem(t).then((t) => {
@@ -324,28 +323,7 @@ export default class CachedData {
       !t.startsWith("audio") &&
       ((t = e.time || 0), Utils.getTime() - t > CachedData.staleThresholdInMs)
     );
-  }
-  static fetchAudio(
-    t: any,
-    e: (t: any) => void = () => {},
-    a: (t: any) => void = () => {}
-  ): void {
-    if (navigator.onLine && ApiEndpoints.gitHubServerAvailable) {
-      a("Unable to connect to server");
-    }
-    let url: string = "";
-    ApiEndpoints.gitHubServer;
-    t.a;
-    t.p;
-    fetch(url)
-      .then((t) => t.text())
-      .then((t) => {
-        e(t);
-      })
-      .catch((t) => {
-        a(t);
-      });
-  }
+  }  
 }
 export class Prefetch {
   static startTime: number = 0;
@@ -393,72 +371,72 @@ export class Prefetch {
     Prefetch.hidePrefetchDialog();
   }
 }
-class Settings {
-  static startTime: number = 0;
-  static endTime: number = 0;
-  static pendingResolve: number = 0;
-  static totalKeyCount: number = 0;
-  static errorsRecorded: any[] = [];
-  static wakeLock: any = null;
-  static enableOfflineMode(): string {
-    Settings.startTime = Utils.getTime();
-    console.log("Enabling offline mode");
-    Settings.errorsRecorded = [];
-    let t: string[] = Object.keys(ApiEndpoints.allEndPoints);
-    Settings.pendingResolve = t.length;
-    Settings.totalKeyCount = t.length;
-    CachedData.fetchDataForKeys(
-      t,
-      () => {},
-      (t) => {
-        Settings.errorsRecorded.push(t);
-      }
-    );
-    return "";
-  }
-  static errorHandler(): void {}
-  static closeDialog(): void {}
-  static clearCache(): void {
-    console.log("clearing the cache.");
+// class Settings {
+//   static startTime: number = 0;
+//   static endTime: number = 0;
+//   static pendingResolve: number = 0;
+//   static totalKeyCount: number = 0;
+//   static errorsRecorded: any[] = [];
+//   static wakeLock: any = null;
+//   static enableOfflineMode(): string {
+//     Settings.startTime = Utils.getTime();
+//     console.log("Enabling offline mode");
+//     Settings.errorsRecorded = [];
+//     let t: string[] = Object.keys(ApiEndpoints.allEndPoints);
+//     Settings.pendingResolve = t.length;
+//     Settings.totalKeyCount = t.length;
+//     CachedData.fetchDataForKeys(
+//       t,
+//       () => {},
+//       (t) => {
+//         Settings.errorsRecorded.push(t);
+//       }
+//     );
+//     return "";
+//   }
+//   static errorHandler(): void {}
+//   static closeDialog(): void {}
+//   static clearCache(): void {
+//     console.log("clearing the cache.");
 
-    caches.keys().then((t) => {
-      t.forEach((t) => {
-        caches.delete(t);
-      });
-    });
-    localStorage.clear();
-  }
-  static resetApp(): void {
-    console.log("Resetting the app.");
+//     caches.keys().then((t) => {
+//       t.forEach((t) => {
+//         caches.delete(t);
+//       });
+//     });
+//     localStorage.clear();
+//   }
+//   static resetApp(): void {
+//     console.log("Resetting the app.");
 
-    caches.keys().then((t) => {
-      t.forEach((t) => {
-        caches.delete(t);
-      });
-    });
-    localforage.clear();
-    localStorage.clear();
-  }
-  static enableWakelock(): void {
-    if (!("wakeLock" in navigator)) {
-      console.log("Wakelock is not available.");
-    } else {
-      Settings.wakeLock = navigator.wakeLock
-        .request("screen")
-        .then(() => {
-          console.log("Screen Wakelock is activated");
-        })
-        .catch((t) => {
-          console.log(`Screen Wakelock NOT activated` + t);
-        });
-    }
-  }
-  static reEnableWakeLock(): void {
-    if (Settings.wakeLock && "visible" === document.visibilityState) {
-      Settings.enableWakelock();
-    }
-  }
-}
+//     caches.keys().then((t) => {
+//       t.forEach((t) => {
+//         caches.delete(t);
+//       });
+//     });
+//     localforage.clear();
+//     localStorage.clear();
+//   }
+//   static enableWakelock(): void {
+//     if (!("wakeLock" in navigator)) {
+//       console.log("Wakelock is not available.");
+//     } else {
+//       Settings.wakeLock = navigator.wakeLock
+//         .request("screen")
+//         .then(() => {
+//           console.log("Screen Wakelock is activated");
+//         })
+//         .catch((t) => {
+//           console.log(`Screen Wakelock NOT activated` + t);
+//         });
+//     }
+//   }
+//   static reEnableWakeLock(): void {
+//     if (Settings.wakeLock && "visible" === document.visibilityState) {
+//       Settings.enableWakelock();
+//     }
+//   }
+// }
 export class Sutraani {
   static allSutras = [];
   static currentSutra = {};
@@ -502,61 +480,58 @@ export class Sutraani {
   static render() {
     Sutraani.populateAllSutras();
   }
-  static renderSutraList(t) {
-    var e, a, i, n, s, r, o;
+  static renderSutraList(t: any) {
+    var e, a, n;
     Sutraani.currentSutra = {};
-    (t = Sutraani.getSutraList(t)) &&
-      ((e = t.sutras),
-      (a = t.title),
-      (n = t.commKey),
-      (document.title = t.title));
+    t = Sutraani.getSutraList(t);
+    e = t.sutras; a = t.title; n = t.commKey;
+    document.title = t.title;
     /*TODO:
                 A title for every content dynamically
                 End title
             
             
             */
-    var data = {
-      title: "श्रीमद् ब्रह्मसूत्राणि",
-      endTitle: "॥ इति श्रीमद् ब्रह्मसूत्राणि ॥",
-      rowData: e.map((e) => {
-        sutranum: `${e.a}.${e.p}.` + e.n;
-        sutra: e.s;
-      }),
-    };
+    // var data = {
+    //   title: "श्रीमद् ब्रह्मसूत्राणि",
+    //   endTitle: "॥ इति श्रीमद् ब्रह्मसूत्राणि ॥",
+    //   rowData: e.map((e: any) => {
+    //     sutranum: `${e.a}.${e.p}.` + e.n;
+    //     sutra: e.s;
+    //   }),
+    // };
   }
-  static renderSingleSutra(t) {
+  static renderSingleSutra(t : any) {
     Sutraani.currentSutra = {};
     document.title = "";
-    var a = CachedData.data.sutrartha[t.i]
-        ? CachedData.data.sutrartha[t.i].sa
-        : "",
-      n = Formatter.formatSutraVyakhya(
-        CachedData.data.sutrartha[t.i] ? CachedData.data.sutrartha[t.i].sd : "",
-        {
-          includeAnchor: !0,
-        }
-      );
+    // var a = CachedData.data.sutrartha[t.i]
+    //     ? CachedData.data.sutrartha[t.i].sa
+    //     : "",
+    //   n = Formatter.formatSutraVyakhya(
+    //     CachedData.data.sutrartha[t.i] ? CachedData.data.sutrartha[t.i].sd : "",
+    //     {
+    //       includeAnchor: !0,
+    //     }
+    //   );
 
-    var sutraData = {
-      mobileView: Utils.isMobileView(),
-      title: "" + t.s,
-      apnNumber: Formatter.toDevanagariNumeral(`${t.a}.${t.p}.` + t.n),
-      sampurnaSutram: t.ss,
-      oneLineMeaningSanskrit: a,
-      //oneLineMeaningEnglish: i,
-      sutrartha: n,
-      commentaries: Sutraani.getCommentaries(t),
-      leftArrow: Sutraani.getLeftArrow(t),
-      rightArrow: Sutraani.getRightArrow(t),
-    };
+    // var sutraData = {
+    //   mobileView: Utils.isMobileView(),
+    //   title: "" + t.s,
+    //   apnNumber: Formatter.toDevanagariNumeral(`${t.a}.${t.p}.` + t.n),
+    //   sampurnaSutram: t.ss,
+    //   oneLineMeaningSanskrit: a,
+    //   //oneLineMeaningEnglish: i,
+    //   sutrartha: n,
+    //   commentaries: Sutraani.getCommentaries(t),
+    //   leftArrow: Sutraani.getLeftArrow(t),
+    //   rightArrow: Sutraani.getRightArrow(t),
+    // };
 
-    Sutraani.renderSutraListInLeftNav(t, e);
     //AudioProcessor.setupSutraAudio(t)
   }
 
-  static getCommentaries(e) {
-    return Sutraani.supportedCommentaries.map((t) => {
+  static getCommentaries(e : any) {
+    return Sutraani.supportedCommentaries.map((t : any) => {
       return {
         key: t.key,
         commname: t.name,
@@ -574,12 +549,12 @@ export class Sutraani {
       };
     });
   }
-  static getLeftArrow(e) {
-    const t = Sutraani.allSutras.find((t) => t.srno == e.srno - 1);
+  static getLeftArrow(e : any) {
+    const t = Sutraani.allSutras.find((t : any) => t.srno == e.srno - 1);
     return t;
   }
-  static getRightArrow(e) {
-    const t = Sutraani.allSutras.find((t) => t.srno == e.srno + 1);
+  static getRightArrow(e : any) {
+    const t = Sutraani.allSutras.find((t : any) => t.srno == e.srno + 1);
     return t;
   }
   static getSutraList(t?: any): any {
@@ -590,117 +565,148 @@ export class Sutraani {
         }
       : "z" == t
       ? {
-          sutras: e.sort((t, e) => t.s.localeCompare(e.s)),
+          sutras: e.sort((t : any, e : any) => t.s.localeCompare(e.s)),
         }
       : {
           sutras: e,
         };
   }
-  static renderSutraListInLeftNav(e) {}
 
   static populateAllSutras() {
     0 == Sutraani.allSutras?.length &&
       (Sutraani.allSutras = CachedData.data?.sutraani?.data
-        .sort((t, e) => t.i - e.i)
-        .map((e, t) => ((e.srno = t + 1), e)));
+        .sort((t : any, e : any) => t.i - e.i)
+        .map((e : any, t : any) => ((e.srno = t + 1), e)));
   }
 
   static getSummary(i: string) {
     return CachedData.data.sutraaniSummary[i];
   }
 
-  static generateScore(t, e) {
+  static generateScore(t : any, e : any) {
     e = (e = E(e)).replaceAll(" ", "").replaceAll("ऽ", "");
     var a = t.s.trim().replaceAll(" ", "").replaceAll("ऽ", ""), i = 9e4 - t.i;
     
     return Sutraani.partialMatchWithSutraNumber(t, e) ? 81e4 + i : a == e ? 72e4 + i : a.startsWith(e) ? 63e4 + i : 0 <= a.indexOf(e) ? 54e4 + i : 0
   }
 
-  static partialMatchWithSutraNumber(t, e) {
+  static partialMatchWithSutraNumber(t : any, e : any) {
     return null != (e = e.match(/([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)){0,1}){0,1}){0,1}){0,1}/)) && (void 0 !== e[3] ? t.a == e[1] && t.p == e[2] && (t.n + "").startsWith(e[3] + "") : void 0 !== e[2] ? t.a == e[1] && t.p == e[2] : void 0 !== e[1] && t.a == e[1])
   }
 
   static searchSutraani(i: string):any[] {
     var a = GlobalSearch.getDevanagariSearchStrings(i);
     Sutraani.populateAllSutras();        
-    Sutraani.allSutras.forEach((t => {
+    Sutraani.allSutras.forEach(((t : any) => {
         t.searchData = {
             score: 0,
             datanav: "/sutraani/" + t["n"]
       }
     })), 
-    Sutraani.allSutras.forEach((e => a.forEach((t => e.searchData.score = Math.max(e.searchData.score, Sutraani.generateScore(e, t))))));
-      var i = Sutraani.allSutras.filter((t => 0 < t.searchData.score)).sort(((t, e) => e.searchData.score - t.searchData.score)).map((t => ({
+    Sutraani.allSutras.forEach(((e : any) => a.forEach(((t : any) => e.searchData.score = Math.max(e.searchData.score, Sutraani.generateScore(e, t))))));
+      return Sutraani.allSutras.filter(((t : any) => 0 < t.searchData.score)).sort(((t : any, e : any) => e.searchData.score - t.searchData.score)).map(((t : any) => ({
           sutranum: F(`${t.a}.${t.p}.` + t.n, a),            
           sutra: F(t.s, a),
           datanav: t.searchData.datanav,
           i: t.i
       })));
-      
-      return i;
-  }
+    }
 }
 
-export function getBookClass(name: string) {
+export function getBookClass(name: any) {
   if (name == "sutraani") {
     return Sutraani;
   }
   return null;
 }
 
-Array.prototype.intersect = function(...t) {
-  return [this, ...t].reduce(((t, e) => t.filter((t => e.includes(t)))))
-}, Array.prototype.between = function(t) {
-  return this[0] <= t && t <= this[1]
-}, Array.prototype.findFirst = function(t) {
-  for (var e = 0; e < this.length; ++e)
-      if (0 <= t.indexOf(this[e])) return this[e];
-  return null
-}, Array.prototype.rotate = function(t) {
-  return t %= this.length, this.slice(t, this.length).concat(this.slice(0, t))
-}, Array.prototype.getLast = function() {
-  return this[this.length - 1]
-}, Array.prototype.setLast = function(t) {
-  return 0 == this.length ? this.push(t) : this[this.length - 1] = t, this
-}, Array.prototype.getSecondLast = function() {
-  return this[this.length - 2]
-}, Array.prototype.setSecondLast = function(t) {
-  if (0 != this.length) return 1 == this.length ? this.unshift(t) : this[this.length - 2] = t, this
-}, Array.prototype.removeLast = function() {
-  for (var t = [], e = 0; e < this.length - 1; ++e) t.push(this[e]);
-  return t
-};
+export class ArrayExtension extends Array {
+  constructor(){
+    super()
+  };
+  static intersect(...t  : any[]) {
+    return [this, ...t].reduce(((t, e) => t.filter(((t : any) => e.includes(t)))))
+  }
+  static between = (a : any, t : any) => {
+    return a[0] <= t && t <= a[1]
+  }
+  findFirst = (t : any) => {
+    for (var e = 0; e < this.length; ++e)
+        if (0 <= t.indexOf(this[e])) return this[e];
+    return null
+  }
+  rotate = (t : any) => {
+    return t %= this.length, this.slice(t, this.length).concat(this.slice(0, t))
+  }
+  getLast = () => {
+    return this[this.length - 1]
+  }
+  setLast = (t : any) => {
+    return 0 == this.length ? this.push(t) : this[this.length - 1] = t, this
+  }
+  getSecondLast = () => {
+    return this[this.length - 2]
+  }
+  setSecondLast = (t : any) => {
+    if (0 != this.length) return 1 == this.length ? this.unshift(t) : this[this.length - 2] = t, this
+  }
+  removeLast = () => {
+    for (var t = [], e = 0; e < this.length - 1; ++e) t.push(this[e]);
+    return t
+  };
+}
 
-String.prototype.getLastChar = function() {
-  return this[this.length - 1]
-}, String.prototype.getSecondLastChar = function() {
-  return this[this.length - 2]
-}, String.prototype.removeLastChar = function() {
-  return this.slice(0, -1)
-}, String.prototype.find = function(t) {
-  return this.split("").find(t)
-}, String.prototype.clone = function() {
-  return this
-}, String.prototype.replaceAll = function(t, e) {
-  return t = RegExp(t, "ig"), this.replace(t, e)
-}, String.prototype.toNumber = function() {
-  return parseInt(this, 10) || 0
-}, String.prototype.firstUpper = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1)
-}, String.prototype.last = function() {
-  return this[this.length - 1]
-}, String.prototype.isAllRoman = function() {
-  return /^[a-zA-Z0-9]+$/.test(this)
-}, String.prototype.levenstein = function(t) {
-  var e, a, i = t + "",
-      n = [],
-      s = Math.min;
-  if (!this || !i) return (i || this).length;
-  for (e = 0; e <= i.length; n[e] = [e++]);
-  for (a = 0; a <= this.length; n[0][a] = a++);
-  for (e = 1; e <= i.length; e++)
-      for (a = 1; a <= this.length; a++) n[e][a] = i.charAt(e - 1) == this.charAt(a - 1) ? n[e - 1][a - 1] : n[e][a] = s(n[e - 1][a - 1] + 1, s(n[e][a - 1] + 1, n[e - 1][a] + 1));
-  return n[i.length][this.length]
-}, Number.prototype.toNumber = function() {
-  return this.valueOf()
-};
+export class StringExtension extends String {
+  constructor(){
+    super()
+  };
+  getLastChar = () => {
+    return this[this.length - 1]
+  }
+  getSecondLastChar = () => {
+    return this[this.length - 2]
+  }
+  removeLastChar = () => {
+    return this.slice(0, -1)
+  }
+  find = (t : any) => {
+    return this.split("").find(t)
+  }
+  clone = () => {
+    return this
+  }
+  replaceAll = (t : any, e : any) => {
+    return t = RegExp(t, "ig"), this.replace(t, e)
+  }
+  toNumber = () => {
+    return parseInt(this.toString(), 10) || 0
+  }
+  firstUpper = () => {
+    return this.charAt(0).toUpperCase() + this.slice(1)
+  }
+  last = () => {
+    return this[this.length - 1]
+  }
+  isAllRoman = () => {
+    return /^[a-zA-Z0-9]+$/.test(this.toString())
+  }
+  levenstein = (t : any) => {
+    var e, a, i = t + "",
+        n = [],
+        s = Math.min;
+    if (!this || !i) return (i || this).length;
+    for (e = 0; e <= i.length; n[e] = [e++]);
+    for (a = 0; a <= this.length; n[0][a] = a++);
+    for (e = 1; e <= i.length; e++)
+        for (a = 1; a <= this.length; a++) n[e][a] = i.charAt(e - 1) == this.charAt(a - 1) ? n[e - 1][a - 1] : n[e][a] = s(n[e - 1][a - 1] + 1, s(n[e][a - 1] + 1, n[e - 1][a] + 1));
+    return n[i.length][this.length]
+  }
+}
+export class NumberExtension extends Number {
+  constructor(){
+    super()
+  };
+  toNumber = () => {
+    return this.valueOf()
+  }
+}
