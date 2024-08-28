@@ -22,6 +22,7 @@ import CachedData, {
   getBookClass,
   Sutraani,
 } from "../../Services/Common/GlobalServices";
+import SearchView from "./SearchView";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -30,9 +31,17 @@ const TitlePage = () => {
   const [selectedBook, setSlectedBook] = useState<Book | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [searchResult, setSearchResult] = useState<any[] | boolean>(false);
 
   const handleSlogaClick = (selectedSloga: Sloga) => {
     navigate(`/${bookName}/${selectedSloga.i}`);
+  };
+
+  const handleSearch = (searchTerm: string) => {
+    const result = Sutraani.searchSutraani(searchTerm);
+    setSearchResult(result);
+    setSelectedView("search");
+    // console.log("inside search", result);
   };
 
   useEffect(() => {
@@ -132,7 +141,7 @@ const TitlePage = () => {
           <Box className="search-box-wrapper">
             {!isMobile && (
               <SearchBox
-                onSearch={Sutraani.searchSutraani}
+                onSearch={handleSearch}
                 placeholder={"Type in English or Devanagari"}
               />
             )}
@@ -153,17 +162,24 @@ const TitlePage = () => {
         </Box>
       </Box>
       <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
-        {selectedView == "alpha" ? (
+        {selectedView == "alpha" && (
           <AlphaBetView
             handleSlogaClick={handleSlogaClick}
-            toc={selectedBook?.chapters}
+            // toc={selectedBook?.chapters}
             slogas={getBookClass(bookName || "")?.getSutraList}
           />
-        ) : (
+        )}
+        {selectedView == "list" && (
           <TreeView
             handleSlogaClick={handleSlogaClick}
             toc={selectedBook?.chapters}
             slogas={getBookClass(bookName || "")?.allSutras}
+          />
+        )}
+        {selectedView == "search" && (
+          <SearchView
+            slogas={searchResult}
+            handleSlogaClick={handleSlogaClick}
           />
         )}
       </Box>

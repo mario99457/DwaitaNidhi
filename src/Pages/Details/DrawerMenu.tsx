@@ -7,6 +7,7 @@ import TreeView from "../Title/Treeview";
 import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import { Sloga } from "../../types/GlobalType.type";
+import { useNavigate } from "react-router-dom";
 interface DrawerMenuProps {
   open: boolean;
   onClose: () => void;
@@ -22,13 +23,18 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
   slogas,
 }) => {
   const [selectedBook, setSlectedBook] = React.useState<Book | null>(null);
+  const navigate = useNavigate();
+
+  const handleSlogaClick = (selectedSloga: Sloga) => {
+    navigate(`/${bookName}/${selectedSloga.i}`);
+    onClose();
+  };
 
   useEffect(() => {
     const book = CachedData.data.books.find(
       (book: Book) => book.name == bookName
     );
     if (book) {
-      console.log(book);
       setSlectedBook(book);
     }
   }, []);
@@ -43,10 +49,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
         >
           <div className="d-flex">
             <img src={listIcon} />
-            <Typography
-              fontSize="22px"
-              ml="8px"
-            >
+            <Typography fontSize="22px" ml="8px">
               सूत्रावलि
             </Typography>
           </div>
@@ -60,7 +63,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
         </Stack>
         <TreeView
           toc={selectedBook?.chapters || []}
-          handleSlogaClick={() => {}}
+          handleSlogaClick={handleSlogaClick}
           selectedSloga={selectedSloga}
           slogas={slogas}
         />

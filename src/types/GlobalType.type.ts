@@ -6,3 +6,9 @@ export interface Sloga {
   n: string;
   srno?: number;
 }
+
+export interface SearchResult {
+  datanav: string;
+  sutra: string;
+  sutranum: string;
+}

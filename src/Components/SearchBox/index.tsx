@@ -58,7 +58,7 @@ const SearchBox: React.FC<SearchBoxProps> = ({
         },
       }}
       sx={{
-        width: "400px",
+        width: "410px",
         ...textFieldStyle,
       }}
     />

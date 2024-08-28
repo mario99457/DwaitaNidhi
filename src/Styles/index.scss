@@ -80,7 +80,7 @@
     align-items: center;
 
     .search-box {
-        max-width: 250px;
+        max-width: 280px;
         margin-right: 17px;
 
         .MuiInputBase-root {
@@ -210,4 +210,8 @@
     color: #000000;
     line-height: 16px;
     margin-top: 1rem;
+}
+
+.treeview-box-wrapper .highlight-string {
+    background: #F6BF07;
 }

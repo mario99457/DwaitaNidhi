@@ -1,6 +1,7 @@
 import {
   Box,
   Breadcrumbs,
+  CircularProgress,
   Container,
   FormControl,
   Link,
@@ -20,7 +21,7 @@ import prevButton from "../../assets/prev_button.svg";
 import nextButton from "../../assets/next_button.svg";
 import playButton from "../../assets/PlayButton.svg";
 import Divider from "@mui/material/Divider";
-import SearchBox from "../../Components/SearchBox";
+// import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
 import { getBookClass } from "../../Services/Common/GlobalServices";
@@ -137,10 +138,6 @@ const DetailPage = () => {
     console.log("inside search", searchTerm);
   };
 
-  if (!selectedSloga) {
-    return <>No Sutras found</>;
-  }
-
   return (
     <Box
       sx={{
@@ -156,210 +153,214 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
-      <Box
-        sx={{
-          display: "none",
-          justifyContent: "space-between",
-          px: 0,
-          pb: 4,
-          borderBottom: "1px solid #BDBDBD",
-        }}
-      >
-        <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
-          {breadcrumbs}
-        </Breadcrumbs>
-        <div
-          style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
-          onClick={() => setOpenDrawer(true)}
-          role="button"
-        >
-          <img src={ToC_Icon} width={`18px`} height={`18px`} />
-          <Typography
-            variant="subtitle1"
+      {selectedSloga ? (
+        <>
+          <Box
             sx={{
-              fontFamily: "Vesper Libre",
-              fontSize: "16px",
-              fontWeight: "400",
-              marginLeft: "10px",
+              display: "flex",
+              justifyContent: "space-between",
+              px: 0,
+              pb: 4,
+              borderBottom: "1px solid #BDBDBD",
             }}
           >
-            सूत्रावलि
-          </Typography>
-        </div>
-      </Box>
-      {isMobile && (
-        <>
-          <SearchBox
-            onSearch={handleSearch}
-            placeholder={"Type in English or Devanagari"}
-            textFieldStyle={{
-              width: "100%",
-              borderRadius: "28px",
-            }}
-            isMobile={true}
-          />
-          <Divider sx={{ mt: 4 }} />
-        </>
-      )}
-      <Box className="title-box-wrapper" sx={{ pt: 2 }}>
-        <Box sx={{ display: "flex" }}>
-          <img
-            src={prevButton}
-            alt="previous"
-            style={{
-              visibility: selectedSloga.srno == 1 ? "hidden" : "visible",
-              cursor: "pointer",
-            }}
-            onClick={() => handleNavigateSloga("prev")}
-          />
-          <Container
-            sx={{
-              height: "60px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            <div></div>
+            {/* <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
+              {breadcrumbs}
+            </Breadcrumbs> */}
+            <div
+              style={{
+                display: "flex",
+                cursor: "pointer",
+                alignItems: "center",
+              }}
+              onClick={() => setOpenDrawer(true)}
+              role="button"
+            >
+              <img src={ToC_Icon} width={`18px`} height={`18px`} />
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontFamily: "Vesper Libre",
+                  fontSize: "16px",
+                  fontWeight: "400",
+                  marginLeft: "10px",
+                }}
+              >
+                सूत्रावलि
+              </Typography>
+            </div>
+          </Box>
+          <Box className="title-box-wrapper" sx={{ pt: 2 }}>
+            <Box sx={{ display: "flex" }}>
+              <img
+                src={prevButton}
+                alt="previous"
+                style={{
+                  visibility: selectedSloga?.srno == 1 ? "hidden" : "visible",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleNavigateSloga("prev")}
+              />
+              <Container
+                sx={{
+                  height: "60px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Typography
+                  fontFamily="Vesper Libre"
+                  fontSize="30px"
+                  lineHeight="39.9px"
+                  color="#BC4501"
+                >
+                  {selectedSloga?.s}
+                </Typography>
+              </Container>
+              <img
+                src={nextButton}
+                alt="next"
+                style={{
+                  cursor: "pointer",
+                  visibility:
+                    BookClass?.allSutras &&
+                    selectedSloga &&
+                    selectedSloga?.srno <= BookClass?.allSutras.length
+                      ? "visible"
+                      : "hidden",
+                }}
+                onClick={() => handleNavigateSloga("next")}
+              />
+            </Box>
+          </Box>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            sx={{ mt: 5, mb: 2 }}
           >
             <Typography
               fontFamily="Vesper Libre"
-              fontSize="30px"
-              lineHeight="39.9px"
-              color="#BC4501"
+              fontSize="22px"
+              fontWeight="400"
+              color="#969696"
             >
-              {selectedSloga?.s}
+              ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
             </Typography>
-          </Container>
-          <img
-            src={nextButton}
-            alt="next"
-            style={{
-              cursor: "pointer",
-              visibility:
-                BookClass?.allSutras &&
-                selectedSloga &&
-                selectedSloga?.srno <= BookClass?.allSutras.length
-                  ? "visible"
-                  : "hidden",
+            <img src={playButton} />
+          </Stack>
+          <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
+          <Box
+            sx={{
+              mt: 2,
+              background: "#FCF4CD",
+              borderRadius: "6px",
+              minHeight: "100px",
+              padding: { lg: "10px 36px 10px 20px", xs: "10px 20px 10px 20px" },
             }}
-            onClick={() => handleNavigateSloga("next")}
-          />
-        </Box>
-      </Box>
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{ mt: 5, mb: 2 }}
-      >
-        <Typography
-          fontFamily="Vesper Libre"
-          fontSize="22px"
-          fontWeight="400"
-          color="#969696"
-        >
-          ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
-        </Typography>
-        <img src={playButton} />
-      </Stack>
-      <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
-      <Box
-        sx={{
-          mt: 2,
-          background: "#FCF4CD",
-          borderRadius: "6px",
-          minHeight: "100px",
-          padding: { lg: "10px 36px 10px 20px", xs: "10px 20px 10px 20px" },
-        }}
-      >
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{ mb: 2 }}
-        >
-          <Typography
-            fontFamily="Vesper Libre"
-            fontSize="24px"
-            fontWeight="400"
-            color="#A74600"
           >
-            संक्षेप
-          </Typography>
-          <FormControl sx={{ minWidth: 120 }} size="small">
-            <Select
-              labelId="demo-select-small-label"
-              id="demo-select-small"
-              value={selectedLanguage}
-              onChange={handleLanguageChange}
-              hiddenLabel
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 2 }}
             >
-              {availableLanguages.map((language) => (
-                <MenuItem key={language.id} value={language.id}>
-                  {language.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Stack>
-        <Typography
-          fontFamily="Vesper Libre"
-          fontSize="18px"
-          fontWeight={400}
-          color="#BC4501"
-          lineHeight="23.94px"
-        >
-          {BookClass?.getSummary(selectedSloga.i)
-            ? BookClass?.getSummary(selectedSloga.i)[selectedLanguage]
-            : ""}
-        </Typography>
-      </Box>
-      <Stack
-        sx={{ mt: 4 }}
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <Stack
-          direction="row"
-          spacing={2}
-          divider={<Divider orientation="vertical" flexItem />}
-        >
-          {BookClass?.supportedCommentaries.map((commentary) => (
-            <Link
-              // href={`#${commentary.key}`}
-              key={commentary.key}
-              onClick={() => handleCommentaryChange(commentary)}
-              sx={{ textDecoration: "none" }}
-            >
-              <div
-                key={commentary.name}
-                role="tab"
-                // aria-selected={selectedCommentary?.name === commentary.name}
-                className={`commentary-tab`}
-                tabIndex={0}
+              <Typography
+                fontFamily="Vesper Libre"
+                fontSize="24px"
+                fontWeight="400"
+                color="#A74600"
               >
-                {commentary.name}
-              </div>
-            </Link>
-          ))}
-        </Stack>
-        {!isMobile && (
+                संक्षेप
+              </Typography>
+              <FormControl sx={{ minWidth: 120 }} size="small">
+                <Select
+                  labelId="demo-select-small-label"
+                  id="demo-select-small"
+                  value={selectedLanguage}
+                  onChange={handleLanguageChange}
+                  hiddenLabel
+                >
+                  {availableLanguages.map((language) => (
+                    <MenuItem key={language.id} value={language.id}>
+                      {language.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
+            <Typography
+              fontFamily="Vesper Libre"
+              fontSize="18px"
+              fontWeight={400}
+              color="#BC4501"
+              lineHeight="23.94px"
+            >
+              {BookClass?.getSummary(selectedSloga?.i)
+                ? BookClass?.getSummary(selectedSloga?.i)[selectedLanguage]
+                : ""}
+            </Typography>
+          </Box>
+          <Stack
+            sx={{ mt: 4 }}
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack
+              direction="row"
+              spacing={2}
+              divider={<Divider orientation="vertical" flexItem />}
+            >
+              {BookClass?.supportedCommentaries.map((commentary) => (
+                <Link
+                  // href={`#${commentary.key}`}
+                  key={commentary.key}
+                  onClick={() => handleCommentaryChange(commentary)}
+                  sx={{ textDecoration: "none" }}
+                >
+                  <div
+                    key={commentary.name}
+                    role="tab"
+                    // aria-selected={selectedCommentary?.name === commentary.name}
+                    className={`commentary-tab`}
+                    tabIndex={0}
+                  >
+                    {commentary.name}
+                  </div>
+                </Link>
+              ))}
+            </Stack>
+            {/* {!isMobile && (
           <div className="search-box-wrapper">
             <SearchBox onSearch={handleSearch} placeholder={""} />
           </div>
-        )}
-      </Stack>
-      {BookClass?.supportedCommentaries.map((commentary: Commentary) => (
-        <DetailsContent
-          selectedCommentary={commentary}
-          selectedSloga={selectedSloga}
-          key={commentary.key}
-          defaultExpanded={
-            !commentary.hidden || selectedCommentary?.[commentary.key]
-          }
-        />
-      ))}
-
+        )} */}
+          </Stack>
+          {BookClass?.supportedCommentaries.map((commentary: Commentary) => (
+            <DetailsContent
+              selectedCommentary={commentary}
+              selectedSloga={selectedSloga}
+              key={commentary.key}
+              defaultExpanded={
+                !commentary.hidden || selectedCommentary?.[commentary.key]
+              }
+            />
+          ))}
+        </>
+      ) : (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
       <DrawerMenu
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
