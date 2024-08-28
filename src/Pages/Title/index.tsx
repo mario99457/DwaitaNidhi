@@ -41,7 +41,6 @@ const TitlePage = () => {
     const result = Sutraani.searchSutraani(searchTerm);
     setSearchResult(result);
     setSelectedView("search");
-    // console.log("inside search", result);
   };
 
   useEffect(() => {
@@ -52,6 +51,11 @@ const TitlePage = () => {
       setSlectedBook(book);
     }
   }, [bookName]);
+
+  const handleClearSearch = () => {
+    setSearchResult(false);
+    setSelectedView("list");
+  };
 
   return (
     <Box
@@ -143,12 +147,21 @@ const TitlePage = () => {
               <SearchBox
                 onSearch={handleSearch}
                 placeholder={"Type in English or Devanagari"}
+                onClear={handleClearSearch}
               />
             )}
             <img src={playButton} />
           </Box>
         </Box>
-        <Box sx={{ display: "flex", justifyContent: "end", mt: 4 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "end",
+            mt: 4,
+            pointerEvents: searchResult ? "none" : "auto",
+            opacity: searchResult ? 0.7 : 1,
+          }}
+        >
           <img
             src={selectedView == "list" ? listIconSelected : listIcon}
             style={{ cursor: "pointer" }}
