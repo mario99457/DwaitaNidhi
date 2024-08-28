@@ -5,7 +5,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ToC_Icon from "../../assets/toc.svg";
 import SearchBox from "../../Components/SearchBox";
@@ -165,8 +165,8 @@ const TitlePage = () => {
         {selectedView == "alpha" && (
           <AlphaBetView
             handleSlogaClick={handleSlogaClick}
-            // toc={selectedBook?.chapters}
-            slogas={getBookClass(bookName || "")?.getSutraList}
+            toc={selectedBook?.chapters}
+            slogas={getBookClass(bookName)?.getSutraList}
           />
         )}
         {selectedView == "list" && (

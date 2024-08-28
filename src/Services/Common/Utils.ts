@@ -11,7 +11,7 @@ export default class Utils {
        //TODO: 
        console.log(t);
     }
-    static getKeyByValue(e: object, a: any): string | undefined {
+    static getKeyByValue(e: any, a: any): string | undefined {
         return Object.keys(e).find((t: string) => e[t] === a);
     }
     static printStorage(): void {
@@ -27,7 +27,7 @@ export default class Utils {
        //TODO: 
        console.log(t);
     }       
-    static getStorageOfObjectMB(t: any, e: any) {
+    static getStorageOfObjectMB(t: any) {
         return t = JSON.stringify(t), t = (new TextEncoder).encode(t).length, Math.ceil(t / 1e3 / 1e3)
     }
     static getTime(): number {

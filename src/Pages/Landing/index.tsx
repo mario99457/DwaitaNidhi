@@ -1,11 +1,11 @@
-import { Box, Container, useMediaQuery, useTheme } from "@mui/material";
-import React from "react";
+import { useMediaQuery, useTheme } from "@mui/material";
+// import React from "react";
 import card1Img from "../../assets/LandingPageCards/image 10.png";
 import card1Small from "../../assets/LandingPageCards/image 10_small.png";
-import card2Img from "../../assets/LandingPageCards/image 6.png";
-import card3Img from "../../assets/LandingPageCards/image 7.png";
-import card4Img from "../../assets/LandingPageCards/image 8.png";
-import card5Img from "../../assets/LandingPageCards/image 9.png";
+// import card2Img from "../../assets/LandingPageCards/image 6.png";
+// import card3Img from "../../assets/LandingPageCards/image 7.png";
+// import card4Img from "../../assets/LandingPageCards/image 8.png";
+// import card5Img from "../../assets/LandingPageCards/image 9.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";

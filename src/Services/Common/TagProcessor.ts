@@ -63,12 +63,12 @@ export default class TagProcessor {
         "<v>": '<span class="bhashya-vartikam">',
         "</v>": "</span>"
     };
-    static processCustomTags(t) {
+    static processCustomTags(t : any) {
         for (var [e, a] of Object.entries(TagProcessor.customTagExpansions)) t = t.replaceAll(e, a);
         return t
     }
-    static processSutraNumberTag(t, r = !1) {
-        return t.replace(/\[\[([०-९0-9])[-_.|॥।/]([०-९0-9])[-_.|॥।/]([०-९0-9]{1,3})\]\]/g, (t => {
+    static processSutraNumberTag(t : any, r = !1) {
+        return t.replace(/\[\[([०-९0-9])[-_.|॥।/]([०-९0-9])[-_.|॥।/]([०-९0-9]{1,3})\]\]/g, ((t : any)=> {
             var e = t[2],
                 a = t[4],
                 i = (t = t.substring(6, t.length - 2), Formatter.toEnglishNumeral(e)),
@@ -78,17 +78,17 @@ export default class TagProcessor {
             return !0 === r && (e += `<span class="ml-2 subtext-font" data-anchor="sutralist-entry-${1e4*i.toNumber()+1e3*n.toNumber()+s.toNumber()}"><i class="fas fa-anchor cursor-pointer sutra-num-anchor"></i></span>`), e
         }))
     }
-    static processSutraReferences(t) {
-        return t.replaceAll(/<{SK([0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
+    static processSutraReferences(t : any) {
+        return t.replaceAll(/<{SK([0123456789०१२३४५६७८९]+)}>/g, (function(e : any) {
             var a = Formatter.toEnglishNumeral(e);
             return `<a class="sutra-text-color" href="/sutraani/sk${a}" data-nav="/sutraani/sk${a}">(कौमुदी-${Formatter.toDevanagariNumeral(e)})</a>`
-        })).replaceAll(/<{([0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
+        })).replaceAll(/<{([0123456789०१२३४५६७८९]+)}>/g, (function(e : any) {
             var a = Formatter.toEnglishNumeral(e);
             return ` <aclass="sutra-text-color" href="/sutraani/sk${a}" data-nav="/sutraani/sk${a}">(कौमुदी-${Formatter.toDevanagariNumeral(e)})</a>`
-        })).replaceAll(/<{LSK([0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
+        })).replaceAll(/<{LSK([0123456789०१२३४५६७८९]+)}>/g, (function(e : any) {
             var a = Formatter.toEnglishNumeral(e);
             return `<a class="sutra-text-color" href="/sutraani/lsk${a}" data-nav="/sutraani/lsk${a}">(लघुकौमुदी-${Formatter.toDevanagariNumeral(e)})</a>`
-        })).replaceAll(/<{([0123456789०१२३४५६७८९]+\.[0123456789०१२३४५६७८९]+)}>/g, (function(t, e) {
+        })).replaceAll(/<{([0123456789०१२३४५६७८९]+\.[0123456789०१२३४५६७८९]+)}>/g, (function(e : any) {
             var a = Formatter.toEnglishNumeral(e);
             return `<a class="sutra-text-color" href="/dhatu/${a}" data-nav="/dhatu/${a}">${Formatter.toDevanagariNumeral(e)}</a>`
         }))

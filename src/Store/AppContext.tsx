@@ -9,7 +9,6 @@ import {
 const AppContext = createContext<AppContextType | null>(null);
 import CachedData, {
   Prefetch,
-  Sutraani,
 } from "../Services/Common/GlobalServices";
 
 export const AppDataProvider = ({
@@ -27,7 +26,7 @@ export const AppDataProvider = ({
       "books",
       "sutraaniSummary",
     ];
-    Prefetch.prefetchRequiredServerData(requiredData, (e) => {
+    Prefetch.prefetchRequiredServerData(requiredData, () => {
       console.log("inside callback method");
     })
       .then((res) => {

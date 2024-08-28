@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { AppBar, Toolbar, IconButton, Box, Typography } from "@mui/material";
 import appIcon from "../../assets/app_logo.svg";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MenuIcon from "@mui/icons-material/Menu";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import CachedData, { getBookClass } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import ToC_Icon from "../../assets/toc.svg";
-import { Sloga } from "../../types/GlobalType.type";
 import DrawerMenu from "../../Pages/Details/DrawerMenu";
 
 interface TopBarProps {
@@ -19,7 +17,7 @@ interface TopBarProps {
 
 const TopBarSmall: React.FC<TopBarProps> = ({
   toggleMenu,
-  expandNavigationMenu,
+  //expandNavigationMenu,
   progress,
 }) => {
   const { pathname } = useLocation();
@@ -42,7 +40,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
     ) {
       if (sections[0] && sections[0] != "search") {
         const tempBook = CachedData.data.books.find(
-          (book) => book.name == sections[0]
+          (book : Book) => book.name == sections[0]
         );
         if (!tempBook) {
           return;

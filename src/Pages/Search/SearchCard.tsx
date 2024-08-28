@@ -13,7 +13,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
   name,
   author,
   lastVisited,
-  content,
+  content
 }) => {
   return (
     <Card

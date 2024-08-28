@@ -13,7 +13,7 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ToC_Icon from "../../assets/toc.svg";

@@ -8,11 +8,7 @@ import {
   ListItemText,
   Collapse,
   Avatar,
-  Menu,
-  MenuItem,
-  Typography,
   Drawer,
-  Divider,
   Toolbar,
   IconButton,
   Stack,
@@ -27,7 +23,6 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import appIcon from "../../assets/app_logo.svg";
-import MenuIcon from "@mui/icons-material/Menu";
 
 interface NavigationMenuProps {
   expandNavigationMenu: boolean;
@@ -130,6 +125,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
     e: React.MouseEvent<HTMLElement>,
     item: NavigationItem
   ) => {
+    e.isDefaultPrevented;
     if (item.subMenu) {
       setExpandedMenu((prevState) => ({
         ...prevState,
@@ -337,7 +333,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
                     justifyContent: expandNavigationMenu ? "initial" : "center",
                     //   px: 2.5,
                   }}
-                  onClick={(e) => handleMenuItemClick(e, item)}
+                  onClick={() => handleMenuItemClick.bind(this)}
                 >
                   <ListItemIcon
                     sx={{

@@ -1,4 +1,3 @@
-import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Landing from "../../Pages/Landing";
 import TitlePage from "../../Pages/Title";
