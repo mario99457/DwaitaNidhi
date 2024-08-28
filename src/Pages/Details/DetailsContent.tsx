@@ -34,6 +34,10 @@ const DetailsContent = ({
   }, [selectedSloga]);
 
   useEffect(() => {
+    console.log("inside commentaroes method", commentaries);
+  }, [commentaries]);
+
+  useEffect(() => {
     if (defaultExpanded && typeof defaultExpanded === "object") {
       setExpanded(defaultExpanded.expanded);
     } else setExpanded(defaultExpanded || false);
@@ -94,6 +98,7 @@ const DetailsContent = ({
           fontSize="18px"
           lineHeight="33px"
           marginTop="27px"
+          whiteSpace="pre-line"
         >
           {Parser(
             commentaries.find((data) => data.key == selectedCommentary.key)
