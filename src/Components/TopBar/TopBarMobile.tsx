@@ -4,7 +4,7 @@ import appIcon from "../../assets/app_logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import CachedData, { getBookClass } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import ToC_Icon from "../../assets/toc.svg";
 import DrawerMenu from "../../Pages/Details/DrawerMenu";
@@ -27,7 +27,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
   const pages = ["home", "title", "detail", "search"];
   const [pageName, setPageName] = useState(pages[0]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const BookClass = getBookClass(bookName || "");
+  const BookClass = CachedData.getBookClass(bookName || "");
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {

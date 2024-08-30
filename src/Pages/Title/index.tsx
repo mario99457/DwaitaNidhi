@@ -18,10 +18,7 @@ import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
 import { Sloga } from "../../types/GlobalType.type";
 import { Book } from "../../types/Context.type";
-import CachedData, {
-  getBookClass,
-  Sutraani,
-} from "../../Services/Common/GlobalServices";
+import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 import SearchView from "./SearchView";
 
 const TitlePage = () => {
@@ -179,14 +176,14 @@ const TitlePage = () => {
           <AlphaBetView
             handleSlogaClick={handleSlogaClick}
             toc={selectedBook?.chapters}
-            slogas={getBookClass(bookName)?.getSutraList}
+            slogas={CachedData.getBookClass(bookName)?.getSutraList}
           />
         )}
         {selectedView == "list" && (
           <TreeView
             handleSlogaClick={handleSlogaClick}
             toc={selectedBook?.chapters}
-            slogas={getBookClass(bookName || "")?.allSutras}
+            slogas={CachedData.getBookClass(bookName || "")?.allSutras}
           />
         )}
         {selectedView == "search" && (

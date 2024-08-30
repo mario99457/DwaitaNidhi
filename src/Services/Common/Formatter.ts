@@ -110,3 +110,7 @@ export function TH(t : any, e = "") {
 export function P(t : any) {
     return Formatter.toPlainText(t);
 }
+
+export function D(t : any) {
+    return Formatter.toDevanagariNumeral(t);
+}

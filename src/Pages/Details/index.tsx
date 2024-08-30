@@ -24,7 +24,7 @@ import Divider from "@mui/material/Divider";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
-import { getBookClass } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 import { Sloga } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 
@@ -43,7 +43,7 @@ const DetailPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const BookClass = getBookClass(bookName || "");
+  const BookClass = CachedData.getBookClass(bookName || "");
 
   const availableLanguages = [
     {

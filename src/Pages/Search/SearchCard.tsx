@@ -2,18 +2,19 @@ import { Card, CardContent, Stack, Typography } from "@mui/material";
 import React from "react";
 
 interface SearchCardProps {
-  name: string;
+  title: string;
   author: string;
-  lastVisited: string;
+  bookName: string;
   content: string;
-  path: string;
+  datanav: string;
 }
 
 const SearchCard: React.FC<SearchCardProps> = ({
-  name,
+  title,
   author,
-  lastVisited,
-  content
+  content,
+  bookName,
+  datanav
 }) => {
   return (
     <Card
@@ -33,13 +34,10 @@ const SearchCard: React.FC<SearchCardProps> = ({
             fontWeight="400"
             color="#A74600"
           >
-            {name}
+            {bookName}
           </Typography>
           <div className="flex-center">
-            <Typography fontFamily="Poppins" fontSize="12px" color="#818080">
-              Last Visited: {lastVisited}
-            </Typography>
-            <div className="search-card-tag">उपयाति</div>
+            <div className="search-card-tag">read more...</div>
           </div>
         </Stack>
         <Typography

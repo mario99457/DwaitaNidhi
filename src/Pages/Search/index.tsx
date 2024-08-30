@@ -9,13 +9,17 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import CachedData, { getBookClass } from "../../Services/Common/GlobalServices";
+import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
 
 export class SearchResultData {
-    name : any
+    title : any = ""
+    author: any = ""
+    content: any = ""
+    bookName: any = ""
+    datanav: any = ""
 };
 
 
@@ -68,13 +72,24 @@ const SearchPage = () => {
       label: book.title,
     };
   });
-  const [searchResult, setSearchResult] = useState<SearchResultData[]>([]);
+  const [searchResult, setSearchResult] = useState<SearchResultData[] | undefined>([]);
 
   // var searchResults = getBookClass().
 
   const handleSearch = () => {
-    const result = getBookClass("sutraani")?.searchSutraani(searchParam);
+    var result = CachedData.getBookClass("sutraani")?.searchBooks(searchParam, selectedOption);
     console.log("result---------------", result);
+    return result?.map((v) => {
+       let data = new SearchResultData();
+       
+       data.title = v.name, 
+       data.author = v.commentaries[0]?.author,
+       data.content = v.commentaries[0]?.fragment,
+       data.bookName = v.commentaries[0]?.name,
+       data.datanav = v.commentaries[0]?.datanav
+       
+       return data;
+    });
   };
   
   return (
@@ -127,8 +142,8 @@ const SearchPage = () => {
             },
           }}
           onClick={() => {
-            handleSearch();
-            // setSearchResult(dummyResult);
+            var searchResult = handleSearch();
+            setSearchResult(searchResult);
           }}
         >
           GO
@@ -156,7 +171,7 @@ const SearchPage = () => {
       </Stack>
       <Stack direction="column" mt={3} spacing={2}>
         {searchResult.map((item: SearchResultData, index: number) => (
-          <SearchCard key={`${item.name} ${index}`} {...item} />
+          <SearchCard key={`${item.bookName} ${index}`} {...item} />
         ))}
       </Stack>
     </Box>

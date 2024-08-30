@@ -1,7 +1,7 @@
 import localforage from "localforage";
 import Utils from "./Utils";
-import Formatter, { E, F } from "./Formatter";
-import GlobalSearch from "./Search";
+import Formatter, { D, E, F, TH } from "./Formatter";
+import GlobalSearch, { CommentarySearch } from "./Search";
 
 class ApiEndpoints {
   static FetchTimeoutMs: number = 4e3;
@@ -324,6 +324,13 @@ export default class CachedData {
       ((t = e.time || 0), Utils.getTime() - t > CachedData.staleThresholdInMs)
     );
   }  
+
+  static getBookClass(name: any) {
+    if (name == "sutraani") {
+      return Sutraani;
+    }
+    return null;
+  }
 }
 export class Prefetch {
   static startTime: number = 0;
@@ -596,7 +603,7 @@ export class Sutraani {
 
   static searchSutraani(i: string):any[] {
     var a = GlobalSearch.getDevanagariSearchStrings(i);
-    Sutraani.populateAllSutras();        
+    Sutraani.populateAllSutras();      
     Sutraani.allSutras.forEach(((t : any) => {
         t.searchData = {
             score: 0,
@@ -611,13 +618,51 @@ export class Sutraani {
           i: t.i
       })));
     }
-}
+   
+    static searchBooks (q : any, b: any) {
+        var books = CachedData.getBookClass("sutraani");
 
-export function getBookClass(name: any) {
-  if (name == "sutraani") {
-    return Sutraani;
-  }
-  return null;
+        var commentariesToSearch = CachedData.getBookClass("sutraani")?.supportedCommentaries;
+        
+        var o = GlobalSearch.getDevanagariSearchStrings(q)
+          , t : any[] = [];
+        return CachedData.data.sutraani.data.forEach((i : any) => {
+            var n = i.i
+              , s : any[] = [];
+
+            var booksToSearch = b && b !== "all" ? booksToSearch?.filter(c=>c.key == b) : commentariesToSearch;
+            commentariesToSearch.forEach((t :any) => {
+                var e : any, a;
+                e = "",
+                a = CachedData.data[t.key][n],
+                e = a ? a : e, 
+                (o.find(t => 0 <= e.indexOf(t))) && s.push({
+                    name: t.name,
+                    key: t.key,
+                    fragment: TH(D(e), o),
+                    show: true,
+                    author: t.author,
+                    datanav: `/sutraani/${t.key}?expand=sutra-commentary-${t.key}-region&focus=sutra-commentary-${t.key}-region&highlight=` + a
+                })
+            }),
+            0 < s.length && t.push({
+                name: i.s,
+                sutranum: D(`${i.a}.${i.p}.` + i.n),
+                commentaries: s,
+                visible: !0
+            })
+        }
+        ),
+        t          
+    }
+
+    // getVyakhyaSelectCount() {
+    //     var t = CommentarySearch.commentariesToSearch/*.filter(t => t.active)*/.length;
+    //     return t + ` ${1 == t ? "commentary" : "commentaries"} selected.`
+    // }
+    
+    
+    
 }
 
 export class ArrayExtension extends Array {
