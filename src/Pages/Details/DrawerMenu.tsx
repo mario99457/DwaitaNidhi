@@ -6,27 +6,27 @@ import SearchIcon from "@mui/icons-material/Search";
 import TreeView from "../Title/Treeview";
 import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
-import { Sloga } from "../../types/GlobalType.type";
+import { Title } from "../../types/GlobalType.type";
 import { useNavigate } from "react-router-dom";
 interface DrawerMenuProps {
   open: boolean;
   onClose: () => void;
   bookName: string | undefined;
-  selectedSloga: Sloga;
-  slogas: Sloga[] | undefined;
+  selectedTitle: Title;
+  titles: Title[] | undefined;
 }
 const DrawerMenu: React.FC<DrawerMenuProps> = ({
   open,
   onClose,
   bookName,
-  selectedSloga,
-  slogas,
+  selectedTitle,
+  titles,
 }) => {
   const [selectedBook, setSlectedBook] = React.useState<Book | null>(null);
   const navigate = useNavigate();
 
-  const handleSlogaClick = (selectedSloga: Sloga) => {
-    navigate(`/${bookName}/${selectedSloga.i}`);
+  const handleTitleClick = (selectedTitle: Title) => {
+    navigate(`/${bookName}/${selectedTitle.i}`);
     onClose();
   };
 
@@ -47,14 +47,23 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
           direction="row"
           justifyContent="space-between"
         >
-          <div className="d-flex">
-            <img src={listIcon} />
-            <Typography fontSize="22px" ml="8px">
+          <div
+            style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
+          >
+            <img src={listIcon} width={`18px`} height={`18px`} />
+            <Typography
+              variant="subtitle1"
+              sx={{
+                fontFamily: "Poppins",
+                fontSize: "22px",
+                fontWeight: "300",
+                marginLeft: "10px",
+              }}
+            >
               सूत्रावलि
             </Typography>
           </div>
-          <div className="">
-            <SearchIcon sx={{ color: "#757575" }} />
+          <div className="">            
             <CloseIcon
               sx={{ color: "#757575", marginLeft: "35px", cursor: "pointer" }}
               onClick={onClose}
@@ -63,9 +72,9 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
         </Stack>
         <TreeView
           toc={selectedBook?.chapters || []}
-          handleSlogaClick={handleSlogaClick}
-          selectedSloga={selectedSloga}
-          slogas={slogas}
+          handleTitleClick={handleTitleClick}
+          selectedTitle={selectedTitle}
+          titles={titles}
         />
       </Box>
     </Drawer>

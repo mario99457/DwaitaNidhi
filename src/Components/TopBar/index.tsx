@@ -74,7 +74,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <span className="app-tagline">Dwaita Nidhi</span>
           </div>
           <div className="app-sub-name">
-            A collection of works by Sri acharya
+            A collection of works by Srimadananda Theertha Bhagavadpadacharya
           </div>
         </Box>
         <Box
@@ -97,8 +97,8 @@ const TopBar: React.FC<TopBarProps> = ({
               }}
             />
           )}
-          <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} />
-          <span style={{ fontSize: "13px", color: "#fffffd" }}>Login</span>
+          {/* <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} />
+          <span style={{ fontSize: "13px", color: "#fffffd" }}>Login</span> */}
         </Box>
       </Toolbar>
     </AppBar>

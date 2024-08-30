@@ -16,7 +16,7 @@ import alphaIcon from "../../assets/alpha.svg";
 import listIcon from "../../assets/list.svg";
 import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
-import { Sloga } from "../../types/GlobalType.type";
+import { Title } from "../../types/GlobalType.type";
 import { Book } from "../../types/Context.type";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 import SearchView from "./SearchView";
@@ -30,8 +30,8 @@ const TitlePage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [searchResult, setSearchResult] = useState<any[] | boolean>(false);
 
-  const handleSlogaClick = (selectedSloga: Sloga) => {
-    navigate(`/${bookName}/${selectedSloga.i}`);
+  const handleTitleClick = (selectedTitle: Title) => {
+    navigate(`/${bookName}/${selectedTitle.i}`);
   };
 
   const handleSearch = (searchTerm: string) => {
@@ -101,27 +101,9 @@ const TitlePage = () => {
             }}
             isMobile={true}
           />
-        )}
-        <Container
-          sx={{
-            backgroundColor: "#E9E9E9",
-            padding: "20px 44px 13px 21px",
-            borderRadius: "6px",
-            marginTop: "16px",
-            color: "#BC4501",
-            fontFamily: "Vesper Libre",
-            fontSize: "18px",
-          }}
-        >
-          इको गुणवृद्धी ॥१.१.३ ॥ इग्ग्रहणं किमर्थम् । ॥
-          इग्ग्रहणमात्सन्ध्यक्षरव्यञ्ञ्जननिवृत्त्यर्थम् ॥ इग्ग्रहणं क्रियते ।
-          किं प्रयोजनम् । आकारनिवृत्त्यर्थं सन्ध्यक्षरनिवृत्त्यर्थं
-          व्यञ्ञ्जननिवृत्त्यर्थं च । आकारनिवृत्त्यर्थं तावत् - याता वाता ।
-          आकारस्य गुणः प्राप्नोति । इग्ग्र्हणान्न भवति ।
-          सन्ध्यक्षरनिवृत्त्यर्थम्
-        </Container>
+        )}       
         <Box
-          sx={{ mt: "3rem", display: "flex", justifyContent: "space-between" }}
+          sx={{ mt: "1rem", display: "flex", justifyContent: "space-between" }}
         >
           <div
             style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
@@ -154,7 +136,7 @@ const TitlePage = () => {
           sx={{
             display: "flex",
             justifyContent: "end",
-            mt: 4,
+            mt: 1,
             pointerEvents: searchResult ? "none" : "auto",
             opacity: searchResult ? 0.7 : 1,
           }}
@@ -174,22 +156,22 @@ const TitlePage = () => {
       <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
         {selectedView == "alpha" && (
           <AlphaBetView
-            handleSlogaClick={handleSlogaClick}
+            handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            slogas={CachedData.getBookClass(bookName)?.getSutraList}
+            titles={CachedData.getBookClass(bookName)?.getSutraList}
           />
         )}
         {selectedView == "list" && (
           <TreeView
-            handleSlogaClick={handleSlogaClick}
+            handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            slogas={CachedData.getBookClass(bookName || "")?.allSutras}
+            titles={CachedData.getBookClass(bookName || "")?.allSutras}
           />
         )}
         {selectedView == "search" && (
           <SearchView
-            slogas={searchResult}
-            handleSlogaClick={handleSlogaClick}
+            titles={searchResult}
+            handleTitleClick={handleTitleClick}
           />
         )}
       </Box>

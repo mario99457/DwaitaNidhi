@@ -4,7 +4,7 @@ import playButton from "../../assets/PlayButton.svg";
 import bookmark from "../../assets/bookmark.svg";
 // import details from "./details.json";
 import { Sutraani } from "../../Services/Common/GlobalServices";
-import { Sloga } from "../../types/GlobalType.type";
+import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
@@ -14,7 +14,7 @@ interface DetailsContentProps {
     author: string;
     key: string;
   };
-  selectedSloga: Sloga;
+  selectedTitle: Title;
   style?: React.CSSProperties;
   key: string;
   defaultExpanded?: boolean | { expanded: boolean };
@@ -23,15 +23,15 @@ interface DetailsContentProps {
 const DetailsContent = ({
   selectedCommentary,
   style,
-  selectedSloga,
+  selectedTitle,
   defaultExpanded,
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
 
   useEffect(() => {
-    setCommentaries(Sutraani.getCommentaries(selectedSloga));
-  }, [selectedSloga]);
+    setCommentaries(Sutraani.getCommentaries(selectedTitle));
+  }, [selectedTitle]);
 
   useEffect(() => {
     console.log("inside commentaroes method", commentaries);
@@ -83,7 +83,7 @@ const DetailsContent = ({
         </div>
         <div className="d-flex align-items-center">
           <img src={playButton} alt="play" />
-          <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} />
+          {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}

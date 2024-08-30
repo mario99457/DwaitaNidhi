@@ -1,4 +1,4 @@
-export interface Sloga {
+export interface Title {
   i: string;
   s: string;
   a: string;

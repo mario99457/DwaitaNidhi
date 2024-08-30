@@ -1,4 +1,4 @@
-type Sloga = {
+type Title = {
   i: string;
   s: string;
   a: string;
@@ -30,7 +30,7 @@ export type Book = {
   name: string;
   title: string;
   chapters: Chapters[];
-  data: Sloga[];
+  data: Title[];
   commentaries: Commentaries[];
 };
 

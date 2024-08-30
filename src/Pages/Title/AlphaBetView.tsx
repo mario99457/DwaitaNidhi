@@ -1,22 +1,22 @@
 import React from "react";
 import { List, ListItem, ListItemText } from "@mui/material";
-import { Sloga } from "../../types/GlobalType.type";
+import { Title } from "../../types/GlobalType.type";
 import { Chapters } from "../../types/Context.type";
 import Formatter from "../../Services/Common/Formatter";
 
 interface ListViewProps {
-  handleSlogaClick: (selectedSloga: Sloga) => void;
+  handleTitleClick: (selectedTitle: Title) => void;
   toc: Chapters[] | undefined;
-  slogas: ((t?: any) => any) | undefined;
+  titles: ((t?: any) => any) | undefined;
 }
 
 const AlphaBetView: React.FC<ListViewProps> = ({
-  handleSlogaClick,
-  slogas,
+  handleTitleClick,
+  titles,
 }) => {
   return (
     <List>
-      {slogas("z")?.sutras.map((data: Sloga) => (
+      {titles("z")?.sutras.map((data: Title) => (
         <ListItem
           sx={{
             borderTop: (theme) => `1px solid ${theme.palette.divider}`,
@@ -26,7 +26,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
             overflow: "auto",
           }}
           key={data.i}
-          onClick={() => handleSlogaClick(data)}
+          onClick={() => handleTitleClick(data)}
         >
           <ListItemText
             primaryTypographyProps={{

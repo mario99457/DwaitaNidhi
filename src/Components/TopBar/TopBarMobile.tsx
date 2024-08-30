@@ -168,14 +168,14 @@ const TopBarSmall: React.FC<TopBarProps> = ({
           open={openDrawer}
           onClose={() => setOpenDrawer(false)}
           bookName={bookName}
-          selectedSloga={{
+          selectedTitle={{
             a: "",
             i: "",
             n: "",
             p: "",
             s: "",
           }}
-          slogas={BookClass?.allSutras}
+          titles={BookClass?.allSutras}
         />
       ) : (
         ""

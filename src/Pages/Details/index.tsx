@@ -25,7 +25,7 @@ import Divider from "@mui/material/Divider";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
 import CachedData from "../../Services/Common/GlobalServices";
-import { Sloga } from "../../types/GlobalType.type";
+import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 
 interface Commentary {
@@ -37,8 +37,8 @@ interface Commentary {
   hidden: boolean;
 }
 const DetailPage = () => {
-  const { slogaNumber, bookName } = useParams();
-  const [selectedSloga, setSelectedSloga] = useState<Sloga | null>(null);
+  const { titleNumber, bookName } = useParams();
+  const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -77,13 +77,13 @@ const DetailPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
-    const sloga = BookClass?.allSutras.find(
-      (sloga: Sloga) => sloga.i == slogaNumber
+    const title = BookClass?.allSutras.find(
+      (title: Title) => title.i == titleNumber
     );
-    if (sloga) {
-      setSelectedSloga(sloga);
+    if (title) {
+      setSelectedTitle(title);
     }
-  }, [slogaNumber]);
+  }, [titleNumber]);
 
   const handleLanguageChange = (event: SelectChangeEvent) => {
     setSelectedLanguage(event.target.value);
@@ -106,14 +106,14 @@ const DetailPage = () => {
     }
   }, [selectedCommentary]);
 
-  const handleNavigateSloga = (navigation: string) => {
-    if (navigation == "next" && selectedSloga && selectedSloga.srno) {
-      const nextSloga: any = BookClass?.getRightArrow(selectedSloga);
-      navigate(`/${bookName}/${nextSloga?.i}`);
+  const handleNavigateTitle = (navigation: string) => {
+    if (navigation == "next" && selectedTitle && selectedTitle.srno) {
+      const nextTitle: any = BookClass?.getRightArrow(selectedTitle);
+      navigate(`/${bookName}/${nextTitle?.i}`);
     }
-    if (navigation == "prev" && selectedSloga && selectedSloga.srno) {
-      const prevSloga: any = BookClass?.getLeftArrow(selectedSloga);
-      navigate(`/${bookName}/${prevSloga?.i}`);
+    if (navigation == "prev" && selectedTitle && selectedTitle.srno) {
+      const prevTitle: any = BookClass?.getLeftArrow(selectedTitle);
+      navigate(`/${bookName}/${prevTitle?.i}`);
     }
   };
 
@@ -130,7 +130,7 @@ const DetailPage = () => {
       </Typography>
     </Link>,
     <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
-      ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
+      ब्र.सू. {Formatter.toDevanagariNumeral(selectedTitle?.i)}
     </Typography>,
   ];
 
@@ -153,7 +153,7 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
-      {selectedSloga ? (
+      {selectedTitle ? (
         <>
           <Box
             sx={{
@@ -197,10 +197,10 @@ const DetailPage = () => {
                 src={prevButton}
                 alt="previous"
                 style={{
-                  visibility: selectedSloga?.srno == 1 ? "hidden" : "visible",
+                  visibility: selectedTitle?.srno == 1 ? "hidden" : "visible",
                   cursor: "pointer",
                 }}
-                onClick={() => handleNavigateSloga("prev")}
+                onClick={() => handleNavigateTitle("prev")}
               />
               <Container
                 sx={{
@@ -216,7 +216,7 @@ const DetailPage = () => {
                   lineHeight="39.9px"
                   color="#BC4501"
                 >
-                  {selectedSloga?.s}
+                  {selectedTitle?.s}
                 </Typography>
               </Container>
               <img
@@ -226,12 +226,12 @@ const DetailPage = () => {
                   cursor: "pointer",
                   visibility:
                     BookClass?.allSutras &&
-                    selectedSloga &&
-                    selectedSloga?.srno <= BookClass?.allSutras.length
+                    selectedTitle &&
+                    selectedTitle?.srno <= BookClass?.allSutras.length
                       ? "visible"
                       : "hidden",
                 }}
-                onClick={() => handleNavigateSloga("next")}
+                onClick={() => handleNavigateTitle("next")}
               />
             </Box>
           </Box>
@@ -239,7 +239,7 @@ const DetailPage = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ mt: 5, mb: 2 }}
+            sx={{ mt: 4, mb: 2 }}
           >
             <Typography
               fontFamily="Vesper Libre"
@@ -247,7 +247,7 @@ const DetailPage = () => {
               fontWeight="400"
               color="#969696"
             >
-              ब्र.सू. {Formatter.toDevanagariNumeral(selectedSloga?.i)}
+              ब्र.सू. {Formatter.toDevanagariNumeral(selectedTitle?.i)}
             </Typography>
             <img src={playButton} />
           </Stack>
@@ -273,7 +273,7 @@ const DetailPage = () => {
                 fontWeight="400"
                 color="#A74600"
               >
-                संक्षेप
+                संक्षेपार्थः
               </Typography>
               <FormControl sx={{ minWidth: 120 }} size="small">
                 <Select
@@ -298,8 +298,8 @@ const DetailPage = () => {
               color="#BC4501"
               lineHeight="23.94px"
             >
-              {BookClass?.getSummary(selectedSloga?.i)
-                ? BookClass?.getSummary(selectedSloga?.i)[selectedLanguage]
+              {BookClass?.getSummary(selectedTitle?.i)
+                ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
                 : ""}
             </Typography>
           </Box>
@@ -342,7 +342,7 @@ const DetailPage = () => {
           {BookClass?.supportedCommentaries.map((commentary: Commentary) => (
             <DetailsContent
               selectedCommentary={commentary}
-              selectedSloga={selectedSloga}
+              selectedTitle={selectedTitle}
               key={commentary.key}
               defaultExpanded={
                 !commentary.hidden || selectedCommentary?.[commentary.key]
@@ -365,8 +365,8 @@ const DetailPage = () => {
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         bookName={bookName}
-        selectedSloga={selectedSloga}
-        slogas={BookClass?.allSutras}
+        selectedTitle={selectedTitle}
+        titles={BookClass?.allSutras}
       />
     </Box>
   );

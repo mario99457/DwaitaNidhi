@@ -68,7 +68,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     },
     {
       key: "books",
-      label: "सर्वमूलग्रन्था",
+      label: "सर्वमूलग्रन्थाः",
       icon: (
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
@@ -84,7 +84,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     },
     {
       key: "otherBooks",
-      label: "अन्यग्रन्था",
+      label: "अन्यग्रन्थाः",
       icon: (
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
@@ -356,7 +356,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   @copyright -2024 Developed and Maintained by
                 </div>
                 <div style={{ fontSize: "14px", fontWeight: "600" }}>
-                  Company Name
+                  Sri Sripadaraja Mutt, Mulabagilu
                 </div>
                 <div
                   className="d-flex align-items-center"
@@ -364,10 +364,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 >
                   <EmailOutlinedIcon />
                   Contact Us
-                </div>
-                <div style={{ marginTop: "20px", fontSize: "14px" }}>
-                  Powered by: <br /> <b>Company Name</b>
-                </div>
+                </div>              
               </>
             )}
           </Box>

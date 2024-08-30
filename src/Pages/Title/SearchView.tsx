@@ -5,19 +5,19 @@ import { SearchResult } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 
 interface SearchViewProps {
-  handleSlogaClick: (selectedSloga: SearchResult) => void;
-  slogas: any[];
+  handleTitleClick: (selectedTitle: SearchResult) => void;
+  titles: any[];
 }
 
 const SearchView: React.FC<SearchViewProps> = ({
-  handleSlogaClick,
-  slogas,
+  handleTitleClick,
+  titles,
 }) => {
   return (
     <>
-      {slogas.length ? (
+      {titles.length ? (
         <List>
-          {slogas.map((data: SearchResult) => (
+          {titles.map((data: SearchResult) => (
             <ListItem
               sx={{
                 borderTop: (theme) => `1px solid ${theme.palette.divider}`,
@@ -27,7 +27,7 @@ const SearchView: React.FC<SearchViewProps> = ({
                 overflow: "auto",
               }}
               key={data.sutranum}
-              onClick={() => handleSlogaClick(data)}
+              onClick={() => handleTitleClick(data)}
             >
               <ListItemText
                 primaryTypographyProps={{

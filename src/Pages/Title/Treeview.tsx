@@ -10,27 +10,27 @@ import {
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 // import tocData from "./treeData.json";
-import { Sloga } from "../../types/GlobalType.type";
+import { Title } from "../../types/GlobalType.type";
 import { Chapters } from "../../types/Context.type";
 import Formatter from "../../Services/Common/Formatter";
 
 interface ListViewProps {
-  handleSlogaClick: (selectedSloga: Sloga) => void;
+  handleTitleClick: (selectedTitle: Title) => void;
   fromDetailPage?: boolean;
-  selectedSloga?: Sloga;
+  selectedTitle?: Title;
   toc: Chapters[] | undefined;
-  slogas: Sloga[] | undefined;
+  titles: Title[] | undefined;
 }
 
 const TreeView: React.FC<ListViewProps> = ({
-  handleSlogaClick,
+  handleTitleClick,
   toc: tocData,
-  slogas,
+  titles,
 }) => {
   const [closedChapters, setClosedChapters] = useState<{
     [key: string]: boolean;
   }>({});
-  const [cacheSloga, setCacheSloga] = useState<{ [key: string]: any[] }>({});
+  const [cacheTitle, setCacheTitle] = useState<{ [key: string]: any[] }>({});
   const [loader, setLoader] = useState(false);
 
   const handleChapterClick = (chapterId: string) => {
@@ -45,16 +45,16 @@ const TreeView: React.FC<ListViewProps> = ({
     setTimeout(() => {
       setLoader(false);
     }, 1000);
-    const slogaObject: any = {};
+    const titleObject: any = {};
     tocData?.map((chapter) => {
       chapter.sub?.map((subchapter) => {
-        slogaObject[`${chapter.n}.${subchapter.n}`] = getSloga(
+        titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
           chapter.n,
           subchapter.n
         );
       });
     });
-    setCacheSloga(slogaObject);
+    setCacheTitle(titleObject);
   }, [tocData]);
 
   const handleSubChapterClick = (chapterId: string, subchapterId: string) => {
@@ -63,22 +63,22 @@ const TreeView: React.FC<ListViewProps> = ({
       ...prevState,
       [chapterKey]: !prevState[chapterKey],
     }));
-    if (!cacheSloga[chapterKey]) {
-      const sloga = getSloga(chapterId, subchapterId);
-      setCacheSloga((prevState) => ({
+    if (!cacheTitle[chapterKey]) {
+      const title = getTitle(chapterId, subchapterId);
+      setCacheTitle((prevState) => ({
         ...prevState,
-        [chapterKey]: sloga,
+        [chapterKey]: title,
       }));
     }
   };
 
-  const getSloga = (chapterId: string, subchapterId: string) => {
-    const filteredSloga = slogas?.filter((data: Sloga) => {
+  const getTitle = (chapterId: string, subchapterId: string) => {
+    const filteredTitle = titles?.filter((data: Title) => {
       if (data.a == chapterId && data.p == subchapterId) {
         return data;
       }
     });
-    return filteredSloga || [];
+    return filteredTitle || [];
   };
 
   return (
@@ -186,8 +186,8 @@ const TreeView: React.FC<ListViewProps> = ({
                         unmountOnExit
                       >
                         <List component="div" disablePadding>
-                          {cacheSloga[`${chapter.n}.${subchapter.n}`]?.map(
-                            (sloga) => (
+                          {cacheTitle[`${chapter.n}.${subchapter.n}`]?.map(
+                            (title) => (
                               <ListItem
                                 sx={{
                                   cursor: "pointer",
@@ -198,8 +198,8 @@ const TreeView: React.FC<ListViewProps> = ({
                                   },
                                   py: 0.5,
                                 }}
-                                key={sloga.i}
-                                onClick={() => handleSlogaClick(sloga)}
+                                key={title.i}
+                                onClick={() => handleTitleClick(title)}
                               >
                                 <ListItemText
                                   primaryTypographyProps={{
@@ -219,7 +219,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                       flexShrink: "0",
                                     }}
                                   >
-                                    {Formatter.toDevanagariNumeral(sloga.i)}{" "}
+                                    {Formatter.toDevanagariNumeral(title.i)}{" "}
                                     &nbsp;
                                   </span>
                                   <span
@@ -227,7 +227,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                       fontFamily: "Vesper Libre",
                                     }}
                                   >
-                                    {sloga.s}
+                                    {title.s}
                                   </span>
                                 </ListItemText>
                               </ListItem>
