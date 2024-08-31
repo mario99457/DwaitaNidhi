@@ -42,6 +42,7 @@ const DetailPage = () => {
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [showFullSummary, setShowFullSummary] = useState(false);
 
   const BookClass = CachedData.getBookClass(bookName || "");
 
@@ -133,10 +134,6 @@ const DetailPage = () => {
       ब्र.सू. {Formatter.toDevanagariNumeral(selectedTitle?.i)}
     </Typography>,
   ];
-
-  const handleSearch = (searchTerm: string) => {
-    console.log("inside search", searchTerm);
-  };
 
   return (
     <Box
@@ -297,11 +294,34 @@ const DetailPage = () => {
               fontWeight={400}
               color="#BC4501"
               lineHeight="23.94px"
+              // sx={{
+              //   display: "-webkit-box",
+              //   WebkitLineClamp: showFullSummary ? "unset" : "3",
+              //   WebkitBoxOrient: "vertical",
+              //   overflow: "hidden",
+              //   textOverflow: "ellipsis",
+              // }}
             >
               {BookClass?.getSummary(selectedTitle?.i)
                 ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
                 : ""}
             </Typography>
+            {/* {!showFullSummary && (
+              <Typography
+                fontFamily="poppins"
+                fontSize="14px"
+                fontWeight={400}
+                lineHeight="23.94px"
+                sx={{
+                  textAlign: "right",
+                  cursor: "pointer",
+                  marginTop: "8px",
+                }}
+                onClick={() => setShowFullSummary((prevState) => !prevState)}
+              >
+                {showFullSummary ? "Read Less" : "Read More"}
+              </Typography>
+            )} */}
           </Box>
           <Stack
             sx={{ mt: 4 }}
@@ -347,6 +367,7 @@ const DetailPage = () => {
               defaultExpanded={
                 !commentary.hidden || selectedCommentary?.[commentary.key]
               }
+              isMobile={isMobile}
             />
           ))}
         </>

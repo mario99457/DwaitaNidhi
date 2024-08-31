@@ -41,7 +41,14 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
   return (
     <Drawer open={open} onClose={onClose} anchor="right">
-      <Box sx={{ width: 410 }}>
+      <Box
+        sx={{
+          width: {
+            lg: 410,
+            xs: "100vw",
+          },
+        }}
+      >
         <Stack
           sx={{ padding: "20px 16px 14px", background: "#E8E8E8" }}
           direction="row"
@@ -63,7 +70,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
               सूत्रावलि
             </Typography>
           </div>
-          <div className="">            
+          <div className="">
             <CloseIcon
               sx={{ color: "#757575", marginLeft: "35px", cursor: "pointer" }}
               onClick={onClose}

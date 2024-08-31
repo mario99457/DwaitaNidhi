@@ -20,12 +20,14 @@ interface ListViewProps {
   selectedTitle?: Title;
   toc: Chapters[] | undefined;
   titles: Title[] | undefined;
+  isMobile: boolean;
 }
 
 const TreeView: React.FC<ListViewProps> = ({
   handleTitleClick,
   toc: tocData,
   titles,
+  isMobile,
 }) => {
   const [closedChapters, setClosedChapters] = useState<{
     [key: string]: boolean;
@@ -132,7 +134,7 @@ const TreeView: React.FC<ListViewProps> = ({
                           cursor: "pointer",
                           borderBottom: "1px solid #dddddd",
                           py: 0.5,
-                          px: "20px",
+                          px: { lg: "20px" },
                         }}
                         onClick={() =>
                           handleSubChapterClick(chapter.n, subchapter.n)
@@ -148,20 +150,22 @@ const TreeView: React.FC<ListViewProps> = ({
                             alignItems: "center",
                           }}
                         >
-                          <div
-                            style={{
-                              width: "8px",
-                              height: "8px",
-                              background: "#A74600",
-                              rotate: "45deg",
-                              flexShrink: "0",
-                            }}
-                          ></div>
+                          {!isMobile && (
+                            <div
+                              style={{
+                                width: "8px",
+                                height: "8px",
+                                background: "#A74600",
+                                rotate: "45deg",
+                                flexShrink: "0",
+                              }}
+                            ></div>
+                          )}
                           <span
                             style={{
                               color: "#787878",
                               marginRight: "8px",
-                              marginLeft: "20px",
+                              marginLeft: isMobile ? "4px" : "20px",
                               fontFamily: "Vesper Libre",
                             }}
                           >
@@ -194,7 +198,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                   borderBottom: "1px solid #dddddd",
                                   pl: {
                                     lg: "60px",
-                                    xs: "40px",
+                                    xs: "20px",
                                   },
                                   py: 0.5,
                                 }}

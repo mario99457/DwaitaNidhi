@@ -70,7 +70,7 @@ const Layout = ({ children }: LayoutProps) => {
           justifyContent: "space-between",
         }}
         height="calc(100% - 55px)"
-        className="layout-content"
+        className={`layout-content ${isMobile ? "layout-content-mobile" : ""}`}
       >
         {!progress ? (
           <>
@@ -87,6 +87,9 @@ const Layout = ({ children }: LayoutProps) => {
                 width: "100%",
                 overflowY: "auto",
                 height: "100%",
+                overflowX: {
+                  xs: "hidden",
+                },
               }}
             >
               {children}

@@ -92,8 +92,9 @@ const TitlePage = () => {
         </Typography>
         {isMobile && (
           <SearchBox
-            onSearch={Sutraani.searchSutraani}
+            onSearch={handleSearch}
             placeholder={"Type in English or Devanagari"}
+            onClear={handleClearSearch}
             textFieldStyle={{
               width: "100%",
               borderRadius: "28px",
@@ -166,6 +167,7 @@ const TitlePage = () => {
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
             titles={CachedData.getBookClass(bookName || "")?.allSutras}
+            isMobile={isMobile}
           />
         )}
         {selectedView == "search" && (

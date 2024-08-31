@@ -12,7 +12,7 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import MenuBookTwoToneIcon from "@mui/icons-material/MenuBookTwoTone";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
@@ -52,7 +52,14 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const [expandedMenu, setExpandedMenu] = useState<{ [key: string]: boolean }>(
     {}
   );
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [expandSideBar, setExpandSideBar] = useState(expandNavigationMenu);
+  const hoverTimeout = useRef<any>(null);
+
+  useEffect(() => {
+    setExpandSideBar(expandNavigationMenu);
+  }, [expandNavigationMenu]);
+
   const open = Boolean(anchorEl);
 
   const handleClose = () => {
@@ -121,7 +128,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         ...prevState,
         [item.key]: !prevState[item.key],
       }));
-      if (!expandNavigationMenu) {
+      if (!expandSideBar) {
         setAnchorEl(e.currentTarget);
       }
     }
@@ -143,6 +150,19 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     }
   };
 
+  const handleMouseEnter = () => {
+    hoverTimeout.current = setTimeout(() => {
+      setExpandSideBar(true);
+    }, 300);
+  };
+
+  const handleMouseLeaveMenu = () => {
+    if (!expandNavigationMenu) {
+      clearTimeout(hoverTimeout.current);
+      setExpandSideBar(false);
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -151,9 +171,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         flexDirection: "column",
         alignItems: "baseline",
         justifyContent: "space-between",
-        transition: "width 0.1s ease, min-width 0.1s ease",
-        width: expandNavigationMenu ? 200 : 60,
-        minWidth: expandNavigationMenu ? 200 : 60,
+        transition: "width 0.5s ease, min-width 0.5s ease",
+        width: expandSideBar ? 200 : 60,
+        minWidth: expandSideBar ? 200 : 60,
         height: "100%",
       }}
     >
@@ -167,7 +187,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
           justifyContent: "space-between",
         }}
       >
-        <List disablePadding>
+        <List
+          disablePadding
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeaveMenu}
+        >
           {navigation.map((item) => (
             <React.Fragment key={item.key}>
               <ListItem
@@ -182,17 +206,15 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 <ListItemButton
                   sx={{
                     minHeight: 60,
-                    justifyContent: expandNavigationMenu ? "initial" : "center",
+                    justifyContent: expandSideBar ? "initial" : "center",
                     //   px: 2.5,
                   }}
-                  // onMouseEnter={(e) => setAnchorEl(e.currentTarget)}
-                  // onMouseLeave={(e) => setAnchorEl(null)}
                   onClick={(e) => handleMenuItemClick(e, item)}
                 >
                   <ListItemIcon
                     sx={{
                       minWidth: 0,
-                      mr: expandNavigationMenu ? 1 : "auto",
+                      mr: expandSideBar ? 1 : "auto",
                       justifyContent: "center",
                     }}
                   >
@@ -201,9 +223,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
                   <ListItemText
                     primary={item.label}
-                    sx={{ opacity: expandNavigationMenu ? 1 : 0 }}
+                    sx={{ opacity: expandSideBar ? 1 : 0 }}
                   />
-                  {item.subMenu?.length && expandNavigationMenu ? (
+                  {item.subMenu?.length && expandSideBar ? (
                     expandedMenu[item.key] ? (
                       <ExpandLess sx={{ color: "#61616180" }} />
                     ) : (
@@ -215,7 +237,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 </ListItemButton>
               </ListItem>
 
-              {expandedMenu[item.key] && expandNavigationMenu && (
+              {expandedMenu[item.key] && expandSideBar && (
                 <Collapse
                   in={expandedMenu[item.key]}
                   timeout="auto"
@@ -273,7 +295,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   </List>
                 </Collapse>
               )}
-              {!expandNavigationMenu && item.subMenu && (
+              {!expandSideBar && item.subMenu && (
                 <Menu
                   id="basic-menu"
                   anchorEl={anchorEl}
@@ -316,7 +338,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
               <ListItemButton
                 sx={{
                   minHeight: 60,
-                  justifyContent: expandNavigationMenu ? "initial" : "center",
+                  justifyContent: expandSideBar ? "initial" : "center",
                   //   px: 2.5,
                 }}
                 onClick={(e) => handleMenuItemClick(e, item)}
@@ -324,7 +346,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 <ListItemIcon
                   sx={{
                     minWidth: 0,
-                    mr: expandNavigationMenu ? 1 : "auto",
+                    mr: expandSideBar ? 1 : "auto",
                     justifyContent: "center",
                   }}
                 >
@@ -333,7 +355,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
                 <ListItemText
                   primary="Settings"
-                  sx={{ opacity: expandNavigationMenu ? 1 : 0 }}
+                  sx={{ opacity: expandSideBar ? 1 : 0 }}
                 />
               </ListItemButton>
             </ListItem>
@@ -350,7 +372,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
               overflow: "hidden",
             }}
           >
-            {expandNavigationMenu && (
+            {expandSideBar && (
               <>
                 <div style={{ width: "110px", fontSize: "13px" }}>
                   @copyright -2024 Developed and Maintained by
@@ -364,7 +386,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                 >
                   <EmailOutlinedIcon />
                   Contact Us
-                </div>              
+                </div>
               </>
             )}
           </Box>

@@ -40,7 +40,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
     ) {
       if (sections[0] && sections[0] != "search") {
         const tempBook = CachedData.data.books.find(
-          (book : Book) => book.name == sections[0]
+          (book: Book) => book.name == sections[0]
         );
         if (!tempBook) {
           return;
@@ -93,7 +93,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
             >
               {selectedBook?.title}
             </Typography>
-            {pageName == "detail" && (
+            {/* {pageName == "detail" && (
               <div
                 style={{
                   display: "flex",
@@ -117,7 +117,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
                   सूत्रावलि
                 </Typography>
               </div>
-            )}
+            )} */}
           </>
         ) : (
           <>

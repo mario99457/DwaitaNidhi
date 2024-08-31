@@ -146,6 +146,12 @@
 
 }
 
+@media (max-width: 1400px) {
+    .mySwiper .swiper-wrapper {
+        margin-top: 1rem;
+    }
+}
+
 .swiper-slide {
     text-align: center;
     font-size: 18px;
@@ -214,4 +220,15 @@
 
 .treeview-box-wrapper .highlight-string {
     background: #F6BF07;
+}
+
+.quote {
+    color: #0071DA;
+    font-style: italic;
+}
+
+.layout-content-mobile {
+    .detail-meta {
+        flex-direction: column;
+    }
 }
