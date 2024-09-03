@@ -27,6 +27,7 @@ import DrawerMenu from "./DrawerMenu";
 import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
+import Parser from "html-react-parser";
 
 interface Commentary {
   name: string;
@@ -48,8 +49,12 @@ const DetailPage = () => {
 
   const availableLanguages = [
     {
-      id: "ss",
-      label: "संस्कृत",
+      id: "k",
+      label: "ಕನ್ನಡ",
+    },
+    {
+      id: "e",
+      label: "English",
     },
     {
       id: "te",
@@ -58,10 +63,6 @@ const DetailPage = () => {
     {
       id: "t",
       label: "தமிழ்",
-    },
-    {
-      id: "k",
-      label: "ಕನ್ನಡ",
     },
     {
       id: "m",
@@ -291,9 +292,9 @@ const DetailPage = () => {
             <Typography
               fontFamily="Vesper Libre"
               fontSize="18px"
-              fontWeight={400}
               color="#BC4501"
-              lineHeight="23.94px"
+              lineHeight="33px"
+              whiteSpace="pre-line"
               // sx={{
               //   display: "-webkit-box",
               //   WebkitLineClamp: showFullSummary ? "unset" : "3",
@@ -302,9 +303,11 @@ const DetailPage = () => {
               //   textOverflow: "ellipsis",
               // }}
             >
-              {BookClass?.getSummary(selectedTitle?.i)
-                ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
-                : ""}
+              {Parser(
+                  BookClass?.getSummary(selectedTitle?.i)
+                  ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
+                  : ""
+              )}
             </Typography>
             {/* {!showFullSummary && (
               <Typography
