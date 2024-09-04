@@ -38,7 +38,7 @@ interface Commentary {
   hidden: boolean;
 }
 const DetailPage = () => {
-  const { titleNumber, bookName } = useParams();
+  const { titleNumber, bookName, commentary } = useParams();
   const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
   const selectedKey = useRef("");
   const theme = useTheme();
@@ -91,13 +91,19 @@ const DetailPage = () => {
     setSelectedLanguage(event.target.value);
   };
 
-  const handleCommentaryChange = (data: Commentary) => {
+  const handleCommentaryChange = (key: string) => {
     setSelectedCommentary((prevState) => ({
       ...prevState,
-      [data.key]: { expanded: true },
+      [key]: { expanded: true },
     }));
-    selectedKey.current = data.key;
+    selectedKey.current = key;
   };
+
+  useEffect(() => {
+    if (commentary) {
+      handleCommentaryChange(commentary);
+    }
+  }, [commentary]);
 
   useEffect(() => {
     if (selectedKey.current) {
@@ -304,7 +310,7 @@ const DetailPage = () => {
               // }}
             >
               {Parser(
-                  BookClass?.getSummary(selectedTitle?.i)
+                BookClass?.getSummary(selectedTitle?.i)
                   ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
                   : ""
               )}
@@ -341,7 +347,7 @@ const DetailPage = () => {
                 <Link
                   // href={`#${commentary.key}`}
                   key={commentary.key}
-                  onClick={() => handleCommentaryChange(commentary)}
+                  onClick={() => handleCommentaryChange(commentary.key)}
                   sx={{ textDecoration: "none" }}
                 >
                   <div

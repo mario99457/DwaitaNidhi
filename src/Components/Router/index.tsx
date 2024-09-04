@@ -10,6 +10,10 @@ const Router = () => {
       <Route path="/" element={<Landing />} />
       <Route path="/:bookName" element={<TitlePage />} />
       <Route path="/:bookName/:titleNumber" element={<DetailPage />} />
+      <Route
+        path="/:bookName/:titleNumber/:commentary"
+        element={<DetailPage />}
+      />
       <Route path="/search" element={<SearchPage />} />
     </Routes>
   );

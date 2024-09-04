@@ -1,20 +1,18 @@
-import { Card, CardContent, Stack, Typography } from "@mui/material";
+import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import React from "react";
+import { SearchResultData } from "./index";
+import Parser from "html-react-parser";
 
-interface SearchCardProps {
-  title: string;
-  author: string;
-  bookName: string;
-  content: string;
-  datanav: string;
+interface SearchCardProps extends SearchResultData {
+  isMobile: boolean;
 }
 
 const SearchCard: React.FC<SearchCardProps> = ({
   title,
-  author,
   content,
   bookName,
-  datanav
+  datanav,
+  isMobile,
 }) => {
   return (
     <Card
@@ -22,7 +20,9 @@ const SearchCard: React.FC<SearchCardProps> = ({
         width: "100%",
         bgcolor: "#F4F2F2",
         borderRadius: "9px",
-        pr: "5%",
+        pr: {
+          lg: "5%",
+        },
         boxShadow: "none",
       }}
     >
@@ -34,11 +34,27 @@ const SearchCard: React.FC<SearchCardProps> = ({
             fontWeight="400"
             color="#A74600"
           >
-            {bookName}
+            {title}
           </Typography>
-          <div className="flex-center">
-            <div className="search-card-tag">read more...</div>
-          </div>
+          <Button
+            variant="outlined"
+            sx={{
+              color: "#0085FF",
+              fontSize: "12px",
+              border: "1px solid #D4D2D2",
+              borderRadius: "5px",
+              textTransform: "none",
+              background: "#FFFFFF",
+              flexShrink: 0,
+              alignItems: "flex-start",
+              height: "33px",
+            }}
+            onClick={() => {
+              window.open(datanav, "_blank");
+            }}
+          >
+            read more...
+          </Button>
         </Stack>
         <Typography
           fontSize="14px"
@@ -47,9 +63,9 @@ const SearchCard: React.FC<SearchCardProps> = ({
           fontWeight="400"
           mt={1}
         >
-          {author}
+          {bookName}
         </Typography>
-        <div className="search-card-content">{content}</div>
+        <div className="search-card-content">{Parser(content)}</div>
       </CardContent>
     </Card>
   );

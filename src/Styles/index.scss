@@ -199,23 +199,15 @@
     color: #616161;
 }
 
-.search-card-tag {
-    margin-left: 16px;
-    border: 1px solid #D4D2D2;
-    background: #FFFFFF;
-    color: #0085FF;
-    font-size: 12px;
-    padding: 3.5px 10px;
-    width: 90px;
-    border-radius: 5px;
-    height: 23px;
-}
-
 .search-card-content {
     font-size: 12px;
     color: #000000;
     line-height: 16px;
     margin-top: 1rem;
+
+    .highlight-string {
+        background: #F6BF07;
+    }
 }
 
 .treeview-box-wrapper .highlight-string {

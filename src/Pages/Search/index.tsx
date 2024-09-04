@@ -7,6 +7,8 @@ import {
   styled,
   TextField,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import { useState } from "react";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
@@ -14,14 +16,13 @@ import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
 
-export class SearchResultData {
-    title : any = ""
-    author: any = ""
-    content: any = ""
-    bookName: any = ""
-    datanav: any = ""
-};
-
+export interface SearchResultData {
+  title: string;
+  author: string;
+  bookName: string;
+  content: string;
+  datanav: string;
+}
 
 export const StyledChip = styled(Chip)<{ selected: boolean }>(
   ({ /*theme,*/ selected }) => ({
@@ -72,28 +73,35 @@ const SearchPage = () => {
       label: book.title,
     };
   });
-  const [searchResult, setSearchResult] = useState<SearchResultData[] | undefined>([]);
+  const [searchResult, setSearchResult] = useState<
+    SearchResultData[] | undefined
+  >([]);
+  const searchEnabledBooks = ["sutraani"];
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // var searchResults = getBookClass().
 
   const handleSearch = () => {
-    var result = CachedData.getBookClass("sutraani")?.searchBooks(searchParam, selectedOption);
-    console.log("result---------------", result);
-    return result?.map((v) => {
-       let data = new SearchResultData();
-       
-       data.title = v.name, 
-       data.author = v.commentaries[0]?.author,
-       data.content = v.commentaries[0]?.fragment,
-       data.bookName = v.commentaries[0]?.name,
-       data.datanav = v.commentaries[0]?.datanav
-       
-       return data;
+    const result = CachedData.getBookClass("sutraani")?.searchBooks(
+      searchParam,
+      selectedOption
+    );
+    const searchData = result?.map((item: any) => {
+      const data = {} as SearchResultData;
+      data.title = item.name;
+      data.author = item.commentaries[0]?.author;
+      data.content = item.commentaries[0]?.fragment;
+      data.bookName = item.commentaries[0]?.name;
+      data.datanav = item.commentaries[0]?.datanav;
+      return data;
     });
+    console.log(searchData);
+    setSearchResult(searchData);
   };
-  
+
   return (
-    <Box sx={{ padding: "22px 20%" }}>
+    <Box sx={{ padding: { lg: "22px 20%", xs: "22px 5%" } }}>
       <Typography
         fontFamily="Poppins"
         fontSize="26px"
@@ -141,17 +149,16 @@ const SearchPage = () => {
               bgcolor: "#BC4501",
             },
           }}
-          onClick={() => {
-            var searchResult = handleSearch();
-            setSearchResult(searchResult);
-          }}
+          onClick={handleSearch}
         >
           GO
         </Button>
       </Stack>
       <Stack direction="row" mt={3} spacing={2}>
         <StyledChip
-          label={`All ${searchResult.length ? `(${searchResult.length})` : ""}`}
+          label={`All ${
+            searchResult?.length ? `(${searchResult.length})` : ""
+          }`}
           selected={selectedOption == "all"}
           onClick={() => {
             setSelectedOption("all");
@@ -162,6 +169,7 @@ const SearchPage = () => {
           <StyledChip
             label={item.label}
             selected={selectedOption == item.name}
+            disabled={!searchEnabledBooks.includes(item.name)}
             onClick={() => {
               setSelectedOption(item.name);
             }}
@@ -170,8 +178,8 @@ const SearchPage = () => {
         ))}
       </Stack>
       <Stack direction="column" mt={3} spacing={2}>
-        {searchResult.map((item: SearchResultData, index: number) => (
-          <SearchCard key={`${item.bookName} ${index}`} {...item} />
+        {searchResult?.map((item: SearchResultData, index: number) => (
+          <SearchCard key={`${item.bookName} ${index}`} {...item} isMobile={isMobile} />
         ))}
       </Stack>
     </Box>
