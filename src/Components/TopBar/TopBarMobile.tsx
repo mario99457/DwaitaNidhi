@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 import { AppBar, Toolbar, IconButton, Box, Typography } from "@mui/material";
 import appIcon from "../../assets/app_logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
-import ToC_Icon from "../../assets/toc.svg";
 import DrawerMenu from "../../Pages/Details/DrawerMenu";
+import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 interface TopBarProps {
   toggleMenu: () => void;
@@ -158,7 +157,14 @@ const TopBarSmall: React.FC<TopBarProps> = ({
               }}
               className="top-bar-links"
             >
-              <MoreVertIcon sx={{ color: "#fffffd" }} />
+              {!pathname.includes("search") && (
+                <SearchOutlinedIcon
+                  sx={{ color: "#fffffd", cursor: "pointer" }}
+                  onClick={() => {
+                    navigate("/search");
+                  }}
+                />
+              )}
             </Box>
           </>
         )}

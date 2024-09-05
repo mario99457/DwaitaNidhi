@@ -642,7 +642,7 @@ export class Sutraani {
                     fragment: TH(D(e), o),
                     show: true,
                     author: t.author,
-                    datanav: `/sutraani/${n}/${t.key}&highlight=` + a,
+                    datanav: `/sutraani/${n}/${t.key}?highlight=` + a,
                     //datanav: `/sutraani/${t.key}?expand=sutra-commentary-${t.key}-region&focus=sutra-commentary-${t.key}-region&highlight=` + a
                 })
             }),
