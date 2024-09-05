@@ -223,7 +223,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                       flexShrink: "0",
                                     }}
                                   >
-                                    {Formatter.toDevanagariNumeral(title.i)}{" "}
+                                    {Formatter.toDevanagariNumeral(`${title?.a}.${title?.p}.${title?.n}`)}{" "}
                                     &nbsp;
                                   </span>
                                   <span

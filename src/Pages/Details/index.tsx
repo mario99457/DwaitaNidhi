@@ -138,7 +138,7 @@ const DetailPage = () => {
       </Typography>
     </Link>,
     <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
-      ब्र.सू. {Formatter.toDevanagariNumeral(selectedTitle?.i)}
+      ब्र.सू. {Formatter.toDevanagariNumeral(`${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`)}
     </Typography>,
   ];
 
@@ -251,7 +251,7 @@ const DetailPage = () => {
               fontWeight="400"
               color="#969696"
             >
-              ब्र.सू. {Formatter.toDevanagariNumeral(selectedTitle?.i)}
+              ब्र.सू. {Formatter.toDevanagariNumeral(`${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`)}
             </Typography>
             <img src={playButton} />
           </Stack>

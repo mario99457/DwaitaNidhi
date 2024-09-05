@@ -43,7 +43,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
                 flexShrink: "0",
               }}
             >
-              {Formatter.toDevanagariNumeral(data.i)} &nbsp;
+              {Formatter.toDevanagariNumeral(`${data?.a}.${data?.p}.${data?.n}`)} &nbsp;
             </span>
             <span
               style={{
