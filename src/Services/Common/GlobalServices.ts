@@ -636,14 +636,14 @@ export class Sutraani {
                 e = "",
                 a = CachedData.data[t.key][n],
                 e = a ? a : e, 
-                (o.find(t => 0 <= e.indexOf(t))) && s.push({
+                (a = o.find(t => 0 <= e.indexOf(t))) && s.push({
                     name: t.name,
                     key: t.key,
                     fragment: TH(D(e), o),
                     show: true,
                     author: t.author,
-                    datanav: `/sutraani/${n}/${t.key}`,
-                    // datanav: `/sutraani/${t.key}?expand=sutra-commentary-${t.key}-region&focus=sutra-commentary-${t.key}-region&highlight=` + a
+                    datanav: `/sutraani/${n}/${t.key}&highlight=` + a,
+                    //datanav: `/sutraani/${t.key}?expand=sutra-commentary-${t.key}-region&focus=sutra-commentary-${t.key}-region&highlight=` + a
                 })
             }),
             0 < s.length && t.push({

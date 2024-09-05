@@ -103,7 +103,7 @@ export function H(t : any, e = "") {
     return Formatter.highlightString(t, e);
 }
 
-export function TH(t : any, e = "") {
+export function TH(t : any, e: any[]) {
     return Formatter.trimAndHighlightString(t, e);
 }
 
