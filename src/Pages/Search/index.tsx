@@ -10,11 +10,12 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
+import { useLocation, useNavigationType } from "react-router-dom";
 
 export interface SearchResultData {
   title: string;
@@ -49,12 +50,30 @@ const SearchPage = () => {
   const searchEnabledBooks = ["sutraani"];
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const location = useLocation();
+  const navigationType = useNavigationType();
+
+  useEffect(() => {
+    const storedSearch = sessionStorage.getItem("search");
+    if (
+      navigationType == "PUSH" &&
+      location.state?.from &&
+      location.state?.from == "top-bar"
+    ) {
+      setSearchParam("");
+      setSearchResult([]);
+      sessionStorage.removeItem("search");
+    } else if (storedSearch) {
+      setSearchParam(storedSearch);
+      handleSearch(storedSearch);
+    }
+  }, []);
 
   // var searchResults = getBookClass().
 
-  const handleSearch = () => {
+  const handleSearch = (searchTerm = searchParam) => {
     const result = CachedData.getBookClass("sutraani")?.searchBooks(
-      searchParam,
+      searchTerm,
       selectedOption
     );
     const searchData = result?.map((item: any) => {
@@ -66,7 +85,6 @@ const SearchPage = () => {
       data.datanav = item.commentaries[0]?.datanav;
       return data;
     });
-    console.log(searchData);
     setSearchResult(searchData);
   };
 
@@ -119,7 +137,7 @@ const SearchPage = () => {
               bgcolor: "#BC4501",
             },
           }}
-          onClick={handleSearch}
+          onClick={() => handleSearch()}
         >
           GO
         </Button>
@@ -149,7 +167,12 @@ const SearchPage = () => {
       </Stack>
       <Stack direction="column" mt={3} spacing={2}>
         {searchResult?.map((item: SearchResultData, index: number) => (
-          <SearchCard key={`${item.bookName} ${index}`} {...item} isMobile={isMobile} />
+          <SearchCard
+            key={`${item.bookName} ${index}`}
+            {...item}
+            isMobile={isMobile}
+            searchParam={searchParam}
+          />
         ))}
       </Stack>
     </Box>

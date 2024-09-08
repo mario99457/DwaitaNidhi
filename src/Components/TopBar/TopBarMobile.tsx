@@ -31,12 +31,11 @@ const TopBarSmall: React.FC<TopBarProps> = ({
 
   useEffect(() => {
     const sections = pathname.split("/").filter((str) => str);
-    if (
-      pathname &&
-      sections.length &&
-      !progress &&
-      CachedData?.data?.books?.length
-    ) {
+    if (pathname == "/") {
+      setPageName(pages[0]);
+      return;
+    }
+    if (pathname && !progress && CachedData?.data?.books?.length) {
       if (sections[0] && sections[0] != "search") {
         const tempBook = CachedData.data.books.find(
           (book: Book) => book.name == sections[0]
@@ -119,55 +118,53 @@ const TopBarSmall: React.FC<TopBarProps> = ({
             )} */}
           </>
         ) : (
-          <>
-            <Box
-              sx={{
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                flexGrow: 2,
-              }}
-              onClick={() => {
-                navigate("/");
-              }}
+          <Box
+            sx={{
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              flexGrow: 2,
+            }}
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            <IconButton
+              sx={{ marginRight: "8px", marginLeft: "6px", width: "50px" }}
+              edge="start"
+              color="inherit"
+              aria-label="menu"
             >
-              <IconButton
-                sx={{ marginRight: "8px", marginLeft: "6px", width: "50px" }}
-                edge="start"
-                color="inherit"
-                aria-label="menu"
-              >
-                <img src={appIcon} />
-              </IconButton>
-              <div className="app-name-wrapper app-name-wrap-small">
-                <span className="app-name app-name-small"> द्वैत निधि</span>
-                <span className="app-tagline app-tagline-small">
-                  Dwaita Nidhi
-                </span>
-              </div>
-            </Box>
-            <Box
-              sx={{
-                flexGrow: 2,
-                textAlign: "end",
-                display: "flex",
-                height: "100%",
-                justifyContent: "end",
-                alignItems: "center",
-              }}
-              className="top-bar-links"
-            >
-              {!pathname.includes("search") && (
-                <SearchOutlinedIcon
-                  sx={{ color: "#fffffd", cursor: "pointer" }}
-                  onClick={() => {
-                    navigate("/search");
-                  }}
-                />
-              )}
-            </Box>
-          </>
+              <img src={appIcon} />
+            </IconButton>
+            <div className="app-name-wrapper app-name-wrap-small">
+              <span className="app-name app-name-small"> द्वैत निधि</span>
+              <span className="app-tagline app-tagline-small">
+                Dwaita Nidhi
+              </span>
+            </div>
+          </Box>
         )}
+        <Box
+          sx={{
+            flexGrow: 2,
+            textAlign: "end",
+            display: "flex",
+            height: "100%",
+            justifyContent: "end",
+            alignItems: "center",
+          }}
+          className="top-bar-links"
+        >
+          {!pathname.includes("search") && (
+            <SearchOutlinedIcon
+              sx={{ color: "#fffffd", cursor: "pointer" }}
+              onClick={() => {
+                navigate("/search", { state: { from: "top-bar" } });
+              }}
+            />
+          )}
+        </Box>
       </Toolbar>
       {openDrawer ? (
         <DrawerMenu

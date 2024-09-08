@@ -2,9 +2,11 @@ import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import React from "react";
 import { SearchResultData } from "./index";
 import Parser from "html-react-parser";
+import { useNavigate } from "react-router-dom";
 
 interface SearchCardProps extends SearchResultData {
   isMobile: boolean;
+  searchParam: string;
 }
 
 const SearchCard: React.FC<SearchCardProps> = ({
@@ -13,7 +15,15 @@ const SearchCard: React.FC<SearchCardProps> = ({
   bookName,
   datanav,
   isMobile,
+  searchParam,
 }) => {
+  const navigate = useNavigate();
+
+  const handleSearchResultClick = () => {
+    sessionStorage.setItem("search", searchParam);
+    navigate(datanav);
+  };
+
   return (
     <Card
       sx={{
@@ -49,9 +59,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
               alignItems: "flex-start",
               height: "33px",
             }}
-            onClick={() => {
-              window.open(datanav, "_blank");
-            }}
+            onClick={handleSearchResultClick}
           >
             read more...
           </Button>

@@ -93,7 +93,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <SearchOutlinedIcon
               sx={{ color: "#fffffd", cursor: "pointer" }}
               onClick={() => {
-                navigate("/search");
+                navigate("/search", { state: { from: "top-bar" } });
               }}
             />
           )}
