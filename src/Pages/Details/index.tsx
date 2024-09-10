@@ -29,8 +29,10 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
-import { Howl, Howler } from "howler";
+// import { Howl, Howler } from "howler";
+import ReactHowler from "react-howler";
 import testAudio from "../../assets/audio/small.mp3";
+import AudioPlayer from "./AudioPlayer";
 
 interface Commentary {
   name: string;
@@ -47,10 +49,8 @@ const DetailPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [showFullSummary, setShowFullSummary] = useState(false);
-  const [soundId, setSoundId] = useState("");
-  const sound = new Howl({
-    src: [testAudio],
-  });
+  const [playAudio, setPlayAudio] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
 
   const BookClass = CachedData.getBookClass(bookName || "");
 
@@ -132,18 +132,8 @@ const DetailPage = () => {
     }
   };
 
-  sound.on("end", function () {
-    setSoundId("");
-  });
-
   const handlePlayPause = () => {
-    if (soundId) {
-      sound.pause();
-      setSoundId(null);
-    } else {
-      const id = sound.play();
-      setSoundId(id);
-    }
+    setPlayAudio((prevState) => !prevState);
   };
 
   const breadcrumbs = [
@@ -181,6 +171,7 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
+      {showPlayer && <AudioPlayer selectedTitle={selectedTitle} />}
       {selectedTitle ? (
         <>
           <Box
@@ -230,6 +221,7 @@ const DetailPage = () => {
                 }}
                 onClick={() => handleNavigateTitle("prev")}
               />
+
               <Container
                 sx={{
                   height: "60px",
@@ -247,6 +239,7 @@ const DetailPage = () => {
                   {selectedTitle?.s}
                 </Typography>
               </Container>
+
               <img
                 src={nextButton}
                 alt="next"
@@ -263,6 +256,7 @@ const DetailPage = () => {
               />
             </Box>
           </Box>
+
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -280,30 +274,17 @@ const DetailPage = () => {
                 `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`
               )}
             </Typography>
+            <ReactHowler
+              src={[testAudio]}
+              playing={playAudio}
+              onEnd={() => setPlayAudio(false)}
+            />
             <img
-              src={soundId ? pauseButton : playButton} // Conditionally render play/pause icon
-              alt={soundId ? "pause" : "play"}
+              src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
+              alt={playAudio ? "pause" : "play"}
               style={{ cursor: "pointer" }}
               onClick={handlePlayPause} // Use a single handler for both play and pause
             />
-            {/* {soundId && sound.playing(soundId) ? (
-              <img
-                src={pauseButton}
-                alt="pause"
-                style={{ cursor: "pointer" }}
-                onClick={() => sound.pause(soundId)}
-              />
-            ) : (
-              <img
-                src={playButton}
-                alt="play"
-                style={{ cursor: "pointer" }}
-                onClick={() => {
-                  const id = sound.play();
-                  setSoundId(id);
-                }}
-              />
-            )} */}
           </Stack>
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
@@ -427,6 +408,7 @@ const DetailPage = () => {
                 !commentary.hidden || selectedCommentary?.[commentary.key]
               }
               isMobile={isMobile}
+              setShowPlayer={() => setShowPlayer((val) => !val)}
             />
           ))}
         </>

@@ -20,6 +20,7 @@ interface DetailsContentProps {
   key: string;
   defaultExpanded?: boolean | { expanded: boolean };
   isMobile: boolean;
+  setShowPlayer: () => void;
 }
 
 const DetailsContent = ({
@@ -28,6 +29,7 @@ const DetailsContent = ({
   selectedTitle,
   defaultExpanded,
   isMobile,
+  setShowPlayer,
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
@@ -89,7 +91,12 @@ const DetailsContent = ({
             isMobile ? "align-items-baseline" : "align-items-center"
           }`}
         >
-          <img src={isMobile ? playButton2 : playButton} alt="play" />
+          <img
+            src={isMobile ? playButton2 : playButton}
+            style={{ cursor: "pointer" }}
+            alt="play"
+            onClick={() => setShowPlayer()}
+          />
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
           <IconButton
             onClick={() => setExpanded(!expanded)}
