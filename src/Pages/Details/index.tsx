@@ -171,7 +171,12 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
-      {showPlayer && <AudioPlayer selectedTitle={selectedTitle} />}
+      {showPlayer && (
+        <AudioPlayer
+          selectedTitle={selectedTitle}
+          handleClosePlayer={() => setShowPlayer(false)}
+        />
+      )}
       {selectedTitle ? (
         <>
           <Box

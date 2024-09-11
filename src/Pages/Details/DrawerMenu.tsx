@@ -47,6 +47,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
             lg: 410,
             xs: "100vw",
           },
+          overflowX: "hidden",
         }}
       >
         <Stack

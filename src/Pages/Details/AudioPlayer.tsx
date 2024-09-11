@@ -3,6 +3,7 @@ import ReactHowler from "react-howler";
 import PauseCircleIcon from "@mui/icons-material/PauseCircle";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
+import CloseIcon from "@mui/icons-material/Close";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
 import audioSample from "../../assets/audio/large.mp3";
 import audioSample2 from "../../assets/audio/large2.mp3";
@@ -12,9 +13,13 @@ import { Title } from "../../types/GlobalType.type";
 
 interface AudioPlayerProps {
   selectedTitle: Title;
+  handleClosePlayer: () => void;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({ selectedTitle }) => {
+const AudioPlayer: React.FC<AudioPlayerProps> = ({
+  selectedTitle,
+  handleClosePlayer,
+}) => {
   const [playing, setIsPlaying] = useState(false);
   const [paused, setPaused] = React.useState(false);
   const [duration, setDuration] = useState<number | null>(null);
@@ -105,6 +110,17 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ selectedTitle }) => {
         left: "10px",
       }}
     >
+      <CloseIcon
+        sx={{
+          position: "absolute",
+          right: "21%",
+          top: "5px",
+          color: "#D99595",
+          cursor: "pointer",
+          fontSize: "18px",
+        }}
+        onClick={handleClosePlayer}
+      />
       <Box bgcolor="#250909" borderRadius="9px" padding="10px 6%" width="60%">
         <Stack
           direction="row"
