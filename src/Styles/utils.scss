@@ -1,0 +1,29 @@
+.d-flex {
+    display: flex;
+}
+
+.align-items-center {
+    align-items: center;
+}
+
+.align-items-baseline {
+    align-items: baseline;
+}
+
+.align-items-end {
+    align-items: end;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.no-flex-shrink {
+    flex-shrink: 0;
+}

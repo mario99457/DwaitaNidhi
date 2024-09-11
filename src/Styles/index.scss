@@ -1,0 +1,226 @@
+@import url('./utils.scss');
+
+.app-name-wrapper {
+    .app-name {
+        font-size: 28px;
+    }
+
+    .app-name-small {
+        font-size: 20px;
+    }
+
+    .app-tagline {
+        font-family: 'Koh Santepheap';
+        font-size: 28px;
+        margin-left: 16px;
+    }
+
+    .app-tagline-small {
+        font-size: 20px;
+    }
+}
+
+.app-name-wrap-small {
+    white-space: nowrap;
+}
+
+.app-sub-name {
+    font-family: 'poppins';
+    color: #FFC683;
+    font-size: 13px;
+    position: relative;
+    top: 6px;
+    left: 12px;
+}
+
+.top-bar-links {
+    a {
+        font-family: 'poppins';
+        font-size: 13px;
+        color: #FFFFFD;
+        text-decoration: none;
+        margin-left: 32px;
+    }
+}
+
+
+.layout-content {
+    position: relative;
+    z-index: 1;
+    background: #ffffff;
+}
+
+
+.top-bar-tabs {
+    min-height: 41px !important;
+    height: 41px;
+
+
+    .MuiButtonBase-root {
+        justify-content: flex-start;
+        min-height: 41px !important;
+        height: 41px;
+        padding-right: 20px;
+        padding-left: 20px;
+    }
+
+    .Mui-selected {
+        color: #A74600 !important;
+        background: #ffffff;
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    .MuiTabs-indicator {
+        display: none;
+    }
+}
+
+.search-box-wrapper {
+    display: flex;
+    align-items: center;
+
+    .search-box {
+        max-width: 280px;
+        margin-right: 17px;
+
+        .MuiInputBase-root {
+            height: 30px;
+            padding-right: 5px;
+
+            input {
+                padding: 0 14px;
+            }
+        }
+    }
+}
+
+.treeview-list-item {
+    .MuiListItemText-root {
+        margin: 0;
+    }
+}
+
+.circle-bullet {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #999999;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.commentary-tab {
+    color: #1858b9;
+    font-size: 16px;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.commentary-tab-active {
+    color: #a74600;
+    border-bottom: 1px solid #a74600;
+}
+
+.menu-icon-book path:nth-child(2) {
+    opacity: 0;
+}
+
+.swiper {
+    width: 100%;
+    height: 100%;
+
+    .swiper-pagination {
+        position: fixed;
+        bottom: 8px;
+    }
+}
+
+.mySwiper .swiper-wrapper {
+    margin-top: 3rem;
+
+    .swiper-slide-active,
+    .swiper-slide-next,
+    .swiper-slide-prev {
+        align-items: flex-start;
+    }
+
+}
+
+@media (max-width: 1400px) {
+    .mySwiper .swiper-wrapper {
+        margin-top: 1rem;
+    }
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+
+    /* Center slide text vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper-button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper-mobile {
+    .swiper-button-next {
+        top: 98%;
+        left: 65%;
+    }
+
+    .swiper-button-prev {
+        top: 98%;
+        left: 25%;
+    }
+}
+
+.swiper-button-next {
+    position: fixed;
+    top: calc(100% - 18px);
+    left: 62%;
+}
+
+.swiper-button-prev {
+    position: fixed;
+    top: calc(100% - 18px);
+    left: 40%;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+    font-size: 19px;
+    color: #616161;
+}
+
+.search-card-content {
+    font-size: 12px;
+    color: #000000;
+    line-height: 16px;
+    margin-top: 1rem;
+}
+
+.highlight-string {
+    background: #F6BF07;
+}
+
+.treeview-box-wrapper .highlight-string {
+    background: #F6BF07;
+}
+
+.quote {
+    color: #0071DA;
+    font-style: italic;
+}
+
+.layout-content-mobile {
+    .detail-meta {
+        flex-direction: column;
+    }
+}
