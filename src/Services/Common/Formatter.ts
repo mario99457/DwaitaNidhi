@@ -52,8 +52,8 @@ export default class Formatter {
             for (var i = 0; i < a.length; ++i) t = t.replace(a[i], Formatter.toEnglishNumeral(a[i]));
         return t
     }
-    static formatSutraVyakhya(t : any, e : any = {}) {
-        return t && t.trim() ? (t = Formatter.toDevanagariNumeral(t), t = TagProcessor.processCustomTags(t), t = TagProcessor.processSutraNumberTag(t, e.includeAnchor), t = TagProcessor.processSutraReferences(t), t = Formatter.formatExternalResourcesLinks(t), Formatter.highlightString(t, e.highlight || Query.getQueryValue("highlight"))) : ""
+    static formatVyakhya(t : any, e : any = {}) {
+        return t && t.trim() ? (t = Formatter.toDevanagariNumeral(t), t = TagProcessor.processCustomTags(t), t = TagProcessor.processTitleNumberTag(t, e.includeAnchor), t = TagProcessor.processSutraReferences(t), t = Formatter.formatExternalResourcesLinks(t), Formatter.highlightString(t, e.highlight || Query.getQueryValue("highlight"))) : ""
     }
     static toPlainText(e : any) {
         return e && ([...Object.keys(TagProcessor.customTagExpansions), "\\+", "!", "=", "\\[", "\\]", "\\{", "\\}", "#", ";", "\\&", "\\^", "\\$", "→"].map((t => new RegExp(t, "g"))).forEach((t => e = e.replaceAll(t, ""))), e = (e = (e = e.replace(/<[^>]*>/g, "")).replaceAll("<", "")).replaceAll(">", "")), e
@@ -92,7 +92,7 @@ export default class Formatter {
 }
 
 export function F(t : any, e : any) {
-    return Formatter.formatSutraVyakhya(t, { highlight: e });
+    return Formatter.formatVyakhya(t, { highlight: e });
 }
 
 export function E(t : any) {

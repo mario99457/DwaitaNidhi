@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
@@ -47,7 +47,7 @@ const SearchPage = () => {
   const [searchResult, setSearchResult] = useState<
     SearchResultData[] | undefined
   >([]);
-  const searchEnabledBooks = ["sutraani"];
+  const searchEnabledBooks = ["sutraani", "gita"];
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();

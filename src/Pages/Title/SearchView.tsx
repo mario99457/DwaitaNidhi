@@ -26,7 +26,7 @@ const SearchView: React.FC<SearchViewProps> = ({
                 cursor: "pointer",
                 overflow: "auto",
               }}
-              key={data.sutranum}
+              key={data.titlenum}
               onClick={() => handleTitleClick(data)}
             >
               <ListItemText
@@ -44,7 +44,7 @@ const SearchView: React.FC<SearchViewProps> = ({
                     flexShrink: "0",
                   }}
                 >
-                  {data.sutranum}&nbsp;
+                  {data.titlenum}&nbsp;
                   {/* {Formatter.toDevanagariNumeral(data.i)} &nbsp; */}
                 </span>
                 <span
@@ -52,7 +52,7 @@ const SearchView: React.FC<SearchViewProps> = ({
                     fontFamily: "Vesper Libre",
                   }}
                 >
-                  {Parser(data.sutra)}
+                  {Parser(data.title)}
                 </span>
               </ListItemText>
             </ListItem>

@@ -178,7 +178,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
             p: "",
             s: "",
           }}
-          titles={BookClass?.allSutras}
+          titles={BookClass?.allTitles}
         />
       ) : (
         ""

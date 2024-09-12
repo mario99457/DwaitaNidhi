@@ -79,7 +79,7 @@ const DetailPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
-    const title = BookClass?.allSutras.find(
+    const title = BookClass?.allTitles.find(
       (title: Title) => title.i == titleNumber
     );
     if (title) {
@@ -138,7 +138,7 @@ const DetailPage = () => {
       </Typography>
     </Link>,
     <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
-      ब्र.सू. {Formatter.toDevanagariNumeral(`${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`)}
+      ब्र.सू. {Formatter.toDevanagariNumeral(`${selectedTitle?.a}${selectedTitle?.p !== 0 ? "." + selectedTitle?.p : ""}.${selectedTitle?.n}`)}
     </Typography>,
   ];
 
@@ -191,7 +191,7 @@ const DetailPage = () => {
                   marginLeft: "10px",
                 }}
               >
-                सूत्रावलि
+                { CachedData.data.books.find(b => b.name == CachedData.data.selectedBook)?.index }
               </Typography>
             </div>
           </Box>
@@ -220,7 +220,9 @@ const DetailPage = () => {
                   lineHeight="39.9px"
                   color="#BC4501"
                 >
-                  {selectedTitle?.s}
+                  {Parser(
+                    Formatter.formatVyakhya(selectedTitle?.s)
+                  )}
                 </Typography>
               </Container>
               <img
@@ -229,9 +231,9 @@ const DetailPage = () => {
                 style={{
                   cursor: "pointer",
                   visibility:
-                    BookClass?.allSutras &&
+                    BookClass?.allTitles &&
                     selectedTitle &&
-                    selectedTitle?.srno <= BookClass?.allSutras.length
+                    selectedTitle?.srno <= BookClass?.allTitles.length
                       ? "visible"
                       : "hidden",
                 }}
@@ -396,7 +398,7 @@ const DetailPage = () => {
         onClose={() => setOpenDrawer(false)}
         bookName={bookName}
         selectedTitle={selectedTitle}
-        titles={BookClass?.allSutras}
+        titles={BookClass?.allTitles}
       />
     </Box>
   );

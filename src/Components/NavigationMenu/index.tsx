@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import MenuBookTwoToneIcon from "@mui/icons-material/MenuBookTwoTone";
-import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -101,11 +101,12 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   ];
 
   useEffect(() => {
-    setSelectedBook(pathname.split("/")[1] || "");
+    setSelectedBook(pathname.split("/")[1] || "");    
+    CachedData.data.selectedBook = pathname.split("/")[1] || ""
   }, [pathname]);
 
   useEffect(() => {
-    Sutraani.populateAllSutras();
+    CachedData.getBookClass(CachedData.data.selectedBook)?.populateIndexList();
     if (
       selectedBook &&
       CachedData.data.books.find((book: Book) => book.name == selectedBook)

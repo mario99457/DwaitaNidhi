@@ -26,7 +26,11 @@ const Layout = ({ children }: LayoutProps) => {
       "bhashyam",
       "sutradipika",
       "books",
-      "sutraaniSummary",
+      "sutraaniSummary",    
+      "gitaIndex",
+      "gbhashyam",
+      "gitaSummary",
+      "prameyadipika"
     ];
     Prefetch.prefetchRequiredServerData(requiredData, () => {});
 

@@ -16,7 +16,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
 }) => {
   return (
     <List>
-      {titles("z")?.sutras.map((data: Title) => (
+      {titles("z")?.titles.map((data: Title) => (
         <ListItem
           sx={{
             borderTop: (theme) => `1px solid ${theme.palette.divider}`,

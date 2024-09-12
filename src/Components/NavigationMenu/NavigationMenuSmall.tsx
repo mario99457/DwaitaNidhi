@@ -107,7 +107,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
   }, [pathname]);
 
   useEffect(() => {
-    Sutraani.populateAllSutras();
+    CachedData.getBookClass(CachedData.data.selectedBook).populateIndexList();
     if (
       selectedBook &&
       CachedData.data.books.find((book: Book) => book.name == selectedBook)

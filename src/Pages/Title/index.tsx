@@ -119,7 +119,7 @@ const TitlePage = () => {
                 marginLeft: "10px",
               }}
             >
-              सूत्रावलि
+            { CachedData.data.books.find(b => b.name == CachedData.data.selectedBook)?.index }
             </Typography>
           </div>
           <Box className="search-box-wrapper">
@@ -159,14 +159,14 @@ const TitlePage = () => {
           <AlphaBetView
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            titles={CachedData.getBookClass(bookName)?.getSutraList}
+            titles={CachedData.getBookClass(bookName)?.getIndexList}
           />
         )}
         {selectedView == "list" && (
           <TreeView
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            titles={CachedData.getBookClass(bookName || "")?.allSutras}
+            titles={CachedData.getBookClass(bookName || "")?.allTitles}
             isMobile={isMobile}
           />
         )}

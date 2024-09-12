@@ -9,6 +9,6 @@ export interface Title {
 
 export interface SearchResult {
   datanav: string;
-  sutra: string;
-  sutranum: string;
+  title: string;
+  titlenum: string;
 }

@@ -49,12 +49,20 @@ const TreeView: React.FC<ListViewProps> = ({
     }, 1000);
     const titleObject: any = {};
     tocData?.map((chapter) => {
-      chapter.sub?.map((subchapter) => {
-        titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
+      if(chapter.sub){
+          chapter.sub.map((subchapter) => {
+          titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
           chapter.n,
           subchapter.n
-        );
-      });
+          );
+        });
+      }
+      else{        
+          titleObject[`${chapter.n}`] = getTitle(
+          chapter.n,
+          ''
+          );
+      }
     });
     setCacheTitle(titleObject);
   }, [tocData]);
@@ -126,7 +134,7 @@ const TreeView: React.FC<ListViewProps> = ({
                 unmountOnExit
               >
                 <List component="div" disablePadding>
-                  {chapter.sub.map((subchapter) => (
+                  {chapter.sub?.map((subchapter) => (
                     <React.Fragment key={subchapter.n}>
                       <ListItem
                         key={subchapter.n}
@@ -241,6 +249,64 @@ const TreeView: React.FC<ListViewProps> = ({
                       </Collapse>
                     </React.Fragment>
                   ))}
+                </List>
+              </Collapse>
+            )}
+            
+            {!chapter.sub && (
+              <Collapse
+                in={!closedChapters[chapter.n]}
+                timeout="auto"
+                unmountOnExit
+              >                              
+              <List component="div" disablePadding>
+                  {cacheTitle[`${chapter.n}`]?.map(
+                    (title) => (
+                      <ListItem
+                        sx={{
+                          cursor: "pointer",
+                          borderBottom: "1px solid #dddddd",
+                          pl: {
+                            lg: "60px",
+                            xs: "20px",
+                          },
+                          py: 0.5,
+                        }}
+                        key={title.i}
+                        onClick={() => handleTitleClick(title)}
+                      >
+                        <ListItemText
+                          primaryTypographyProps={{
+                            fontFamily: "Vesper Libre",
+                            fontSize: "18px",
+                            color: "#616161",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <div className="circle-bullet"></div>
+                          &nbsp;
+                          <span
+                            style={{
+                              color: "#787878",
+                              fontFamily: "Vesper Libre",
+                              flexShrink: "0",
+                            }}
+                          >
+                            {Formatter.toDevanagariNumeral(`${title?.a}.${title?.p}.${title?.n}`)}{" "}
+                            &nbsp;
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: "Vesper Libre",
+                            }}
+                          >
+                            {title.s}
+                          </span>
+                        </ListItemText>
+                      </ListItem>
+                    )
+                  )}
                 </List>
               </Collapse>
             )}

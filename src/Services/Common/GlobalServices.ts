@@ -28,11 +28,14 @@ class ApiEndpoints {
 
   static prefetchEndPoints: { [key: string]: string } = {
     sutraani: "sutraani/index.txt",
-    // sutrartha: "sutraani/sutrartha.txt",
     bhashyam: "sutraani/bhashya.txt",
     sutradipika: "sutraani/sutradipika.txt",
     books: "books.txt",
     sutraaniSummary: "sutraani/summary.txt",
+    gitaIndex: "gita/index.txt",
+    gbhashyam: "gita/bhashya.txt",
+    gitaSummary: "gita/summary.txt",
+    prameyadipika: "gita/prameyadipika.txt"
   };
   static allEndPoints: { [key: string]: string } = {
     ...ApiEndpoints.prefetchEndPoints,
@@ -329,6 +332,9 @@ export default class CachedData {
     if (name == "sutraani") {
       return Sutraani;
     }
+    else if (name == "gita") {
+      return Gita;
+    }
     return null;
   }
 }
@@ -445,16 +451,8 @@ export class Prefetch {
 //   }
 // }
 export class Sutraani {
-  static allSutras = [];
-  static currentSutra = {};
-  static commentaryPrefix = {
-    bsb: "कौमुदी",
-    sd: "मध्यकौमुदी",
-    td: "लघुकौमुदी",
-    av: "सारकौमुदी",
-    ns: "परमलघुकौमुदी",
-    nsp: "लघुपाणिनीयम्",
-  };
+  static allTitles = [];
+
   static summary = CachedData.data.sutraaniSummary;
 
   static supportedCommentaries = [
@@ -475,68 +473,9 @@ export class Sutraani {
       hidden: true,
     },
   ];
-  static requiredServerData = () => [
-    "sutraani",
-    "sutrartha",
-    "bhashyam",
-    "sutradipika",
-  ]; /*, "vartikas", "sutrartha", "sutrartha_english", ...Sutraani.supportedCommentaries.map((t => t.key))];*/
   static init() {
     CachedData.defaultDataToEmpty(["sutraani"]);
   }
-  static render() {
-    Sutraani.populateAllSutras();
-  }
-  static renderSutraList(t: any) {
-    var e, a, n;
-    Sutraani.currentSutra = {};
-    t = Sutraani.getSutraList(t);
-    e = t.sutras; a = t.title; n = t.commKey;
-    document.title = t.title;
-    /*TODO:
-                A title for every content dynamically
-                End title
-            
-            
-            */
-    // var data = {
-    //   title: "श्रीमद् ब्रह्मसूत्राणि",
-    //   endTitle: "॥ इति श्रीमद् ब्रह्मसूत्राणि ॥",
-    //   rowData: e.map((e: any) => {
-    //     sutranum: `${e.a}.${e.p}.` + e.n;
-    //     sutra: e.s;
-    //   }),
-    // };
-  }
-  static renderSingleSutra(t : any) {
-    Sutraani.currentSutra = {};
-    document.title = "";
-    // var a = CachedData.data.sutrartha[t.i]
-    //     ? CachedData.data.sutrartha[t.i].sa
-    //     : "",
-    //   n = Formatter.formatSutraVyakhya(
-    //     CachedData.data.sutrartha[t.i] ? CachedData.data.sutrartha[t.i].sd : "",
-    //     {
-    //       includeAnchor: !0,
-    //     }
-    //   );
-
-    // var sutraData = {
-    //   mobileView: Utils.isMobileView(),
-    //   title: "" + t.s,
-    //   apnNumber: Formatter.toDevanagariNumeral(`${t.a}.${t.p}.` + t.n),
-    //   sampurnaSutram: t.ss,
-    //   oneLineMeaningSanskrit: a,
-    //   //oneLineMeaningEnglish: i,
-    //   sutrartha: n,
-    //   commentaries: Sutraani.getCommentaries(t),
-    //   leftArrow: Sutraani.getLeftArrow(t),
-    //   rightArrow: Sutraani.getRightArrow(t),
-    // };
-
-    //AudioProcessor.setupSutraAudio(t)
-  }
-
   static getCommentaries(e : any) {
     return Sutraani.supportedCommentaries.map((t : any) => {
       return {
@@ -552,36 +491,36 @@ export class Sutraani {
           t.number && 0 < e[t.number]
             ? Formatter.toDevanagariNumeral(e[t.number])
             : "",
-        text: Formatter.formatSutraVyakhya(CachedData.data[t.key][e.i]),
+        text: Formatter.formatVyakhya(CachedData.data[t.key][e.i]),
       };
     });
   }
   static getLeftArrow(e : any) {
-    const t = Sutraani.allSutras.find((t : any) => t.srno == e.srno - 1);
+    const t = Sutraani.allTitles.find((t : any) => t.srno == e.srno - 1);
     return t;
   }
   static getRightArrow(e : any) {
-    const t = Sutraani.allSutras.find((t : any) => t.srno == e.srno + 1);
+    const t = Sutraani.allTitles.find((t : any) => t.srno == e.srno + 1);
     return t;
   }
-  static getSutraList(t?: any): any {
-    var e = [...Sutraani.allSutras];
+  static getIndexList(t?: any): any {
+    var e = [...Sutraani.allTitles];
     return "" == t
       ? {
-          sutras: e,
+          titles: e,
         }
       : "z" == t
       ? {
-          sutras: e.sort((t : any, e : any) => t.s.localeCompare(e.s)),
+          titles: e.sort((t : any, e : any) => t.s.localeCompare(e.s)),
         }
       : {
-          sutras: e,
+          titles: e,
         };
   }
 
-  static populateAllSutras() {
-    0 == Sutraani.allSutras?.length &&
-      (Sutraani.allSutras = CachedData.data?.sutraani?.data
+  static populateIndexList() {
+    0 == Sutraani.allTitles?.length &&
+      (Sutraani.allTitles = CachedData.data?.sutraani?.data
         .sort((t : any, e : any) => t.i - e.i)
         .map((e : any, t : any) => ((e.srno = t + 1), e)));
   }
@@ -594,28 +533,28 @@ export class Sutraani {
     e = (e = E(e)).replaceAll(" ", "").replaceAll("ऽ", "");
     var a = t.s.trim().replaceAll(" ", "").replaceAll("ऽ", ""), i = 9e4 - t.i;
     
-    return Sutraani.partialMatchWithSutraNumber(t, e) ? 81e4 + i : a == e ? 72e4 + i : a.startsWith(e) ? 63e4 + i : 0 <= a.indexOf(e) ? 54e4 + i : 0
+    return Sutraani.partialMatchWithTitleNumber(t, e) ? 81e4 + i : a == e ? 72e4 + i : a.startsWith(e) ? 63e4 + i : 0 <= a.indexOf(e) ? 54e4 + i : 0
   }
 
-  static partialMatchWithSutraNumber(t : any, e : any) {
+  static partialMatchWithTitleNumber(t : any, e : any) {
     return null != (e = e.match(/([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)){0,1}){0,1}){0,1}){0,1}/)) && (void 0 !== e[3] ? t.a == e[1] && t.p == e[2] && (t.n + "").startsWith(e[3] + "") : void 0 !== e[2] ? t.a == e[1] && t.p == e[2] : void 0 !== e[1] && t.a == e[1])
   }
 
   static searchSutraani(i: string):any[] {
     var a = GlobalSearch.getDevanagariSearchStrings(i);
-    Sutraani.populateAllSutras();      
-    Sutraani.allSutras.forEach(((t : any) => {
+    Sutraani.populateIndexList();      
+    Sutraani.allTitles.forEach(((t : any) => {
         t.searchData = {
             score: 0,
             datanav: "/sutraani/" + t["n"]
       }
     })), 
-    Sutraani.allSutras.forEach(((e : any) => a.forEach(((t : any) => e.searchData.score = Math.max(e.searchData.score, Sutraani.generateScore(e, t))))));
-      return Sutraani.allSutras.filter(((t : any) => 0 < t.searchData.score)).sort(((t : any, e : any) => e.searchData.score - t.searchData.score)).map(((t : any) => ({
-          sutranum: F(`${t.a}.${t.p}.` + t.n, a),            
-          sutra: F(t.s, a),
-          datanav: t.searchData.datanav,
-          i: t.i
+    Sutraani.allTitles.forEach(((e : any) => a.forEach(((t : any) => e.searchData.score = Math.max(e.searchData.score, Sutraani.generateScore(e, t))))));
+      return Sutraani.allTitles.filter(((t : any) => 0 < t.searchData.score)).sort(((t : any, e : any) => e.searchData.score - t.searchData.score)).map(((t : any) => ({
+        titlenum: F(`${t.a}.${t.p}.` + t.n, a),
+        title: F(t.s, a),
+        datanav: t.searchData.datanav,
+        i: t.i
       })));
     }
    
@@ -648,7 +587,7 @@ export class Sutraani {
             }),
             0 < s.length && t.push({
                 name: i.s,
-                sutranum: D(`${i.a}.${i.p}.` + i.n),
+                titlenum: D(`${i.a}.${i.p}.` + i.n),
                 commentaries: s,
                 visible: !0
             })
@@ -664,6 +603,153 @@ export class Sutraani {
     
     
     
+}
+
+export class Gita {
+  static allTitles = [];
+
+  static summary = CachedData.data.gitaSummary;
+
+  static supportedCommentaries = [
+    {
+      name: "भाष्यम्",
+      key: "gbhashyam",
+      author: "श्रीमदानन्दतीर्थ भगवद्पादाचार्य विरचितं",
+      lang: "s",
+      number: "",
+      hidden: true,
+    },{
+      name: "प्रमोयदीपिका",
+      key: "prameyadipika",
+      author: "श्रीजयतीर्थंंयति विरचिता",
+      lang: "s",
+      number: "",
+      hidden: true,
+    },
+  ];
+  static init() {
+    CachedData.defaultDataToEmpty(["gita"]);
+  }
+  
+  static getCommentaries(e : any) {
+    return Gita.supportedCommentaries.map((t : any) => {
+      return {
+        key: t.key,
+        commname: t.name,
+        author: t.author,
+        hidden: t.hidden,
+        editHref: "", //Sutraani.getEditCommentaryTag(t.key, e),
+        show: true,
+        lang: t.lang,
+        //extLink: Sutraani.getExternalPageForCommentary(e, t),
+        number:
+          t.number && 0 < e[t.number]
+            ? Formatter.toDevanagariNumeral(e[t.number])
+            : "",
+        text: Formatter.formatVyakhya(CachedData.data[t.key][e.i]),
+      };
+    });
+  }
+  static getLeftArrow(e : any) {
+    const t = Gita.allTitles.find((t : any) => t.srno == e.srno - 1);
+    return t;
+  }
+  static getRightArrow(e : any) {
+    const t = Gita.allTitles.find((t : any) => t.srno == e.srno + 1);
+    return t;
+  }
+  static getIndexList(t?: any): any {
+    var e = [...Gita.allTitles];
+    return "" == t
+      ? {
+          titles: e,
+        }
+      : "z" == t
+      ? {
+          titles: e.sort((t : any, e : any) => t.s.localeCompare(e.s)),
+        }
+      : {
+          titles: e,
+        };
+  }
+
+  static populateIndexList() {
+    0 == Gita.allTitles?.length &&
+      (Gita.allTitles = CachedData.data?.gitaIndex?.data
+        .sort((t : any, e : any) => t.i - e.i)
+        .map((e : any, t : any) => ((e.srno = t + 1), e)));
+  }
+
+  static getSummary(i: string) {
+    return CachedData.data.gitaSummary[i];
+  }
+
+  static generateScore(t : any, e : any) {
+    e = (e = E(e)).replaceAll(" ", "").replaceAll("ऽ", "");
+    var a = t.s.trim().replaceAll(" ", "").replaceAll("ऽ", ""), i = 9e4 - t.i;
+    
+    return Gita.partialMatchWithTitleNumber(t, e) ? 81e4 + i : a == e ? 72e4 + i : a.startsWith(e) ? 63e4 + i : 0 <= a.indexOf(e) ? 54e4 + i : 0
+  }
+
+  static partialMatchWithTitleNumber(t : any, e : any) {
+    return null != (e = e.match(/([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)){0,1}){0,1}){0,1}){0,1}/)) && (void 0 !== e[3] ? t.a == e[1] && t.p == e[2] && (t.n + "").startsWith(e[3] + "") : void 0 !== e[2] ? t.a == e[1] && t.p == e[2] : void 0 !== e[1] && t.a == e[1])
+  }
+
+  static searchBook(i: string):any[] {
+    var a = GlobalSearch.getDevanagariSearchStrings(i);
+    Gita.populateIndexList();      
+    Gita.allTitles.forEach(((t : any) => {
+        t.searchData = {
+            score: 0,
+            datanav: "/gita/" + t["n"]
+      }
+    })), 
+    Gita.allTitles.forEach(((e : any) => a.forEach(((t : any) => e.searchData.score = Math.max(e.searchData.score, Gita.generateScore(e, t))))));
+      return Gita.allTitles.filter(((t : any) => 0 < t.searchData.score)).sort(((t : any, e : any) => e.searchData.score - t.searchData.score)).map(((t : any) => ({
+          titlenum: F(`${t.a}.${t.p}.` + t.n, a),            
+          title: F(t.s, a),
+          datanav: t.searchData.datanav,
+          i: t.i
+      })));
+    }
+   
+    static searchBooks (q : any, b: any) {
+        var books = CachedData.getBookClass("gita");
+
+        var commentariesToSearch = CachedData.getBookClass("gita")?.supportedCommentaries;
+        
+        var o = GlobalSearch.getDevanagariSearchStrings(q)
+          , t : any[] = [];
+        return CachedData.data.gitaIndex.data.forEach((i : any) => {
+            var n = i.i
+              , s : any[] = [];
+
+            var booksToSearch = b && b !== "all" ? booksToSearch?.filter(c=>c.key == b) : commentariesToSearch;
+            commentariesToSearch.forEach((t :any) => {
+                var e : any, a;
+                e = "",
+                a = CachedData.data[t.key][n],
+                e = a ? a : e, 
+                (a = o.find(t => 0 <= e.indexOf(t))) && s.push({
+                    name: t.name,
+                    key: t.key,
+                    fragment: TH(D(e), o),
+                    show: true,
+                    author: t.author,
+                    datanav: `/gita/${n}/${t.key}?highlight=` + a,
+                    //datanav: `/sutraani/${t.key}?expand=sutra-commentary-${t.key}-region&focus=sutra-commentary-${t.key}-region&highlight=` + a
+                })
+            }),
+            0 < s.length && t.push({
+                name: i.s,
+                titlenum: D(`${i.a}.${i.p}.` + i.n),
+                commentaries: s,
+                visible: !0
+            })
+        }
+        ),
+        t          
+    }      
 }
 
 export class ArrayExtension extends Array {
