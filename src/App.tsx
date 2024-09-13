@@ -5,7 +5,11 @@ import Router from "./Components/Router";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 // import { AppDataProvider } from "./Store/AppContext";
 
-const theme = createTheme();
+const theme = createTheme({
+  typography: {
+    fontFamily: "Adishila, Vesper Libre,Poppins, sans-serif",
+  },
+});
 
 function App() {
   return (

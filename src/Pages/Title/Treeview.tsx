@@ -118,7 +118,7 @@ const TreeView: React.FC<ListViewProps> = ({
                   chapter.name
                 }`}
                 primaryTypographyProps={{
-                  fontFamily: "Vesper Libre",
+                  // fontFamily: "Vesper Libre",
                   fontSize: "26px",
                   color: "#A74600",
                 }}
@@ -152,7 +152,7 @@ const TreeView: React.FC<ListViewProps> = ({
                         <ListItemText
                           // primary={subchapter.name}
                           primaryTypographyProps={{
-                            fontFamily: "Vesper Libre",
+                            // fontFamily: "Vesper Libre",
                             fontSize: "20px",
                             display: "flex",
                             alignItems: "center",
@@ -174,13 +174,13 @@ const TreeView: React.FC<ListViewProps> = ({
                               color: "#787878",
                               marginRight: "8px",
                               marginLeft: isMobile ? "4px" : "20px",
-                              fontFamily: "Vesper Libre",
+                              // fontFamily: "Vesper Libre",
                             }}
                           >
                             {Formatter.toDevanagariNumeral(chapter.n)}.
                             {Formatter.toDevanagariNumeral(subchapter.n)}
                           </span>
-                          <span style={{ fontFamily: "Vesper Libre" }}>
+                          <span style={{ fontFamily: "" }}>
                             {subchapter.name}
                           </span>
                         </ListItemText>
@@ -215,7 +215,7 @@ const TreeView: React.FC<ListViewProps> = ({
                               >
                                 <ListItemText
                                   primaryTypographyProps={{
-                                    fontFamily: "Vesper Libre",
+                                    // fontFamily: "Vesper Libre",
                                     fontSize: "18px",
                                     color: "#616161",
                                     display: "flex",
@@ -227,7 +227,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                   <span
                                     style={{
                                       color: "#787878",
-                                      fontFamily: "Vesper Libre",
+                                      // fontFamily: "Vesper Libre",
                                       flexShrink: "0",
                                     }}
                                   >
@@ -236,7 +236,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                   </span>
                                   <span
                                     style={{
-                                      fontFamily: "Vesper Libre",
+                                      // fontFamily: "Vesper Libre",
                                     }}
                                   >
                                     {title.s}
@@ -277,7 +277,7 @@ const TreeView: React.FC<ListViewProps> = ({
                       >
                         <ListItemText
                           primaryTypographyProps={{
-                            fontFamily: "Vesper Libre",
+                            // fontFamily: "Vesper Libre",
                             fontSize: "18px",
                             color: "#616161",
                             display: "flex",
@@ -289,7 +289,7 @@ const TreeView: React.FC<ListViewProps> = ({
                           <span
                             style={{
                               color: "#787878",
-                              fontFamily: "Vesper Libre",
+                              // fontFamily: "Vesper Libre",
                               flexShrink: "0",
                             }}
                           >
@@ -298,7 +298,7 @@ const TreeView: React.FC<ListViewProps> = ({
                           </span>
                           <span
                             style={{
-                              fontFamily: "Vesper Libre",
+                              // fontFamily: "Vesper Libre",
                             }}
                           >
                             {title.s}
