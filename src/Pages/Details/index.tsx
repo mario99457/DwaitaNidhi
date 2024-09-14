@@ -86,7 +86,7 @@ const DetailPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
-    const title = BookClass?.allSutras.find(
+    const title = BookClass?.allTitles?.find(
       (title: Title) => title.i == titleNumber
     );
     if (title) {
@@ -151,7 +151,9 @@ const DetailPage = () => {
     <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
       ब्र.सू.{" "}
       {Formatter.toDevanagariNumeral(
-        `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`
+        `${selectedTitle?.a}${
+          selectedTitle?.p !== 0 ? "." + selectedTitle?.p : ""
+        }.${selectedTitle?.n}`
       )}
     </Typography>,
   ];
@@ -205,13 +207,16 @@ const DetailPage = () => {
               <Typography
                 variant="subtitle1"
                 sx={{
-                  fontFamily: "Vesper Libre",
-                  fontSize: "16px",
+                  fontSize: "20px",
                   fontWeight: "400",
                   marginLeft: "10px",
                 }}
               >
-                सूत्रावलि
+                {
+                  CachedData.data.books.find(
+                    (b) => b.name == CachedData.data.selectedBook
+                  )?.index
+                }
               </Typography>
             </div>
           </Box>
@@ -235,13 +240,8 @@ const DetailPage = () => {
                   justifyContent: "center",
                 }}
               >
-                <Typography
-                  fontFamily="Vesper Libre"
-                  fontSize="30px"
-                  lineHeight="39.9px"
-                  color="#BC4501"
-                >
-                  {selectedTitle?.s}
+                <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
+                  {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
                 </Typography>
               </Container>
 
@@ -251,9 +251,9 @@ const DetailPage = () => {
                 style={{
                   cursor: "pointer",
                   visibility:
-                    BookClass?.allSutras &&
+                    BookClass?.allTitles &&
                     selectedTitle &&
-                    selectedTitle?.srno <= BookClass?.allSutras.length
+                    selectedTitle?.srno <= BookClass?.allTitles.length
                       ? "visible"
                       : "hidden",
                 }}
@@ -269,8 +269,7 @@ const DetailPage = () => {
             sx={{ mt: 4, mb: 2 }}
           >
             <Typography
-              fontFamily="Vesper Libre"
-              fontSize="22px"
+              fontSize="24px"
               fontWeight="400"
               color="#969696"
             >
@@ -433,7 +432,7 @@ const DetailPage = () => {
         onClose={() => setOpenDrawer(false)}
         bookName={bookName}
         selectedTitle={selectedTitle}
-        titles={BookClass?.allSutras}
+        titles={BookClass?.allTitles}
       />
     </Box>
   );

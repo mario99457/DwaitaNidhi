@@ -51,12 +51,16 @@ const TreeView: React.FC<ListViewProps> = ({
     }, 1000);
     const titleObject: any = {};
     tocData?.map((chapter) => {
-      chapter.sub?.map((subchapter) => {
-        titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
-          chapter.n,
-          subchapter.n
-        );
-      });
+      if (chapter.sub) {
+        chapter.sub.map((subchapter) => {
+          titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
+            chapter.n,
+            subchapter.n
+          );
+        });
+      } else {
+        titleObject[`${chapter.n}`] = getTitle(chapter.n, "");
+      }
     });
     setCacheTitle(titleObject);
   }, [tocData]);
@@ -121,8 +125,8 @@ const TreeView: React.FC<ListViewProps> = ({
                   chapter.name
                 }`}
                 primaryTypographyProps={{
-                  fontFamily: "Vesper Libre",
-                  fontSize: "26px",
+                  // fontFamily: "Vesper Libre",
+                  fontSize: "30px",
                   color: "#A74600",
                 }}
               />
@@ -137,7 +141,7 @@ const TreeView: React.FC<ListViewProps> = ({
                 unmountOnExit
               >
                 <List component="div" disablePadding>
-                  {chapter.sub.map((subchapter) => (
+                  {chapter.sub?.map((subchapter) => (
                     <React.Fragment key={subchapter.n}>
                       <ListItem
                         key={subchapter.n}
@@ -155,8 +159,8 @@ const TreeView: React.FC<ListViewProps> = ({
                         <ListItemText
                           // primary={subchapter.name}
                           primaryTypographyProps={{
-                            fontFamily: "Vesper Libre",
-                            fontSize: "20px",
+                            // fontFamily: "Vesper Libre",
+                            fontSize: "24px",
                             display: "flex",
                             alignItems: "center",
                           }}
@@ -177,13 +181,14 @@ const TreeView: React.FC<ListViewProps> = ({
                               color: "#787878",
                               marginRight: "8px",
                               marginLeft: isMobile ? "4px" : "20px",
-                              fontFamily: "Vesper Libre",
+                              fontFamily: "24px",
+                              // fontFamily: "Vesper Libre",
                             }}
                           >
                             {Formatter.toDevanagariNumeral(chapter.n)}.
                             {Formatter.toDevanagariNumeral(subchapter.n)}
                           </span>
-                          <span style={{ fontFamily: "Vesper Libre" }}>
+                          <span style={{ fontSize: "24px" }}>
                             {subchapter.name}
                           </span>
                         </ListItemText>
@@ -223,8 +228,8 @@ const TreeView: React.FC<ListViewProps> = ({
                               >
                                 <ListItemText
                                   primaryTypographyProps={{
-                                    fontFamily: "Vesper Libre",
-                                    fontSize: "18px",
+                                    // fontFamily: "Vesper Libre",
+                                    fontSize: "22px",
                                     color: "#616161",
                                     display: "flex",
                                     alignItems: "center",
@@ -235,8 +240,9 @@ const TreeView: React.FC<ListViewProps> = ({
                                   <span
                                     style={{
                                       color: "#787878",
-                                      fontFamily: "Vesper Libre",
+                                      // fontFamily: "Vesper Libre",
                                       flexShrink: "0",
+                                      fontSize: "22px",
                                     }}
                                   >
                                     {Formatter.toDevanagariNumeral(
@@ -244,13 +250,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                     )}{" "}
                                     &nbsp;
                                   </span>
-                                  <span
-                                    style={{
-                                      fontFamily: "Vesper Libre",
-                                    }}
-                                  >
-                                    {title.s}
-                                  </span>
+                                  <span>{title.s}</span>
                                 </ListItemText>
                               </ListItem>
                             )
@@ -258,6 +258,58 @@ const TreeView: React.FC<ListViewProps> = ({
                         </List>
                       </Collapse>
                     </React.Fragment>
+                  ))}
+                </List>
+              </Collapse>
+            )}
+
+            {!chapter.sub && (
+              <Collapse
+                in={!closedChapters[chapter.n]}
+                timeout="auto"
+                unmountOnExit
+              >
+                <List component="div" disablePadding>
+                  {cacheTitle[`${chapter.n}`]?.map((title) => (
+                    <ListItem
+                      sx={{
+                        cursor: "pointer",
+                        borderBottom: "1px solid #dddddd",
+                        pl: {
+                          lg: "60px",
+                          xs: "20px",
+                        },
+                        py: 0.5,
+                      }}
+                      key={title.i}
+                      onClick={() => handleTitleClick(title)}
+                    >
+                      <ListItemText
+                        primaryTypographyProps={{
+                          fontSize: "22px",
+                          color: "#616161",
+                          display: "flex",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div className="circle-bullet"></div>
+                        &nbsp;
+                        <span
+                          style={{
+                            color: "#787878",
+                            // fontFamily: "Vesper Libre",
+                            flexShrink: "0",
+                            fontSize: "22px",
+                          }}
+                        >
+                          {Formatter.toDevanagariNumeral(
+                            `${title?.a}.${title?.p}.${title?.n}`
+                          )}{" "}
+                          &nbsp;
+                        </span>
+                        <span>{title.s}</span>
+                      </ListItemText>
+                    </ListItem>
                   ))}
                 </List>
               </Collapse>

@@ -103,11 +103,17 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
   ];
 
   useEffect(() => {
-    setSelectedBook(pathname.split("/")[1] || "");
+    const bookname = pathname.split("/")[1] || "";
+    setSelectedBook(bookname);
+    if (
+      bookname &&
+      CachedData.data.books.find((book: Book) => book.name == bookname)
+    ) {
+      CachedData.getBookClass(bookname)?.populateIndexList();
+    }
   }, [pathname]);
 
   useEffect(() => {
-    Sutraani.populateAllSutras();
     if (
       selectedBook &&
       CachedData.data.books.find((book: Book) => book.name == selectedBook)

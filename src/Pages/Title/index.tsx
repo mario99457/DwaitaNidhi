@@ -78,8 +78,7 @@ const TitlePage = () => {
       >
         <Typography
           sx={{
-            fontFamily: "Poppins",
-            fontSize: "26px",
+            fontSize: "34px",
             color: "#A74600",
             fontWeight: "600",
             display: {
@@ -99,10 +98,11 @@ const TitlePage = () => {
               width: "100%",
               borderRadius: "28px",
               marginTop: 2,
+              fontFamily: "poppins",
             }}
             isMobile={true}
           />
-        )}       
+        )}
         <Box
           sx={{ mt: "1rem", display: "flex", justifyContent: "space-between" }}
         >
@@ -113,13 +113,16 @@ const TitlePage = () => {
             <Typography
               variant="subtitle1"
               sx={{
-                fontFamily: "Poppins",
-                fontSize: "22px",
+                fontSize: "28px",
                 fontWeight: "300",
                 marginLeft: "10px",
               }}
             >
-              सूत्रावलि
+              {
+                CachedData.data.books.find(
+                  (b) => b.name == CachedData.data.selectedBook
+                )?.index
+              }
             </Typography>
           </div>
           <Box className="search-box-wrapper">
@@ -159,14 +162,14 @@ const TitlePage = () => {
           <AlphaBetView
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            titles={CachedData.getBookClass(bookName)?.getSutraList}
+            titles={CachedData.getBookClass(bookName)?.getIndexList}
           />
         )}
         {selectedView == "list" && (
           <TreeView
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            titles={CachedData.getBookClass(bookName || "")?.allSutras}
+            titles={CachedData.getBookClass(bookName || "")?.allTitles}
             isMobile={isMobile}
           />
         )}

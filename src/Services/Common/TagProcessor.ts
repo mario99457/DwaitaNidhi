@@ -67,7 +67,7 @@ export default class TagProcessor {
         for (var [e, a] of Object.entries(TagProcessor.customTagExpansions)) t = t.replaceAll(e, a);
         return t
     }
-    static processSutraNumberTag(t : any, r = !1) {
+    static processTitleNumberTag(t : any, r = !1) {
         return t.replace(/\[\[([०-९0-9])[-_.|॥।/]([०-९0-9])[-_.|॥।/]([०-९0-9]{1,3})\]\]/g, ((t : any)=> {
             var e = t[2],
                 a = t[4],

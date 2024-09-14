@@ -2,9 +2,9 @@ import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import playButton from "../../assets/PlayButton.svg";
 import playButton2 from "../../assets/Play_no_track.svg";
-import bookmark from "../../assets/bookmark.svg";
+// import bookmark from "../../assets/bookmark.svg";
 // import details from "./details.json";
-import { Sutraani } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
@@ -35,7 +35,7 @@ const DetailsContent = ({
   const [expanded, setExpanded] = useState(defaultExpanded || false);
 
   useEffect(() => {
-    setCommentaries(Sutraani.getCommentaries(selectedTitle));
+    setCommentaries(CachedData.getBookClass(CachedData.data.selectedBook)?.getCommentaries(selectedTitle));
   }, [selectedTitle]);
 
   useEffect(() => {
@@ -68,17 +68,15 @@ const DetailsContent = ({
         >
           <Typography
             color="#A74600"
-            fontFamily={"Vesper Libre"}
             lineHeight="45.58px"
-            fontSize="26px"
+            fontSize="30px"
             minWidth="90px"
           >
             {selectedCommentary.name}
           </Typography>
           <Typography
             color="#616161"
-            fontSize="16px"
-            fontFamily={"Vesper Libre"}
+            fontSize="20px"
             lineHeight="21.2px"
             marginLeft={{ lg: 5 }}
             marginBottom={1}
@@ -108,14 +106,13 @@ const DetailsContent = ({
       </Stack>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Typography
-          fontFamily="Vesper Libre"
-          fontSize="18px"
+          fontSize="22px"
           lineHeight="33px"
           marginTop="27px"
           whiteSpace="pre-line"
         >
           {Parser(
-            commentaries.find((data) => data.key == selectedCommentary.key)
+            commentaries?.find((data) => data.key == selectedCommentary.key)
               ?.text || ""
           )}
         </Typography>

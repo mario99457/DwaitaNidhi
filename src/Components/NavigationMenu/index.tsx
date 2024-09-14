@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import MenuBookTwoToneIcon from "@mui/icons-material/MenuBookTwoTone";
-import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
+import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -101,11 +101,18 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   ];
 
   useEffect(() => {
-    setSelectedBook(pathname.split("/")[1] || "");
+    const bookname = pathname.split("/")[1] || "";
+    setSelectedBook(bookname);
+    if (
+      bookname &&
+      CachedData.data.books.find((book: Book) => book.name == bookname)
+    ) {
+      CachedData.data.selectedBook = bookname;
+      CachedData.getBookClass(bookname)?.populateIndexList();
+    }
   }, [pathname]);
 
   useEffect(() => {
-    Sutraani.populateAllSutras();
     if (
       selectedBook &&
       CachedData.data.books.find((book: Book) => book.name == selectedBook)
@@ -223,7 +230,12 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
                   <ListItemText
                     primary={item.label}
-                    sx={{ opacity: expandSideBar ? 1 : 0 }}
+                    primaryTypographyProps={{
+                      fontSize: "18px",
+                    }}
+                    sx={{
+                      opacity: expandSideBar ? 1 : 0,
+                    }}
                   />
                   {item.subMenu?.length && expandSideBar ? (
                     expandedMenu[item.key] ? (
@@ -276,8 +288,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                           </ListItemIcon>
                           <ListItemText
                             primaryTypographyProps={{
-                              fontFamily: "Poppins",
-                              fontSize: "14px",
+                              fontSize: "18px",
                               display: "flex",
                               alignItems: "center",
                               color:
@@ -355,7 +366,13 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
 
                 <ListItemText
                   primary="Settings"
-                  sx={{ opacity: expandSideBar ? 1 : 0 }}
+                  primaryTypographyProps={{
+                    fontFamily: "Vesper Libre",
+                    fontSize: "14px",
+                  }}
+                  sx={{
+                    opacity: expandSideBar ? 1 : 0,
+                  }}
                 />
               </ListItemButton>
             </ListItem>
@@ -373,21 +390,38 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
             }}
           >
             {expandSideBar && (
-              <>
-                <div style={{ width: "110px", fontSize: "13px" }}>
+              <div>
+                <div
+                  style={{
+                    width: "110px",
+                    fontSize: "13px",
+                    fontFamily: "Vesper Libre",
+                  }}
+                >
                   @copyright -2024 Developed and Maintained by
                 </div>
-                <div style={{ fontSize: "14px", fontWeight: "600" }}>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    fontFamily: "Vesper Libre",
+                  }}
+                >
                   Sri Sripadaraja Mutt, Mulabagilu
                 </div>
                 <div
                   className="d-flex align-items-center"
-                  style={{ fontSize: "14px", gap: "12px", height: "60px" }}
+                  style={{
+                    fontSize: "14px",
+                    gap: "12px",
+                    height: "60px",
+                    fontFamily: "Vesper Libre",
+                  }}
                 >
                   <EmailOutlinedIcon />
                   Contact Us
                 </div>
-              </>
+              </div>
             )}
           </Box>
         </div>

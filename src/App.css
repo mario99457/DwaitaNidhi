@@ -4,5 +4,11 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: "Vesper Libre","Poppins", sans-serif; /* Changed font family to Roboto */
+    /* font-family: "Roboto", sans-serif; */
   }
+
+  body {
+    font-family: 'Adishila', "Vesper Libre","Poppins", sans-serif !important;
+  }
+
+  

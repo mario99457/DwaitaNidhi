@@ -54,6 +54,9 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
           sx={{ padding: "20px 16px 14px", background: "#E8E8E8" }}
           direction="row"
           justifyContent="space-between"
+          position="sticky"
+          zIndex={1}
+          top={0}
         >
           <div
             style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
@@ -62,7 +65,6 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
             <Typography
               variant="subtitle1"
               sx={{
-                fontFamily: "Poppins",
                 fontSize: "22px",
                 fontWeight: "300",
                 marginLeft: "10px",
