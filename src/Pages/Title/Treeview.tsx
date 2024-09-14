@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   List,
   ListItem,
@@ -28,12 +28,14 @@ const TreeView: React.FC<ListViewProps> = ({
   toc: tocData,
   titles,
   isMobile,
+  selectedTitle,
 }) => {
   const [closedChapters, setClosedChapters] = useState<{
     [key: string]: boolean;
   }>({});
   const [cacheTitle, setCacheTitle] = useState<{ [key: string]: any[] }>({});
   const [loader, setLoader] = useState(false);
+  const titleRef = useRef<any>({});
 
   const handleChapterClick = (chapterId: string) => {
     setClosedChapters((prevState) => ({
@@ -66,6 +68,15 @@ const TreeView: React.FC<ListViewProps> = ({
     });
     setCacheTitle(titleObject);
   }, [tocData]);
+
+  useEffect(() => {
+    if (selectedTitle && titleRef.current[selectedTitle?.i]) {
+      titleRef.current[selectedTitle?.i].scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [titleRef.current[selectedTitle?.i || ""]]);
 
   const handleSubChapterClick = (chapterId: string, subchapterId: string) => {
     const chapterKey = `${chapterId}.${subchapterId}`;
@@ -209,9 +220,14 @@ const TreeView: React.FC<ListViewProps> = ({
                                     xs: "20px",
                                   },
                                   py: 0.5,
+                                  backgroundColor:
+                                    title.i == selectedTitle?.i
+                                      ? "#DDDDDD"
+                                      : "",
                                 }}
                                 key={title.i}
                                 onClick={() => handleTitleClick(title)}
+                                ref={(el) => (titleRef.current[title.i] = el)}
                               >
                                 <ListItemText
                                   primaryTypographyProps={{
@@ -231,7 +247,9 @@ const TreeView: React.FC<ListViewProps> = ({
                                       flexShrink: "0",
                                     }}
                                   >
-                                    {Formatter.toDevanagariNumeral(`${title?.a}.${title?.p}.${title?.n}`)}{" "}
+                                    {Formatter.toDevanagariNumeral(
+                                      `${title?.a}.${title?.p}.${title?.n}`
+                                    )}{" "}
                                     &nbsp;
                                   </span>
                                   <span

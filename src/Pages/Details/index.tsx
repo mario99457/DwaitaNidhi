@@ -19,7 +19,8 @@ import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import ToC_Icon from "../../assets/toc.svg";
 import prevButton from "../../assets/prev_button.svg";
 import nextButton from "../../assets/next_button.svg";
-import playButton from "../../assets/PlayButton.svg";
+import playButton from "../../assets/Play_no_track.svg";
+import pauseButton from "../../assets/pauseButton.svg";
 import Divider from "@mui/material/Divider";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
@@ -28,6 +29,10 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
+// import { Howl, Howler } from "howler";
+import ReactHowler from "react-howler";
+import testAudio from "../../assets/audio/small.mp3";
+import AudioPlayer from "./AudioPlayer";
 
 interface Commentary {
   name: string;
@@ -44,6 +49,8 @@ const DetailPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [showFullSummary, setShowFullSummary] = useState(false);
+  const [playAudio, setPlayAudio] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
 
   const BookClass = CachedData.getBookClass(bookName || "");
 
@@ -125,6 +132,10 @@ const DetailPage = () => {
     }
   };
 
+  const handlePlayPause = () => {
+    setPlayAudio((prevState) => !prevState);
+  };
+
   const breadcrumbs = [
     <Link
       underline="hover"
@@ -157,6 +168,12 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
+      {showPlayer && (
+        <AudioPlayer
+          selectedTitle={selectedTitle}
+          handleClosePlayer={() => setShowPlayer(false)}
+        />
+      )}
       {selectedTitle ? (
         <>
           <Box
@@ -206,6 +223,7 @@ const DetailPage = () => {
                 }}
                 onClick={() => handleNavigateTitle("prev")}
               />
+
               <Container
                 sx={{
                   height: "60px",
@@ -225,6 +243,7 @@ const DetailPage = () => {
                   )}
                 </Typography>
               </Container>
+
               <img
                 src={nextButton}
                 alt="next"
@@ -241,6 +260,7 @@ const DetailPage = () => {
               />
             </Box>
           </Box>
+
           <Stack
             direction="row"
             justifyContent="space-between"
@@ -253,9 +273,22 @@ const DetailPage = () => {
               fontWeight="400"
               color="#969696"
             >
-              ब्र.सू. {Formatter.toDevanagariNumeral(`${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`)}
+              ब्र.सू.{" "}
+              {Formatter.toDevanagariNumeral(
+                `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`
+              )}
             </Typography>
-            <img src={playButton} />
+            <ReactHowler
+              src={[testAudio]}
+              playing={playAudio}
+              onEnd={() => setPlayAudio(false)}
+            />
+            <img
+              src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
+              alt={playAudio ? "pause" : "play"}
+              style={{ cursor: "pointer" }}
+              onClick={handlePlayPause} // Use a single handler for both play and pause
+            />
           </Stack>
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
@@ -379,6 +412,7 @@ const DetailPage = () => {
                 !commentary.hidden || selectedCommentary?.[commentary.key]
               }
               isMobile={isMobile}
+              setShowPlayer={() => setShowPlayer((val) => !val)}
             />
           ))}
         </>
