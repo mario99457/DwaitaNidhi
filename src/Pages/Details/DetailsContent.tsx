@@ -68,17 +68,15 @@ const DetailsContent = ({
         >
           <Typography
             color="#A74600"
-            fontFamily={"Vesper Libre"}
             lineHeight="45.58px"
-            fontSize="26px"
+            fontSize="30px"
             minWidth="90px"
           >
             {selectedCommentary.name}
           </Typography>
           <Typography
             color="#616161"
-            fontSize="16px"
-            fontFamily={"Vesper Libre"}
+            fontSize="20px"
             lineHeight="21.2px"
             marginLeft={{ lg: 5 }}
             marginBottom={1}
@@ -108,14 +106,13 @@ const DetailsContent = ({
       </Stack>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <Typography
-          fontFamily="Vesper Libre"
-          fontSize="18px"
+          fontSize="22px"
           lineHeight="33px"
           marginTop="27px"
           whiteSpace="pre-line"
         >
           {Parser(
-            commentaries.find((data) => data.key == selectedCommentary.key)
+            commentaries?.find((data) => data.key == selectedCommentary.key)
               ?.text || ""
           )}
         </Typography>

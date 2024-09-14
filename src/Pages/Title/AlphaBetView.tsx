@@ -30,8 +30,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
         >
           <ListItemText
             primaryTypographyProps={{
-              fontFamily: "Vesper Libre",
-              fontSize: "20px",
+              fontSize: "22px",
               display: "flex",
               alignItems: "center",
             }}
@@ -39,15 +38,17 @@ const AlphaBetView: React.FC<ListViewProps> = ({
             <span
               style={{
                 color: "#787878",
-                fontFamily: "Vesper Libre",
                 flexShrink: "0",
               }}
             >
-              {Formatter.toDevanagariNumeral(`${data?.a}.${data?.p}.${data?.n}`)} &nbsp;
+              {Formatter.toDevanagariNumeral(
+                `${data?.a}.${data?.p}.${data?.n}`
+              )}{" "}
+              &nbsp;
             </span>
             <span
               style={{
-                fontFamily: "Vesper Libre",
+                fontSize: "22px",
               }}
             >
               {data.s}
