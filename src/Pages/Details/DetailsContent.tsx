@@ -1,7 +1,7 @@
 import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import playButton from "../../assets/PlayButton.svg";
-import playButton2 from "../../assets/Play_no_track.svg";
+import playButton from "../../assets/Play_no_track.svg";
+import pencilEdit from "../../assets/pencil_edit.svg";
 // import bookmark from "../../assets/bookmark.svg";
 // import details from "./details.json";
 import CachedData from "../../Services/Common/GlobalServices";
@@ -21,6 +21,7 @@ interface DetailsContentProps {
   defaultExpanded?: boolean | { expanded: boolean };
   isMobile: boolean;
   setShowPlayer: () => void;
+  editContent: () => void;
 }
 
 const DetailsContent = ({
@@ -30,6 +31,7 @@ const DetailsContent = ({
   defaultExpanded,
   isMobile,
   setShowPlayer,
+  editContent
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
@@ -90,12 +92,17 @@ const DetailsContent = ({
           }`}
         >
           <img
-            src={isMobile ? playButton2 : playButton}
+            src={playButton}
             style={{ cursor: "pointer" }}
             alt="play"
             onClick={() => setShowPlayer()}
           />
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
+          <img 
+            src={pencilEdit} 
+            alt="edit" 
+            style={{ marginLeft: "3rem" }}
+            onClick={() => editContent()} />
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}

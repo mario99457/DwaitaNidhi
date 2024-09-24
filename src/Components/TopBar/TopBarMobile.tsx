@@ -61,21 +61,27 @@ const TopBarSmall: React.FC<TopBarProps> = ({
         boxShadow: "0px 4px 4px 0px rgba(0, 0, 0, 0.25);",
       }}
     >
+      
       <Toolbar
         sx={{
           minHeight: "55px !important",
           padding: "0 10px 0 10px !important",
         }}
       >
-        <IconButton
-          edge="start"
-          color="inherit"
-          aria-label="open drawer"
-          sx={{ mr: 1 }}
-          onClick={toggleMenu}
-        >
-          <MenuIcon sx={{ color: "#ffffff", fontSize: "2rem" }} />
-        </IconButton>
+        {!pathname.includes("login") &&
+         (
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            sx={{ mr: 1 }}
+            onClick={toggleMenu}
+          >
+            <MenuIcon sx={{ color: "#ffffff", fontSize: "2rem" }} />
+          </IconButton>
+        )}
+
+        
         {pageName == "title" || pageName == "detail" ? (
           <>
             <Typography

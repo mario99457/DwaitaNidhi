@@ -1,5 +1,5 @@
 import "./App.css";
-import Layout from "./Layout";
+import { Outlet } from 'react-router';
 import { BrowserRouter } from "react-router-dom";
 import Router from "./Components/Router";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
@@ -16,10 +16,8 @@ function App() {
     <BrowserRouter>
       <CssBaseline />
       {/* <AppDataProvider> */}
-      <ThemeProvider theme={theme}>
-        <Layout>
+      <ThemeProvider theme={theme}>        
           <Router />
-        </Layout>
       </ThemeProvider>
       {/* </AppDataProvider> */}
     </BrowserRouter>
