@@ -23,6 +23,7 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
 import appIcon from "../../assets/app_logo.svg";
+import { useAppData } from "../../Store/AppContext";
 
 interface NavigationMenuProps {
   expandNavigationMenu: boolean;
@@ -63,6 +64,8 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
   const [expandedMenu, setExpandedMenu] = useState<{ [key: string]: boolean }>(
     {}
   );
+
+  const { dispatch } = useAppData();
 
   useEffect(() => {
     setOpen(expandNavigationMenu);
@@ -109,7 +112,14 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
       bookname &&
       CachedData.data.books.find((book: Book) => book.name == bookname)
     ) {
+      CachedData.data.selectedBook = bookname;
       CachedData.getBookClass(bookname)?.populateIndexList();
+      dispatch({
+        type: "setSelectedBook",
+        book: CachedData?.data.books.find(
+          (item: any) => item.name === bookname
+        ),
+      });
     }
   }, [pathname]);
 

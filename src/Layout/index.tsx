@@ -5,6 +5,8 @@ import TopBarSmall from "../Components/TopBar/TopBarMobile";
 import CachedData, { Prefetch } from "../Services/Common/GlobalServices";
 import NavigationMenu from "../Components/NavigationMenu";
 import NavigationMenuSmall from "../Components/NavigationMenu/NavigationMenuSmall";
+import { useLocation } from "react-router-dom";
+import { useAppData } from "../Store/AppContext";
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,6 +17,8 @@ const Layout = ({ children }: LayoutProps) => {
   const [expandNavigationMenu, setExpandNavigationMenu] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const location = useLocation();
+  const { dispatch } = useAppData();
 
   const toggleMenu = () => {
     setExpandNavigationMenu(!expandNavigationMenu);
@@ -26,19 +30,38 @@ const Layout = ({ children }: LayoutProps) => {
       "bhashyam",
       "sutradipika",
       "books",
-      "sutraaniSummary",    
+      "sutraaniSummary",
       "gitaIndex",
       "gbhashyam",
       "gitaSummary",
-      "prameyadipika"
+      "prameyadipika",
     ];
     Prefetch.prefetchRequiredServerData(requiredData, () => {});
+    // let bookName = "";
+    const path = location.pathname;
+    // if (path && path.split("/").length > 1) {
+    //   bookName = path.split("/")[1];
+    // }
 
     const timer = setInterval(() => {
-      if (CachedData?.data?.books) {
-        console.log(CachedData.data);
+      if (Object.keys(CachedData.data).length == requiredData.length) {
         setProgress(false);
         clearInterval(timer);
+        if (path && path.split("/").length > 1) {
+          const book = path.split("/")[1];
+          if (
+            book &&
+            CachedData?.data?.books &&
+            CachedData?.data.books.find((item: any) => item.name === book)
+          ) {
+            dispatch({
+              type: "setSelectedBook",
+              book: CachedData?.data.books.find(
+                (item: any) => item.name === book
+              ),
+            });
+          }
+        }
       }
     }, 200);
 

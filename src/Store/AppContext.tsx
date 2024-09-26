@@ -1,15 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
-import {
-  AppContextType,
-  AppAction,
-  AppState,
-  Book,
-} from "../types/Context.type";
+import { AppContextType, AppAction, AppState } from "../types/Context.type";
 
 const AppContext = createContext<AppContextType | null>(null);
-import CachedData, {
-  Prefetch,
-} from "../Services/Common/GlobalServices";
 
 export const AppDataProvider = ({
   children,
@@ -18,24 +10,7 @@ export const AppDataProvider = ({
 }) => {
   const [state, dispatch] = useReducer(appsReducer, initialState);
 
-  useEffect(() => {
-    const requiredData = [
-      "sutraani",
-      "bhashyam",
-      "sutradipika",
-      "books",
-      "sutraaniSummary",
-    ];
-    Prefetch.prefetchRequiredServerData(requiredData, () => {
-      console.log("inside callback method");
-    })
-      .then((res) => {
-        console.log("inside then method", res, CachedData.data);
-      })
-      .catch((err) => {
-        console.log("inside promise reject method------", err);
-      });
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
@@ -54,13 +29,10 @@ export const useAppData = () => {
 
 function appsReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
-    case "setBooks": {
+    case "setSelectedBook": {
       return {
         ...state,
-        books: action.books.map((book: Book) => ({
-          ...book,
-          data: [],
-        })),
+        selectedBook: action.book,
       };
     }
     default: {
@@ -70,5 +42,5 @@ function appsReducer(state: AppState, action: AppAction): AppState {
 }
 
 const initialState: AppState = {
-  books: [],
+  selectedBook: null,
 };

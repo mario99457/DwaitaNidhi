@@ -8,6 +8,7 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import { useAppData } from "../../Store/AppContext";
 
 interface DetailsContentProps {
   selectedCommentary: {
@@ -33,9 +34,14 @@ const DetailsContent = ({
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
+  const { state } = useAppData();
 
   useEffect(() => {
-    setCommentaries(CachedData.getBookClass(CachedData.data.selectedBook)?.getCommentaries(selectedTitle));
+    setCommentaries(
+      CachedData.getBookClass(state.selectedBook?.name)?.getCommentaries(
+        selectedTitle
+      )
+    );
   }, [selectedTitle]);
 
   useEffect(() => {
@@ -104,7 +110,7 @@ const DetailsContent = ({
           </IconButton>
         </div>
       </Stack>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={Boolean(expanded)}>
         <Typography
           fontSize="22px"
           lineHeight="33px"
