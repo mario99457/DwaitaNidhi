@@ -21,6 +21,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import { useAppData } from "../../Store/AppContext";
 
 interface NavigationMenuProps {
   expandNavigationMenu: boolean;
@@ -55,6 +56,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [expandSideBar, setExpandSideBar] = useState(expandNavigationMenu);
   const hoverTimeout = useRef<any>(null);
+  const { dispatch } = useAppData();
 
   useEffect(() => {
     setExpandSideBar(expandNavigationMenu);
@@ -109,6 +111,10 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     ) {
       CachedData.data.selectedBook = bookname;
       CachedData.getBookClass(bookname)?.populateIndexList();
+      dispatch({
+        type: "setSelectedBook",
+        book: CachedData?.data.books.find((item: any) => item.name === bookname),
+      });
     }
   }, [pathname]);
 

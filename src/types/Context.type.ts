@@ -35,13 +35,14 @@ export type Book = {
 };
 
 export interface AppState {
-  books: Book[];
+  selectedBook: Book | null;
 }
 
 export type AppAction =
   | { type: "setBooks"; books: Book[] }
   | { type: "added"; id: number; text: string }
-  | { type: "deleted"; id: number };
+  | { type: "deleted"; id: number }
+  | { type: "setSelectedBook"; book: Book | null };
 
 export interface AppContextType {
   state: AppState;
