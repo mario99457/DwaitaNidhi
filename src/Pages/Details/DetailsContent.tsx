@@ -14,6 +14,7 @@ interface DetailsContentProps {
     name: string;
     author: string;
     key: string;
+    number: string;
   };
   selectedTitle: Title;
   style?: React.CSSProperties;
@@ -36,6 +37,9 @@ const DetailsContent = ({
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
 
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [value, setValue] = React.useState("Edit me");
+
   useEffect(() => {
     setCommentaries(CachedData.getBookClass(CachedData.data.selectedBook)?.getCommentaries(selectedTitle));
   }, [selectedTitle]);
@@ -56,7 +60,7 @@ const DetailsContent = ({
         minHeight: "100px",
         ...style,
       }}
-      id={selectedCommentary.key}
+      id={selectedCommentary.key + "_" + selectedCommentary.number}
     >
       <Stack
         className="detail-header"
@@ -117,6 +121,7 @@ const DetailsContent = ({
           lineHeight="33px"
           marginTop="27px"
           whiteSpace="pre-line"
+          contentEditable="true"
         >
           {Parser(
             commentaries?.find((data) => data.key == selectedCommentary.key)
