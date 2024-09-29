@@ -463,6 +463,7 @@ export class Sutraani {
       lang: "s",
       number: "",
       hidden: false,
+      audio: false
     },
     {
       name: "भाष्यम्",
@@ -471,6 +472,7 @@ export class Sutraani {
       lang: "s",
       number: "",
       hidden: true,
+      audio: false
     },
   ];
   static init() {

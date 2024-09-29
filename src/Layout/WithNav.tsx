@@ -7,12 +7,13 @@ import NavigationMenu from "../Components/NavigationMenu";
 import NavigationMenuSmall from "../Components/NavigationMenu/NavigationMenuSmall";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Store/AppContext";
+import { Outlet } from 'react-router';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const LayoutWithNav = ({ children }: LayoutProps) => {
   const [progress, setProgress] = useState(true);
   const [expandNavigationMenu, setExpandNavigationMenu] = useState(false);
   const theme = useTheme();
@@ -119,7 +120,7 @@ const Layout = ({ children }: LayoutProps) => {
                 },
               }}
             >
-              {children}
+              <Outlet />
             </Box>
           </>
         ) : (
@@ -138,4 +139,4 @@ const Layout = ({ children }: LayoutProps) => {
   );
 };
 
-export default Layout;
+export default LayoutWithNav;

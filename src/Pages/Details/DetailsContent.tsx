@@ -1,13 +1,14 @@
 import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import playButton from "../../assets/PlayButton.svg";
-import playButton2 from "../../assets/Play_no_track.svg";
+import playButton from "../../assets/Play_no_track.svg";
+import pencilEdit from "../../assets/pencil_edit.svg";
 // import bookmark from "../../assets/bookmark.svg";
 // import details from "./details.json";
 import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import useToken from '../../Services/Auth/useToken'; 
 import { useAppData } from "../../Store/AppContext";
 
 interface DetailsContentProps {
@@ -15,6 +16,8 @@ interface DetailsContentProps {
     name: string;
     author: string;
     key: string;
+    number: string;
+    audio: boolean;
   };
   selectedTitle: Title;
   style?: React.CSSProperties;
@@ -22,6 +25,7 @@ interface DetailsContentProps {
   defaultExpanded?: boolean | { expanded: boolean };
   isMobile: boolean;
   setShowPlayer: () => void;
+  editContent: () => void;
 }
 
 const DetailsContent = ({
@@ -31,9 +35,14 @@ const DetailsContent = ({
   defaultExpanded,
   isMobile,
   setShowPlayer,
+  editContent
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
+  const { creds } = useToken();
+
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [value, setValue] = React.useState("Edit me");
   const { state } = useAppData();
 
   useEffect(() => {
@@ -60,7 +69,7 @@ const DetailsContent = ({
         minHeight: "100px",
         ...style,
       }}
-      id={selectedCommentary.key}
+      id={selectedCommentary.key + "_" + selectedCommentary.number}
     >
       <Stack
         className="detail-header"
@@ -95,13 +104,21 @@ const DetailsContent = ({
             isMobile ? "align-items-baseline" : "align-items-center"
           }`}
         >
+          {selectedCommentary.audio ?
           <img
-            src={isMobile ? playButton2 : playButton}
+            src={playButton}
             style={{ cursor: "pointer" }}
             alt="play"
             onClick={() => setShowPlayer()}
-          />
+          /> : <></>}
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
+          {creds?.token ?
+          <img 
+            src={pencilEdit} 
+            alt="edit" 
+            style={{ marginLeft: "3rem" }}
+            onClick={() => editContent()} 
+          /> : <></>}
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}
@@ -115,7 +132,7 @@ const DetailsContent = ({
           fontSize="22px"
           lineHeight="33px"
           marginTop="27px"
-          whiteSpace="pre-line"
+          whiteSpace="pre-line"          
         >
           {Parser(
             commentaries?.find((data) => data.key == selectedCommentary.key)

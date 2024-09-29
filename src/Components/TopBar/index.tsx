@@ -1,11 +1,12 @@
 import React from "react";
-import { AppBar, Toolbar, IconButton, Box } from "@mui/material";
+import { AppBar, Toolbar, IconButton, Box, Link, Button } from "@mui/material";
 import appIcon from "../../assets/app_logo.svg";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useLocation, useNavigate } from "react-router-dom";
+import { replace, useLocation, useNavigate } from "react-router-dom";
+import useToken from "../../Services/Auth/useToken";
 
 interface TopBarProps {
   toggleMenu: () => void;
@@ -18,6 +19,12 @@ const TopBar: React.FC<TopBarProps> = ({
 }) => {
   const navigate = useNavigate();
   const pathName = useLocation().pathname;
+  const { creds, setToken } = useToken();
+
+  const logout = () => {
+    setToken(null);
+    navigate("/", { replace:true });
+  };
 
   return (
     <AppBar
@@ -36,30 +43,30 @@ const TopBar: React.FC<TopBarProps> = ({
           padding: "0 30px 0 10px !important",
         }}
       >
-        <IconButton
-          size="large"
-          edge="start"
-          color="inherit"
-          aria-label="open drawer"
-          sx={{ mr: 2 }}
-          onClick={toggleMenu}
-        >
-          {expandNavigationMenu ? (
-            <ArrowBackIcon sx={{ color: "#F18B41" }} />
-          ) : (
-            <MenuIcon sx={{ color: "#F18B41" }} />
-          )}
-        </IconButton>
+       {!pathName.includes("login") && 
+        (
+          <IconButton
+            size="large"
+            edge="start"
+            color="inherit"
+            aria-label="open drawer"
+            sx={{ mr: 2 }}
+            onClick={toggleMenu}
+          >
+            {expandNavigationMenu ? (
+              <ArrowBackIcon sx={{ color: "#F18B41" }} />
+            ) : (
+              <MenuIcon sx={{ color: "#F18B41" }} />
+            )}
+          </IconButton>
+        )}
         <Box
           sx={{
             cursor: "pointer",
             display: "flex",
             alignItems: "center",
             flexGrow: 2,
-          }}
-          onClick={() => {
-            navigate("/");
-          }}
+          }}          
         >
           <IconButton
             sx={{ marginRight: "8px", marginLeft: "6px" }}
@@ -89,7 +96,7 @@ const TopBar: React.FC<TopBarProps> = ({
           }}
           className="top-bar-links"
         >
-          {!pathName.includes("search") && (
+          {!pathName.includes("search") && !pathName.includes("login") && (
             <SearchOutlinedIcon
               sx={{ color: "#fffffd", cursor: "pointer" }}
               onClick={() => {
@@ -97,8 +104,15 @@ const TopBar: React.FC<TopBarProps> = ({
               }}
             />
           )}
-          {/* <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} />
-          <span style={{ fontSize: "13px", color: "#fffffd" }}>Login</span> */}
+          {/* <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} /> */}
+          {!pathName.includes("login") && creds == null ? (
+          <Link href="/login" style={{ fontSize: "13px", color: "#fffffd" }}>Login</Link>) :
+          (
+            <div className="app-name-wrapper">
+              <Link style={{ fontSize: "13px", color: "#fffffd" }}>{creds?.username}</Link>
+              <Link onClick={logout} style={{ fontSize: "13px", color: "red" }}>Logout</Link>
+            </div>
+          )}         
         </Box>
       </Toolbar>
     </AppBar>

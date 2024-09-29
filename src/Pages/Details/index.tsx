@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import pencilEdit from "../../assets/pencil_edit.svg";
 import ToC_Icon from "../../assets/toc.svg";
 import prevButton from "../../assets/prev_button.svg";
 import nextButton from "../../assets/next_button.svg";
@@ -33,6 +33,7 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
+import useToken from '../../Services/Auth/useToken'; 
 
 interface Commentary {
   name: string;
@@ -41,6 +42,7 @@ interface Commentary {
   lang: string;
   number: string;
   hidden: boolean;
+  audio: boolean;
 }
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
@@ -48,7 +50,7 @@ const DetailPage = () => {
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [showFullSummary, setShowFullSummary] = useState(false);
+  const { creds } = useToken();
   const [playAudio, setPlayAudio] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
 
@@ -62,19 +64,7 @@ const DetailPage = () => {
     {
       id: "e",
       label: "English",
-    },
-    {
-      id: "te",
-      label: "తెలుగు",
-    },
-    {
-      id: "t",
-      label: "தமிழ்",
-    },
-    {
-      id: "m",
-      label: "മലയാളം",
-    },
+    }
   ];
   const navigate = useNavigate();
   const [selectedLanguage, setSelectedLanguage] = useState(
@@ -314,21 +304,34 @@ const DetailPage = () => {
               >
                 संक्षेपार्थः
               </Typography>
-              <FormControl sx={{ minWidth: 120 }} size="small">
-                <Select
-                  labelId="demo-select-small-label"
-                  id="demo-select-small"
-                  value={selectedLanguage}
-                  onChange={handleLanguageChange}
-                  hiddenLabel
-                >
-                  {availableLanguages.map((language) => (
-                    <MenuItem key={language.id} value={language.id}>
-                      {language.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <div
+                className={`d-flex ${
+                  isMobile ? "align-items-baseline" : "align-items-center"
+                }`}
+              >
+                {creds?.token ?
+                  <img 
+                    src={pencilEdit} 
+                    alt="edit" 
+                    style={{ marginRight: "3rem" }}
+                    onClick={() => editContent()} 
+                  /> : <></>}
+                <FormControl sx={{ minWidth: 120 }} size="small">
+                  <Select
+                    labelId="demo-select-small-label"
+                    id="demo-select-small"
+                    value={selectedLanguage}
+                    onChange={handleLanguageChange}
+                    hiddenLabel
+                  >
+                    {availableLanguages.map((language) => (
+                      <MenuItem key={language.id} value={language.id}>
+                        {language.label}
+                      </MenuItem>
+                    ))}
+                  </Select>               
+                </FormControl>              
+              </div>
             </Stack>
             <Typography
               fontFamily="Vesper Libre"
