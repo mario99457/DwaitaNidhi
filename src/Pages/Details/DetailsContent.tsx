@@ -9,6 +9,7 @@ import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import useToken from '../../Services/Auth/useToken'; 
+import { useAppData } from "../../Store/AppContext";
 
 interface DetailsContentProps {
   selectedCommentary: {
@@ -42,9 +43,14 @@ const DetailsContent = ({
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [value, setValue] = React.useState("Edit me");
+  const { state } = useAppData();
 
   useEffect(() => {
-    setCommentaries(CachedData.getBookClass(CachedData.data.selectedBook)?.getCommentaries(selectedTitle));
+    setCommentaries(
+      CachedData.getBookClass(state.selectedBook?.name)?.getCommentaries(
+        selectedTitle
+      )
+    );
   }, [selectedTitle]);
 
   useEffect(() => {
@@ -121,7 +127,7 @@ const DetailsContent = ({
           </IconButton>
         </div>
       </Stack>
-      <Collapse in={expanded} timeout="auto" unmountOnExit>
+      <Collapse in={Boolean(expanded)}>
         <Typography
           fontSize="22px"
           lineHeight="33px"

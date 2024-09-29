@@ -20,6 +20,7 @@ import { Title } from "../../types/GlobalType.type";
 import { Book } from "../../types/Context.type";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 import SearchView from "./SearchView";
+import { useAppData } from "../../Store/AppContext";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -29,6 +30,7 @@ const TitlePage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [searchResult, setSearchResult] = useState<any[] | boolean>(false);
+  const { state, dispatch } = useAppData();
 
   const handleTitleClick = (selectedTitle: Title) => {
     navigate(`/${bookName}/${selectedTitle.i}`);
@@ -120,7 +122,7 @@ const TitlePage = () => {
             >
               {
                 CachedData.data.books.find(
-                  (b) => b.name == CachedData.data.selectedBook
+                  (b) => b.name == state.selectedBook?.name
                 )?.index
               }
             </Typography>
