@@ -8,6 +8,7 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
+import useToken from '../../Services/Auth/useToken'; 
 
 interface DetailsContentProps {
   selectedCommentary: {
@@ -15,6 +16,7 @@ interface DetailsContentProps {
     author: string;
     key: string;
     number: string;
+    audio: boolean;
   };
   selectedTitle: Title;
   style?: React.CSSProperties;
@@ -36,6 +38,7 @@ const DetailsContent = ({
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
+  const { creds } = useToken();
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [value, setValue] = React.useState("Edit me");
@@ -95,18 +98,21 @@ const DetailsContent = ({
             isMobile ? "align-items-baseline" : "align-items-center"
           }`}
         >
+          {selectedCommentary.audio ?
           <img
             src={playButton}
             style={{ cursor: "pointer" }}
             alt="play"
             onClick={() => setShowPlayer()}
-          />
+          /> : <></>}
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
+          {creds?.token ?
           <img 
             src={pencilEdit} 
             alt="edit" 
             style={{ marginLeft: "3rem" }}
-            onClick={() => editContent()} />
+            onClick={() => editContent()} 
+          /> : <></>}
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}
@@ -120,8 +126,7 @@ const DetailsContent = ({
           fontSize="22px"
           lineHeight="33px"
           marginTop="27px"
-          whiteSpace="pre-line"
-          contentEditable="true"
+          whiteSpace="pre-line"          
         >
           {Parser(
             commentaries?.find((data) => data.key == selectedCommentary.key)

@@ -1,11 +1,20 @@
 export async function authenticate(credentials) {
-    return fetch('http://localhost:8080/login', {
+    return fetch('https://dwaitanidhiapi.netlify.app/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(credentials)
     })
-      .then(data => data.json())
-      .catch(e => { return { username: credentials.user, token : "Test123" }})
+      .then(async data => {
+        if(data.ok)
+        {
+          let result = await data.json();
+          return { username: credentials.username, token: result.token }
+        }
+        else{
+          return data.json()
+        }
+      })
+      .catch(e => { return e })
    }

@@ -5,6 +5,8 @@ import {
     Stack,
     TextField,
     Typography,
+    useMediaQuery,
+    useTheme,
   } from "@mui/material";
   import { useEffect, useState } from "react";
   import CloseIcon from "@mui/icons-material/Close";
@@ -16,6 +18,8 @@ import {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
     const location = useLocation();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
     useEffect(() => {
         setUsername("");
@@ -25,8 +29,8 @@ import {
     const handleLogin = async (user = username, pass = password) => {
         const from = location.state?.from?.pathname || '/';
         const creds = await authenticate({
-          user,
-          pass
+          username: user,
+          password: pass
         });
 
         if(creds?.token != null){
@@ -52,7 +56,7 @@ import {
             hiddenLabel
             placeholder="Username"
             size="small"
-            sx={{ width: "50%" }}
+            sx={{  width: isMobile ? "100%" : "50%" }}
             value={username}
             onChange={(e) => {
               setUsername(e.target.value);
@@ -84,7 +88,7 @@ import {
             type="password"
             placeholder="Password"
             size="small"
-            sx={{ width: "50%" }}
+            sx={{  width: isMobile ? "100%" : "50%" }}
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
