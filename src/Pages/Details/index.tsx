@@ -33,6 +33,7 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
+import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
   name: string;
@@ -51,6 +52,7 @@ const DetailPage = () => {
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [playAudio, setPlayAudio] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
+  const { state } = useAppData();
 
   const BookClass = CachedData.getBookClass(bookName || "");
 
@@ -214,7 +216,7 @@ const DetailPage = () => {
               >
                 {
                   CachedData.data.books.find(
-                    (b) => b.name == CachedData.data.selectedBook
+                    (b) => b.name == state.selectedBook?.name
                   )?.index
                 }
               </Typography>
@@ -234,7 +236,7 @@ const DetailPage = () => {
 
               <Container
                 sx={{
-                  height: "60px",
+                  minHeight: "60px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -266,13 +268,9 @@ const DetailPage = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ mt: 4, mb: 2 }}
+            sx={{ mt: 2, mb: 2 }}
           >
-            <Typography
-              fontSize="24px"
-              fontWeight="400"
-              color="#969696"
-            >
+            <Typography fontSize="24px" fontWeight="400" color="#969696">
               ब्र.सू.{" "}
               {Formatter.toDevanagariNumeral(
                 `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`

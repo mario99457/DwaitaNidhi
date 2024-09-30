@@ -1,7 +1,14 @@
 import { useMediaQuery, useTheme } from "@mui/material";
 // import React from "react";
-import card1Img from "../../assets/LandingPageCards/image 10.png";
+// import card1Img from "../../assets/LandingPageCards/image 10.png";
 import card1Small from "../../assets/LandingPageCards/image 10_small.png";
+import card1Img from "../../assets/LandingPageCards/Variant1.png";
+import card2Img from "../../assets/LandingPageCards/Variant2.png";
+import card3Img from "../../assets/LandingPageCards/Variant3.png";
+import card4Img from "../../assets/LandingPageCards/Variant4.png";
+import card5Img from "../../assets/LandingPageCards/Variant5.png";
+import card6Img from "../../assets/LandingPageCards/Variant6.png";
+
 // import card2Img from "../../assets/LandingPageCards/image 6.png";
 // import card3Img from "../../assets/LandingPageCards/image 7.png";
 // import card4Img from "../../assets/LandingPageCards/image 8.png";
@@ -11,6 +18,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
+import "./landing.scss";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 import HomePageCard from "../../Components/HomePageCard";
 import HomePageCardSmall from "../../Components/HomePageCard/HomePageCardSmall";
@@ -31,7 +39,7 @@ const Landing = () => {
       },
     },
     {
-      image: isMobile ? card1Small : card1Img,
+      image: isMobile ? card1Small : card2Img,
       title: "Card 2",
       quote:
         "अभ्रमं भङ्गरहितं अजडं विमलं सदा | आनन्दतीर्थमतुलं भजे तापत्रयापहम् || ",
@@ -42,7 +50,7 @@ const Landing = () => {
       },
     },
     {
-      image: isMobile ? card1Small : card1Img,
+      image: isMobile ? card1Small : card3Img,
       title: "Card 3",
       quote:
         "यस्यवाक्कामधेनुर्नः कामितार्थान् प्रयच्छति । सेवे तं जययोगीन्द्रं कामबाणच्छिदं सदा ॥",
@@ -53,7 +61,7 @@ const Landing = () => {
       },
     },
     {
-      image: isMobile ? card1Small : card1Img,
+      image: isMobile ? card1Small : card3Img,
       title: "Card 4",
       quote:
         "अर्थिकल्पितकल्पोsयं प्रत्यर्थिगजकेसरी। व्यासतीर्थगुरुर्भूयादस्मदिsर्थ सिद्धये।। ",
@@ -64,7 +72,29 @@ const Landing = () => {
       },
     },
     {
-      image: isMobile ? card1Small : card1Img,
+      image: isMobile ? card1Small : card4Img,
+      title: "Card 5",
+      quote:
+        "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
+      author: "-श्रीअप्पण्णाचार्याः",
+      style: {
+        background:
+          "radial-gradient(92.71% 55.9% at 71.21% 40.48%, #7F1B63 0%, #820D45 100%)",
+      },
+    },
+    {
+      image: isMobile ? card1Small : card5Img,
+      title: "Card 5",
+      quote:
+        "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
+      author: "-श्रीअप्पण्णाचार्याः",
+      style: {
+        background:
+          "radial-gradient(92.71% 55.9% at 71.21% 40.48%, #7F1B63 0%, #820D45 100%)",
+      },
+    },
+    {
+      image: isMobile ? card1Small : card6Img,
       title: "Card 5",
       quote:
         "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
@@ -78,7 +108,8 @@ const Landing = () => {
   return (
     <>
       <Swiper
-        spaceBetween={30}
+        spaceBetween={8}
+        slidesPerView={2}
         centeredSlides={true}
         autoplay={{
           delay: 2500,
@@ -115,6 +146,8 @@ const Landing = () => {
             )}
           </SwiperSlide>
         ))}
+        <div className="left-gradient"></div>
+        <div className="right-gradient"></div>
       </Swiper>
       <div className={`swiper-button-group ${isMobile ? "swiper-mobile" : ""}`}>
         <div className="swiper-button-prev"></div>
