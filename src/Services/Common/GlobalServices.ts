@@ -2,6 +2,8 @@ import localforage from "localforage";
 import Utils from "./Utils";
 import Formatter, { D, E, F, TH } from "./Formatter";
 import GlobalSearch, { CommentarySearch } from "./Search";
+import { json } from "react-router-dom";
+import { Buffer } from "buffer";
 
 class ApiEndpoints {
   static FetchTimeoutMs: number = 4e3;
@@ -9,6 +11,7 @@ class ApiEndpoints {
   static availableGithubServerUrls: { [key: string]: string } = {
     githubusercontent:
       "https://raw.githubusercontent.com/mario99457/dwaitanidhi_data/main/",
+    githubapi:"https://api.github.com/repos/mario99457/dwaitanidhi_data/contents/"
   };
   static gitHubServerDefaultUrls: string[] = [
     ApiEndpoints.availableGithubServerUrls.githubusercontent,
@@ -115,7 +118,7 @@ class ApiEndpoints {
             console.log(`Error: Server returned error for ${n}:`, t);
             i(t);
           });
-      } else {
+      } else {  
         console.log("Error: No github servers are reachable.");
         i("SERVERS_UNAVAILABLE");
       }
@@ -124,6 +127,95 @@ class ApiEndpoints {
       i("UNKNOWN_ENDPOINT");
     }
   }
+  static pushToGitHubServer(
+    e: string,
+    c: string
+  ): void {
+    let n: string;
+    // if (ApiEndpoints.allEndPoints[e]) {
+      if (ApiEndpoints.availableGithubServerUrls.githubapi) {
+        n = ApiEndpoints.availableGithubServerUrls.githubapi + ApiEndpoints.allEndPoints[e];
+        let o: number;
+        o = Utils.getTime();
+
+        let data = {
+          n, e, c 
+        }
+
+        fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+          .then(async data => {
+            if(data.ok)
+            {
+              await data.json();
+            }
+            else{
+              data.json()
+            }
+          })
+          .catch(e => { return e })
+       }        
+       else {  
+        console.log("Error: No github servers are reachable.");
+      }
+    // } else {
+    //   console.log(`Error: The endpoint ${e} is unknown.`);
+    //   i("UNKNOWN_ENDPOINT");
+    // }
+  }
+  // static fetchContentFromGit(n, r, i){
+  //   const customHeaders = new Headers();
+  //   customHeaders.append("Accept", "application/vnd.github+json");
+  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
+  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
+  //   customHeaders.append("Content-Type", "application/json");
+
+  //   fetch(n, {  method: "GET", 
+  //               headers: customHeaders,
+  //               redirect: "follow"
+  //            })
+  //           .then((response) => r(response))
+  //           .then((result) => console.log(result))
+  //           .catch((t) => {
+  //             console.log(`Error: Server returned error for ${n}:`, t);
+  //             i(t);
+  //           });
+  // }
+
+  // static updateContentToGit(n, e, f, s, i){
+  //   const raw = JSON.stringify({
+  //     "message": "Updated content of " + e,
+  //     "committer": {
+  //       "name": "Pramod H B",
+  //       "email": "pramod.hb86@gmail.com"
+  //     },
+  //     "content": f,
+  //     "sha": s
+  //   });
+
+  //   const customHeaders = new Headers();
+  //   customHeaders.append("Accept", "application/vnd.github+json");
+  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
+  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
+  //   customHeaders.append("Content-Type", "application/json");
+
+  //   fetch(n, {  method: "PUT", 
+  //               headers: customHeaders,
+  //               body: raw,
+  //               redirect: "follow"
+  //            })
+  //           .then((response) => response.text())
+  //           .then((result) => console.log(result))
+  //           .catch((t) => {
+  //             console.log(`Error: Server returned error for ${n}:`, t);
+  //             i(t);
+  //           });
+  // }
 }
 
 export default class CachedData {
@@ -384,6 +476,7 @@ export class Prefetch {
     Prefetch.hidePrefetchDialog();
   }
 }
+
 // class Settings {
 //   static startTime: number = 0;
 //   static endTime: number = 0;
@@ -598,13 +691,18 @@ export class Sutraani {
         t          
     }
 
-    // getVyakhyaSelectCount() {
-    //     var t = CommentarySearch.commentariesToSearch/*.filter(t => t.active)*/.length;
-    //     return t + ` ${1 == t ? "commentary" : "commentaries"} selected.`
-    // }
-    
-    
-    
+    static updateContent(key, i, t){
+      //TODO: get commentary
+      //update text based on i
+      //convert to json string
+      //convert to base64 string
+      //send to server
+
+      CachedData.data[key][i] = t; 
+      let updatedContent = JSON.stringify(CachedData.data[key]);
+      let encodedData = Buffer.from(updatedContent).toString('base64');
+      ApiEndpoints.pushToGitHubServer(key, encodedData);
+    }
 }
 
 export class Gita {
@@ -752,6 +850,10 @@ export class Gita {
         ),
         t          
     }      
+
+    static updateContent(i, t){
+      ApiEndpoints.pushToGitHubServer(i, t);
+    }
 }
 
 export class ArrayExtension extends Array {

@@ -107,11 +107,11 @@ const TopBar: React.FC<TopBarProps> = ({
           {/* <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} /> */}
           {!pathName.includes("login") && creds == null ? (
           <Link href="/login" style={{ fontSize: "13px", color: "#fffffd" }}>Login</Link>) :
-          (
+          (creds?.username? 
             <div className="app-name-wrapper">
               <Link style={{ fontSize: "13px", color: "#fffffd" }}>{creds?.username}</Link>
               <Link onClick={logout} style={{ fontSize: "13px", color: "red" }}>Logout</Link>
-            </div>
+            </div> : <></>
           )}         
         </Box>
       </Toolbar>
