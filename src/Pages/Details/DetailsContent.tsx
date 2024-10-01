@@ -8,7 +8,7 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import useToken from '../../Services/Auth/useToken'; 
+import useToken from "../../Services/Auth/useToken";
 import { useAppData } from "../../Store/AppContext";
 
 interface DetailsContentProps {
@@ -35,7 +35,7 @@ const DetailsContent = ({
   defaultExpanded,
   isMobile,
   setShowPlayer,
-  editContent
+  editContent,
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
@@ -69,7 +69,7 @@ const DetailsContent = ({
         minHeight: "100px",
         ...style,
       }}
-      id={selectedCommentary.key + "_" + selectedCommentary.number}
+      id={selectedCommentary.key}
     >
       <Stack
         className="detail-header"
@@ -104,21 +104,27 @@ const DetailsContent = ({
             isMobile ? "align-items-baseline" : "align-items-center"
           }`}
         >
-          {selectedCommentary.audio ?
-          <img
-            src={playButton}
-            style={{ cursor: "pointer" }}
-            alt="play"
-            onClick={() => setShowPlayer()}
-          /> : <></>}
+          {selectedCommentary.audio ? (
+            <img
+              src={playButton}
+              style={{ cursor: "pointer" }}
+              alt="play"
+              onClick={() => setShowPlayer()}
+            />
+          ) : (
+            <></>
+          )}
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
-          {creds?.token ?
-          <img 
-            src={pencilEdit} 
-            alt="edit" 
-            style={{ marginLeft: "3rem" }}
-            onClick={() => editContent()} 
-          /> : <></>}
+          {creds?.token ? (
+            <img
+              src={pencilEdit}
+              alt="edit"
+              style={{ marginLeft: "3rem" }}
+              onClick={() => editContent()}
+            />
+          ) : (
+            <></>
+          )}
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}
@@ -132,7 +138,7 @@ const DetailsContent = ({
           fontSize="22px"
           lineHeight="33px"
           marginTop="27px"
-          whiteSpace="pre-line"          
+          whiteSpace="pre-line"
         >
           {Parser(
             commentaries?.find((data) => data.key == selectedCommentary.key)
