@@ -110,7 +110,7 @@ const DetailPage = () => {
       setTimeout(() => {
         const section = document.querySelector(`#${selectedKey.current}`);
         section?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 1000);
+      }, 500);
     }
   }, [selectedCommentary]);
 
