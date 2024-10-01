@@ -8,7 +8,6 @@ import { Buffer } from "buffer";
 class ApiEndpoints {
   static FetchTimeoutMs: number = 4e3;
   static gitHubServer: string = "";
-  static gitKey: string = "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";
   static availableGithubServerUrls: { [key: string]: string } = {
     githubusercontent:
       "https://raw.githubusercontent.com/mario99457/dwaitanidhi_data/main/",
@@ -143,7 +142,7 @@ class ApiEndpoints {
           n, e, c 
         }
 
-        fetch('http://localhost:3000/api/git/update', {
+        fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
