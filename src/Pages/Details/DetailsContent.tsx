@@ -10,7 +10,7 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
-import useToken from '../../Services/Auth/useToken'; 
+import useToken from "../../Services/Auth/useToken";
 import { useAppData } from "../../Store/AppContext";
 import ContentEditable from "react-contenteditable";
 
@@ -38,7 +38,7 @@ const DetailsContent = ({
   defaultExpanded,
   isMobile,
   setShowPlayer,
-  editContent
+  editContent,
 }: DetailsContentProps) => {
   
   const [commentaries, setCommentaries] = useState<any[]>([]);
@@ -114,7 +114,7 @@ const DetailsContent = ({
         minHeight: "100px",
         ...style,
       }}
-      id={selectedTitle.i + "_" + selectedCommentary.key}
+      id={selectedCommentary.key}
     >
       <Stack
         className="detail-header"
@@ -149,13 +149,16 @@ const DetailsContent = ({
             isMobile ? "align-items-baseline" : "align-items-center"
           }`}
         >
-          {selectedCommentary.audio ?
-          <img
-            src={playButton}
-            style={{ cursor: "pointer" }}
-            alt="play"
-            onClick={() => setShowPlayer()}
-          /> : <></>}
+          {selectedCommentary.audio ? (
+            <img
+              src={playButton}
+              style={{ cursor: "pointer" }}
+              alt="play"
+              onClick={() => setShowPlayer()}
+            />
+          ) : (
+            <></>
+          )}
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
           {creds?.token ?
             (!editable ? 
@@ -174,8 +177,7 @@ const DetailsContent = ({
             alt="save" 
             style={{ marginLeft: "3rem" }}
             onClick={() => handleCancel(selectedTitle.i + "_" + selectedCommentary.key)} 
-          /></div> ) : <></>}
-          
+          /></div> ) : <></>}         
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}
