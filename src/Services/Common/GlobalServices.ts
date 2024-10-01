@@ -138,88 +138,85 @@ class ApiEndpoints {
         n = ApiEndpoints.availableGithubServerUrls.githubapi + ApiEndpoints.allEndPoints[e];
         let o: number;
         o = Utils.getTime();
-        ApiEndpoints.fetchContentFromGit(n, async (r) => { //recieve response from git
-          await r.text().
-            then(d => {
-              let data = JSON.parse(d); 
-              o = Utils.getTime();
-              let s = data.sha;
-              ApiEndpoints.updateContentToGit(n, e, c, s, (t) => { //update content to git
-                let e: number;
-                e = Utils.getTime();
-                console.log(`Server Failed to update content : ${(e - o) / 1e3} sec`);
-                if (!i) {
-                  console.log("Error, key is not available");
-                }
-              });
-            });
-        }, (t) => {
-          let e: number;
-          e = Utils.getTime();
-          console.log(`Server Failed: ${i}  : ${(e - o) / 1e3} sec`);
-          if (!i) {
-            console.log("Error, key is not available");
-          }
-        });
 
-        
-      } else {  
+        let data = {
+          n, e, c 
+        }
+
+        fetch('http://localhost:3000/api/git/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+          .then(async data => {
+            if(data.ok)
+            {
+              await data.json();
+            }
+            else{
+              data.json()
+            }
+          })
+          .catch(e => { return e })
+       }        
+       else {  
         console.log("Error: No github servers are reachable.");
-        i("SERVERS_UNAVAILABLE");
       }
     // } else {
     //   console.log(`Error: The endpoint ${e} is unknown.`);
     //   i("UNKNOWN_ENDPOINT");
     // }
   }
-  static fetchContentFromGit(n, r, i){
-    const customHeaders = new Headers();
-    customHeaders.append("Accept", "application/vnd.github+json");
-    customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
-    customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
-    customHeaders.append("Content-Type", "application/json");
+  // static fetchContentFromGit(n, r, i){
+  //   const customHeaders = new Headers();
+  //   customHeaders.append("Accept", "application/vnd.github+json");
+  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
+  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
+  //   customHeaders.append("Content-Type", "application/json");
 
-    fetch(n, {  method: "GET", 
-                headers: customHeaders,
-                redirect: "follow"
-             })
-            .then((response) => r(response))
-            .then((result) => console.log(result))
-            .catch((t) => {
-              console.log(`Error: Server returned error for ${n}:`, t);
-              i(t);
-            });
-  }
+  //   fetch(n, {  method: "GET", 
+  //               headers: customHeaders,
+  //               redirect: "follow"
+  //            })
+  //           .then((response) => r(response))
+  //           .then((result) => console.log(result))
+  //           .catch((t) => {
+  //             console.log(`Error: Server returned error for ${n}:`, t);
+  //             i(t);
+  //           });
+  // }
 
-  static updateContentToGit(n, e, f, s, i){
-    const raw = JSON.stringify({
-      "message": "Updated content of " + e,
-      "committer": {
-        "name": "Pramod H B",
-        "email": "pramod.hb86@gmail.com"
-      },
-      "content": f,
-      "sha": s
-    });
+  // static updateContentToGit(n, e, f, s, i){
+  //   const raw = JSON.stringify({
+  //     "message": "Updated content of " + e,
+  //     "committer": {
+  //       "name": "Pramod H B",
+  //       "email": "pramod.hb86@gmail.com"
+  //     },
+  //     "content": f,
+  //     "sha": s
+  //   });
 
-    const customHeaders = new Headers();
-    customHeaders.append("Accept", "application/vnd.github+json");
-    customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
-    customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
-    customHeaders.append("Content-Type", "application/json");
+  //   const customHeaders = new Headers();
+  //   customHeaders.append("Accept", "application/vnd.github+json");
+  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
+  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
+  //   customHeaders.append("Content-Type", "application/json");
 
-    fetch(n, {  method: "PUT", 
-                headers: customHeaders,
-                body: raw,
-                redirect: "follow"
-             })
-            .then((response) => response.text())
-            .then((result) => console.log(result))
-            .catch((t) => {
-              console.log(`Error: Server returned error for ${n}:`, t);
-              i(t);
-            });
-  }
+  //   fetch(n, {  method: "PUT", 
+  //               headers: customHeaders,
+  //               body: raw,
+  //               redirect: "follow"
+  //            })
+  //           .then((response) => response.text())
+  //           .then((result) => console.log(result))
+  //           .catch((t) => {
+  //             console.log(`Error: Server returned error for ${n}:`, t);
+  //             i(t);
+  //           });
+  // }
 }
 
 export default class CachedData {
