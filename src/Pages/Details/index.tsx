@@ -33,7 +33,7 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
-import useToken from '../../Services/Auth/useToken'; 
+import useToken from "../../Services/Auth/useToken";
 
 interface Commentary {
   name: string;
@@ -53,6 +53,9 @@ const DetailPage = () => {
   const { creds } = useToken();
   const [playAudio, setPlayAudio] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
+  const [showFullSummary, setShowFullSummary] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const summaryRef = useRef<HTMLParagraphElement>(null);
 
   const BookClass = CachedData.getBookClass(bookName || "");
 
@@ -64,7 +67,7 @@ const DetailPage = () => {
     {
       id: "e",
       label: "English",
-    }
+    },
   ];
   const navigate = useNavigate();
   const [selectedLanguage, setSelectedLanguage] = useState(
@@ -107,9 +110,23 @@ const DetailPage = () => {
       setTimeout(() => {
         const section = document.querySelector(`#${selectedKey.current}`);
         section?.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 500);
+      }, 1000);
     }
   }, [selectedCommentary]);
+
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (summaryRef.current) {
+        const isOverflowing =
+          summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
+        setIsOverflowing(isOverflowing);
+      }
+    };
+
+    checkOverflow();
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [selectedTitle, selectedLanguage]);
 
   const handleNavigateTitle = (navigation: string) => {
     if (navigation == "next" && selectedTitle && selectedTitle.srno) {
@@ -258,11 +275,7 @@ const DetailPage = () => {
             alignItems="center"
             sx={{ mt: 4, mb: 2 }}
           >
-            <Typography
-              fontSize="24px"
-              fontWeight="400"
-              color="#969696"
-            >
+            <Typography fontSize="24px" fontWeight="400" color="#969696">
               ब्र.सू.{" "}
               {Formatter.toDevanagariNumeral(
                 `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`
@@ -309,13 +322,16 @@ const DetailPage = () => {
                   isMobile ? "align-items-baseline" : "align-items-center"
                 }`}
               >
-                {creds?.token ?
-                  <img 
-                    src={pencilEdit} 
-                    alt="edit" 
+                {creds?.token ? (
+                  <img
+                    src={pencilEdit}
+                    alt="edit"
                     style={{ marginRight: "3rem" }}
-                    onClick={() => editContent()} 
-                  /> : <></>}
+                    onClick={() => editContent()}
+                  />
+                ) : (
+                  <></>
+                )}
                 <FormControl sx={{ minWidth: 120 }} size="small">
                   <Select
                     labelId="demo-select-small-label"
@@ -329,23 +345,23 @@ const DetailPage = () => {
                         {language.label}
                       </MenuItem>
                     ))}
-                  </Select>               
-                </FormControl>              
+                  </Select>
+                </FormControl>
               </div>
             </Stack>
             <Typography
+              ref={summaryRef}
               fontFamily="Vesper Libre"
               fontSize="18px"
               color="#BC4501"
               lineHeight="33px"
-              whiteSpace="pre-line"
-              // sx={{
-              //   display: "-webkit-box",
-              //   WebkitLineClamp: showFullSummary ? "unset" : "3",
-              //   WebkitBoxOrient: "vertical",
-              //   overflow: "hidden",
-              //   textOverflow: "ellipsis",
-              // }}
+              sx={{
+                display: "-webkit-box",
+                WebkitLineClamp: showFullSummary ? "unset" : 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
             >
               {Parser(
                 BookClass?.getSummary(selectedTitle?.i)
@@ -353,6 +369,23 @@ const DetailPage = () => {
                   : ""
               )}
             </Typography>
+            {isOverflowing && (
+              <Typography
+                fontFamily="poppins"
+                fontSize="14px"
+                fontWeight={400}
+                lineHeight="23.94px"
+                sx={{
+                  textAlign: "right",
+                  cursor: "pointer",
+                  marginTop: "8px",
+                  color: "#A74600",
+                }}
+                onClick={() => setShowFullSummary((prevState) => !prevState)}
+              >
+                {showFullSummary ? "Read Less" : "Read More"}
+              </Typography>
+            )}
             {/* {!showFullSummary && (
               <Typography
                 fontFamily="poppins"
