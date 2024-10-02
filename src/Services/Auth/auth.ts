@@ -10,7 +10,7 @@ export async function authenticate(credentials) {
         if(data.ok)
         {
           let result = await data.json();
-          return { username: credentials.username, token: result.token }
+          return { username: credentials.username, token: result }
         }
         else{
           return data.json()
