@@ -1,4 +1,4 @@
-import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
+import { Backdrop, Box, CircularProgress, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import React, { useDebugValue, useEffect, useState } from "react";
 import playButton from "../../assets/Play_no_track.svg";
 import pencilEdit from "../../assets/pencil_edit.svg";
@@ -11,6 +11,7 @@ import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import useToken from "../../Services/Auth/useToken";
+import useProgress from "../../Services/useProgress";
 import { useAppData } from "../../Store/AppContext";
 import ContentEditable from "react-contenteditable";
 
@@ -48,13 +49,15 @@ const DetailsContent = ({
   const [editable, setEditable] = React.useState(false);
   const [editedText, setEditedText] = React.useState("");
   const { state } = useAppData();
+  const { progress } = useProgress();
+  const { setProgress } = useProgress();
 
   const handleChange = evt => {
     setEditedText(evt.target.value);
   };
 
   const handleSave = (id) => {
-
+    useEffect(() => { setProgress("true") });
     CachedData.getBookClass("sutraani")?.updateContent(
       selectedCommentary.key, selectedTitle.i, editedText);
     //TODO: 
@@ -116,6 +119,12 @@ const DetailsContent = ({
       }}
       id={selectedCommentary.key}
     >
+      { progress == "true" ? <Backdrop
+            sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
+            open={progress}            
+          >
+            <CircularProgress  />
+        </Backdrop> : <></> }
       <Stack
         className="detail-header"
         direction="row"
@@ -209,6 +218,7 @@ const DetailsContent = ({
         </Typography> */}
       </Collapse>
     </Box>
+    
   );
 };
 

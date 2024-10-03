@@ -4,8 +4,10 @@ import Formatter, { D, E, F, TH } from "./Formatter";
 import GlobalSearch, { CommentarySearch } from "./Search";
 import { json } from "react-router-dom";
 import { Buffer } from "buffer";
+import useProgress from "../useProgress";
 
 class ApiEndpoints {
+
   static FetchTimeoutMs: number = 4e3;
   static gitHubServer: string = "";
   static availableGithubServerUrls: { [key: string]: string } = {
@@ -138,21 +140,42 @@ class ApiEndpoints {
         let o: number;
         o = Utils.getTime();
 
-        let data = {
-          n, e, c 
+        let request = {
+          n, e, c, s:""
         }
 
-        fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
+        let options = {
+          method: 'GET'
+        };
+
+        fetch('https://dwaitanidhiapi.netlify.app/api/git/fetch?resource=' + n, options)
           .then(async data => {
             if(data.ok)
             {
-              await data.json();
+              let response = await data.json();
+              request["s"] = response.sha;
+
+              fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
+              })
+                .then(async data => {
+                  if(data.ok)
+                  {
+                    response = await data.json();
+                    localforage.removeItem(e, () => {
+                      console.log(`Removed stale key ${e} from Localforage.`);
+                      useProgress().setProgress("false");
+                    });
+                  }
+                  else{
+                    data.json()
+                  }
+                })
+                .catch(e => { return e })
             }
             else{
               data.json()
