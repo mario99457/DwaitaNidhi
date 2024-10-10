@@ -1,0 +1,33 @@
+{
+  "short_name": "Dwaita Nidhi",
+  "name": "Dwaita Nidhi",
+  "icons": [
+          {
+              "src": "./src/assets/madhwa.png",
+              "type": "image/png",
+              "sizes": "192x192"
+          },
+          {
+              "src": "./src/assets/madhwa.png",
+              "type": "image/png",
+              "sizes": "512x512",
+              "purpose": "any"
+          }
+      ],
+  "start_url": "/",
+  "background_color": "#1F1007",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#f8ecc2",
+  "description": "A study resource for the students of Paninian grammar",
+  "orientation": "portrait",
+  "lang": "sa",
+  "dir": "auto",
+  "categories": [
+    "education"
+  ],
+  "screenshots": [
+    {
+    }
+  ]
+}
