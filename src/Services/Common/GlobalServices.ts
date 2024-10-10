@@ -6,6 +6,7 @@ import { json } from "react-router-dom";
 import { Buffer } from "buffer";
 
 class ApiEndpoints {
+
   static FetchTimeoutMs: number = 4e3;
   static gitHubServer: string = "";
   static availableGithubServerUrls: { [key: string]: string } = {
@@ -138,21 +139,41 @@ class ApiEndpoints {
         let o: number;
         o = Utils.getTime();
 
-        let data = {
-          n, e, c 
+        let request = {
+          n, e, c, s:""
         }
 
-        fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
+        let options = {
+          method: 'GET'
+        };
+
+        fetch('https://dwaitanidhiapi.netlify.app/api/git/fetch?resource=' + n, options)
           .then(async data => {
             if(data.ok)
             {
-              await data.json();
+              let response = await data.json();
+              request["s"] = response.sha;
+
+              fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(request)
+              })
+                .then(async data => {
+                  if(data.ok)
+                  {
+                    response = await data.json();
+                    localforage.removeItem(e, () => {
+                      console.log(`Removed stale key ${e} from Localforage.`);
+                    });
+                  }
+                  else{
+                    data.json()
+                  }
+                })
+                .catch(e => { return e })
             }
             else{
               data.json()
@@ -699,6 +720,19 @@ export class Sutraani {
       //send to server
 
       CachedData.data[key][i] = t; 
+      let updatedContent = JSON.stringify(CachedData.data[key]);
+      let encodedData = Buffer.from(updatedContent).toString('base64');
+      ApiEndpoints.pushToGitHubServer(key, encodedData);
+    }
+
+    static updateSummary(key, lang, i, t){
+      //TODO: get commentary
+      //update text based on i
+      //convert to json string
+      //convert to base64 string
+      //send to server
+
+      CachedData.data[key][i][lang] = t; 
       let updatedContent = JSON.stringify(CachedData.data[key]);
       let encodedData = Buffer.from(updatedContent).toString('base64');
       ApiEndpoints.pushToGitHubServer(key, encodedData);

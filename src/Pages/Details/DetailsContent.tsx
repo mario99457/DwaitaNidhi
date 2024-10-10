@@ -1,4 +1,4 @@
-import { Box, Collapse, IconButton, Stack, Typography } from "@mui/material";
+import { Backdrop, Box, CircularProgress, Collapse, IconButton, Stack, Typography } from "@mui/material";
 import React, { useDebugValue, useEffect, useState } from "react";
 import playButton from "../../assets/Play_no_track.svg";
 import pencilEdit from "../../assets/pencil_edit.svg";
@@ -46,7 +46,7 @@ const DetailsContent = ({
   const { creds } = useToken();
 
   const [editable, setEditable] = React.useState(false);
-  const [editedText, setEditedText] = React.useState("");
+  const [editedText, setEditedText] = React.useState("<html></html>");
   const { state } = useAppData();
 
   const handleChange = evt => {
@@ -54,7 +54,6 @@ const DetailsContent = ({
   };
 
   const handleSave = (id) => {
-
     CachedData.getBookClass("sutraani")?.updateContent(
       selectedCommentary.key, selectedTitle.i, editedText);
     //TODO: 
@@ -110,7 +109,7 @@ const DetailsContent = ({
         borderRadius: "8px",
         marginTop: "16px",
         background: "#f4f4f4",
-        padding: "20px 28px",
+        padding: "20px 10px",
         minHeight: "100px",
         ...style,
       }}
@@ -209,6 +208,7 @@ const DetailsContent = ({
         </Typography> */}
       </Collapse>
     </Box>
+    
   );
 };
 
