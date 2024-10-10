@@ -112,6 +112,7 @@
 
 .commentary-tab {
     color: #1858b9;
+    font-family: "Adishila" !important;
     font-size: 20px;
     font-weight: 400;
     cursor: pointer;
@@ -226,8 +227,37 @@
     }
 }
 
-.editable {
+.editable_summary {
+    font-size: 14px;
+    font-family: "Roboto, Helvetica, Arial, sans-serif" !important;
+    color: #BC4501;
+    line-height: 33px;
+    margin-top: 27px;
+    white-space: pre-line;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .editable_full_summary {
+    font-size: 14px;
+    font-family: sans-serif !important;
+    color: #BC4501;
+    line-height: 33px;
+    margin-top: 27px;
+    white-space: pre-line;
+    display: -webkit-box;
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+.editable{
     font-size: 22px;
+    font-family: "Adishila" !important;
     line-height: 33px;
     margin-top: 27px;
     white-space: pre-line;

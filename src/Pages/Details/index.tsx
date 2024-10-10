@@ -16,6 +16,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import pencilEdit from "../../assets/pencil_edit.svg";
+import saveEdit from "../../assets/save_edit.svg";
+import cancelEdit from "../../assets/cancel_edit.svg";
 import ToC_Icon from "../../assets/toc.svg";
 import prevButton from "../../assets/prev_button.svg";
 import nextButton from "../../assets/next_button.svg";
@@ -34,6 +36,8 @@ import ReactHowler from "react-howler";
 import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
+import React from "react";
+import ContentEditable from "react-contenteditable";
 
 interface Commentary {
   name: string;
@@ -57,8 +61,10 @@ const DetailPage = () => {
   const [isOverflowing, setIsOverflowing] = useState(false);
   const summaryRef = useRef<HTMLParagraphElement>(null);
 
-  const BookClass = CachedData.getBookClass(bookName || "");
+  const [editable, setEditable] = React.useState(false);
+  const [editedText, setEditedText] = React.useState("");
 
+  const BookClass = CachedData.getBookClass(bookName || "");
   const availableLanguages = [
     {
       id: "k",
@@ -87,8 +93,52 @@ const DetailPage = () => {
     }
   }, [titleNumber]);
 
+  useEffect(() => {
+    setEditedText(
+      BookClass?.getSummary(selectedTitle?.i)
+        ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
+        : ""
+    );
+  }, [selectedTitle]);
+  
+  const handleChange = evt => {
+    setEditedText(evt.target.value);
+  };
+
+  const handleSave = (id) => {
+    CachedData.getBookClass("sutraani")?.updateSummary(
+      "sutraani" + "Summary", selectedLanguage, selectedTitle?.i, editedText);
+    //TODO: 
+    //create json object with title number, commentary name
+    //preprocess text 
+    //call service to update text to GitHub
+    setEditable(!editable);
+    setShowFullSummary(false);
+  };
+  
+  const handleCancel = (id) => {
+
+    //TODO: 
+    //create json object with title number, commentary name
+    //preprocess text 
+    //call service to update text to GitHub
+    setEditable(!editable);
+    setShowFullSummary(false);
+  };
+
+  const toggleEditable = () => {
+    setEditable(!editable);
+    setShowFullSummary(true);
+  };
+
   const handleLanguageChange = (event: SelectChangeEvent) => {
     setSelectedLanguage(event.target.value);
+
+    setEditedText(
+      Parser(BookClass?.getSummary(selectedTitle?.i)
+        ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+        : ""
+    ));
   };
 
   const handleCommentaryChange = (key: string) => {
@@ -123,7 +173,11 @@ const DetailPage = () => {
       }
     };
 
-    checkOverflow();
+    const timeoutId = setTimeout(() => {
+      checkOverflow();
+    }, 1);
+
+    
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
   }, [selectedTitle, selectedLanguage]);
@@ -142,28 +196,6 @@ const DetailPage = () => {
   const handlePlayPause = () => {
     setPlayAudio((prevState) => !prevState);
   };
-
-  const breadcrumbs = [
-    <Link
-      underline="hover"
-      key="1"
-      color="inherit"
-      href={`/${bookName}`}
-      onClick={() => {}}
-    >
-      <Typography key="2" color="text.primary" fontFamily={"Vesper Libre"}>
-        Home
-      </Typography>
-    </Link>,
-    <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
-      ब्र.सू.{" "}
-      {Formatter.toDevanagariNumeral(
-        `${selectedTitle?.a}${
-          selectedTitle?.p !== 0 ? "." + selectedTitle?.p : ""
-        }.${selectedTitle?.n}`
-      )}
-    </Typography>,
-  ];
 
   return (
     <Box
@@ -300,7 +332,7 @@ const DetailPage = () => {
               background: "#FCF4CD",
               borderRadius: "6px",
               minHeight: "100px",
-              padding: { lg: "10px 36px 10px 20px", xs: "10px 20px 10px 20px" },
+              padding: { lg: "10px 36px 10px 20px", xs: "10px 10px 10px 10px" },
             }}
           >
             <Stack
@@ -322,16 +354,24 @@ const DetailPage = () => {
                   isMobile ? "align-items-baseline" : "align-items-center"
                 }`}
               >
-                {creds?.token ? (
-                  <img
-                    src={pencilEdit}
-                    alt="edit"
-                    style={{ marginRight: "3rem" }}
-                    onClick={() => editContent()}
-                  />
-                ) : (
-                  <></>
-                )}
+                {creds?.token ?
+            (!editable ? 
+              <img 
+              src={pencilEdit} 
+              alt="edit" 
+              style={{ marginLeft: "3rem" }}
+              onClick={() => toggleEditable()} 
+              /> : <div><img 
+                src={saveEdit} 
+                alt="save" 
+                style={{ marginLeft: "3rem" }}
+                onClick={() => handleSave(selectedTitle.i + "_" + selectedCommentary.key)} 
+              /> <img 
+                src={cancelEdit} 
+                alt="save" 
+                style={{ marginLeft: "3rem" }}
+                onClick={() => handleCancel(selectedTitle.i + "_" + selectedCommentary.key)} 
+              /></div> ) : <></>} 
                 <FormControl sx={{ minWidth: 120 }} size="small">
                   <Select
                     labelId="demo-select-small-label"
@@ -349,9 +389,21 @@ const DetailPage = () => {
                 </FormControl>
               </div>
             </Stack>
-            <Typography
+            <ContentEditable
+                innerRef={summaryRef}
+                id={selectedTitle.i + "_" + selectedCommentary.key}
+                className = { showFullSummary ? "editable_full_summary" : "editable_summary" }
+                tagName="p"
+                html= { editedText }// innerHTML of the editable div
+                disabled={!editable} // use true to disable edition
+                onChange={handleChange} // handle innerHTML change
+                //onBlur={sanitize}
+            />
+            {/* <Typography
               ref={summaryRef}
               fontFamily="Vesper Libre"
+              contentEditable={editable}
+              onChange={handleChange}
               fontSize="18px"
               color="#BC4501"
               lineHeight="33px"
@@ -363,12 +415,8 @@ const DetailPage = () => {
                 textOverflow: "ellipsis",
               }}
             >
-              {Parser(
-                BookClass?.getSummary(selectedTitle?.i)
-                  ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
-                  : ""
-              )}
-            </Typography>
+              { editedText }
+            </Typography> */}
             {isOverflowing && (
               <Typography
                 fontFamily="poppins"

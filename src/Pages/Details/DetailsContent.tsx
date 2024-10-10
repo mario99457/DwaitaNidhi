@@ -11,7 +11,6 @@ import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import useToken from "../../Services/Auth/useToken";
-import useProgress from "../../Services/useProgress";
 import { useAppData } from "../../Store/AppContext";
 import ContentEditable from "react-contenteditable";
 
@@ -47,17 +46,14 @@ const DetailsContent = ({
   const { creds } = useToken();
 
   const [editable, setEditable] = React.useState(false);
-  const [editedText, setEditedText] = React.useState("");
+  const [editedText, setEditedText] = React.useState("<html></html>");
   const { state } = useAppData();
-  const { progress } = useProgress();
-  const { setProgress } = useProgress();
 
   const handleChange = evt => {
     setEditedText(evt.target.value);
   };
 
   const handleSave = (id) => {
-    useEffect(() => { setProgress("true") });
     CachedData.getBookClass("sutraani")?.updateContent(
       selectedCommentary.key, selectedTitle.i, editedText);
     //TODO: 
@@ -113,18 +109,12 @@ const DetailsContent = ({
         borderRadius: "8px",
         marginTop: "16px",
         background: "#f4f4f4",
-        padding: "20px 28px",
+        padding: "20px 10px",
         minHeight: "100px",
         ...style,
       }}
       id={selectedCommentary.key}
     >
-      { progress == "true" ? <Backdrop
-            sx={(theme) => ({ color: '#fff', zIndex: theme.zIndex.drawer + 1 })}
-            open={progress}            
-          >
-            <CircularProgress  />
-        </Backdrop> : <></> }
       <Stack
         className="detail-header"
         direction="row"

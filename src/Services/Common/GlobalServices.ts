@@ -4,7 +4,6 @@ import Formatter, { D, E, F, TH } from "./Formatter";
 import GlobalSearch, { CommentarySearch } from "./Search";
 import { json } from "react-router-dom";
 import { Buffer } from "buffer";
-import useProgress from "../useProgress";
 
 class ApiEndpoints {
 
@@ -168,7 +167,6 @@ class ApiEndpoints {
                     response = await data.json();
                     localforage.removeItem(e, () => {
                       console.log(`Removed stale key ${e} from Localforage.`);
-                      useProgress().setProgress("false");
                     });
                   }
                   else{
@@ -722,6 +720,19 @@ export class Sutraani {
       //send to server
 
       CachedData.data[key][i] = t; 
+      let updatedContent = JSON.stringify(CachedData.data[key]);
+      let encodedData = Buffer.from(updatedContent).toString('base64');
+      ApiEndpoints.pushToGitHubServer(key, encodedData);
+    }
+
+    static updateSummary(key, lang, i, t){
+      //TODO: get commentary
+      //update text based on i
+      //convert to json string
+      //convert to base64 string
+      //send to server
+
+      CachedData.data[key][i][lang] = t; 
       let updatedContent = JSON.stringify(CachedData.data[key]);
       let encodedData = Buffer.from(updatedContent).toString('base64');
       ApiEndpoints.pushToGitHubServer(key, encodedData);

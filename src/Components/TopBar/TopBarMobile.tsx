@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, Toolbar, IconButton, Box, Typography } from "@mui/material";
+import { AppBar, Toolbar, IconButton, Box, Typography, Link } from "@mui/material";
 import appIcon from "../../assets/app_logo.svg";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
@@ -7,6 +7,9 @@ import CachedData from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import DrawerMenu from "../../Pages/Details/DrawerMenu";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+import LogInOutlinedIcon from "@mui/icons-material/LoginOutlined";
+import LogOutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import useToken from "../../Services/Auth/useToken";
 
 interface TopBarProps {
   toggleMenu: () => void;
@@ -21,8 +24,15 @@ const TopBarSmall: React.FC<TopBarProps> = ({
 }) => {
   const { pathname } = useLocation();
   const { bookName } = useParams();
-
+  const pathName = useLocation().pathname;
+  const { creds, setToken } = useToken();
   const navigate = useNavigate();
+
+  const logout = () => {
+    setToken(null);
+    navigate("/", { replace:true });
+  };
+
   const pages = ["home", "title", "detail", "search"];
   const [pageName, setPageName] = useState(pages[0]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
@@ -170,6 +180,22 @@ const TopBarSmall: React.FC<TopBarProps> = ({
               }}
             />
           )}
+          {!pathName.includes("login") && creds == null ? (
+                  <LogInOutlinedIcon
+                  sx={{ color: "#fffffd", cursor: "pointer" }}
+                  onClick={() => {
+                    navigate("/login", { state: { from: "top-bar" } });
+                  }}
+                />) :
+            (creds?.username? 
+              <div className="app-name-wrapper">
+                {/* <Link style={{ fontSize: "13px", color: "#fffffd" }}>{creds?.username}</Link> */}
+                <LogOutOutlinedIcon
+                  sx={{ color: "#fffffd", cursor: "pointer" }}
+                  onClick={logout}
+                />
+              </div> : <></>
+          )}     
         </Box>
       </Toolbar>
       {openDrawer ? (
