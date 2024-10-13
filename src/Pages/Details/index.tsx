@@ -100,27 +100,30 @@ const DetailPage = () => {
         : ""
     );
   }, [selectedTitle]);
-  
-  const handleChange = evt => {
+
+  const handleChange = (evt) => {
     setEditedText(evt.target.value);
   };
 
   const handleSave = (id) => {
     CachedData.getBookClass("sutraani")?.updateSummary(
-      "sutraani" + "Summary", selectedLanguage, selectedTitle?.i, editedText);
-    //TODO: 
+      "sutraani" + "Summary",
+      selectedLanguage,
+      selectedTitle?.i,
+      editedText
+    );
+    //TODO:
     //create json object with title number, commentary name
-    //preprocess text 
+    //preprocess text
     //call service to update text to GitHub
     setEditable(!editable);
     setShowFullSummary(false);
   };
-  
-  const handleCancel = (id) => {
 
-    //TODO: 
+  const handleCancel = (id) => {
+    //TODO:
     //create json object with title number, commentary name
-    //preprocess text 
+    //preprocess text
     //call service to update text to GitHub
     setEditable(!editable);
     setShowFullSummary(false);
@@ -135,10 +138,12 @@ const DetailPage = () => {
     setSelectedLanguage(event.target.value);
 
     setEditedText(
-      Parser(BookClass?.getSummary(selectedTitle?.i)
-        ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
-        : ""
-    ));
+      Parser(
+        BookClass?.getSummary(selectedTitle?.i)
+          ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+          : ""
+      )
+    );
   };
 
   const handleCommentaryChange = (key: string) => {
@@ -177,7 +182,6 @@ const DetailPage = () => {
       checkOverflow();
     }, 1);
 
-    
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
   }, [selectedTitle, selectedLanguage]);
@@ -354,24 +358,41 @@ const DetailPage = () => {
                   isMobile ? "align-items-baseline" : "align-items-center"
                 }`}
               >
-                {creds?.token ?
-            (!editable ? 
-              <img 
-              src={pencilEdit} 
-              alt="edit" 
-              style={{ marginLeft: "3rem" }}
-              onClick={() => toggleEditable()} 
-              /> : <div><img 
-                src={saveEdit} 
-                alt="save" 
-                style={{ marginLeft: "3rem" }}
-                onClick={() => handleSave(selectedTitle.i + "_" + selectedCommentary.key)} 
-              /> <img 
-                src={cancelEdit} 
-                alt="save" 
-                style={{ marginLeft: "3rem" }}
-                onClick={() => handleCancel(selectedTitle.i + "_" + selectedCommentary.key)} 
-              /></div> ) : <></>} 
+                {creds?.token ? (
+                  !editable ? (
+                    <img
+                      src={pencilEdit}
+                      alt="edit"
+                      style={{ marginLeft: "3rem" }}
+                      onClick={() => toggleEditable()}
+                    />
+                  ) : (
+                    <div>
+                      <img
+                        src={saveEdit}
+                        alt="save"
+                        style={{ marginLeft: "3rem" }}
+                        onClick={() =>
+                          handleSave(
+                            selectedTitle.i + "_" + selectedCommentary.key
+                          )
+                        }
+                      />{" "}
+                      <img
+                        src={cancelEdit}
+                        alt="save"
+                        style={{ marginLeft: "3rem" }}
+                        onClick={() =>
+                          handleCancel(
+                            selectedTitle.i + "_" + selectedCommentary.key
+                          )
+                        }
+                      />
+                    </div>
+                  )
+                ) : (
+                  <></>
+                )}
                 <FormControl sx={{ minWidth: 120 }} size="small">
                   <Select
                     labelId="demo-select-small-label"
@@ -390,14 +411,16 @@ const DetailPage = () => {
               </div>
             </Stack>
             <ContentEditable
-                innerRef={summaryRef}
-                id={selectedTitle.i + "_" + selectedCommentary.key}
-                className = { showFullSummary ? "editable_full_summary" : "editable_summary" }
-                tagName="p"
-                html= { editedText }// innerHTML of the editable div
-                disabled={!editable} // use true to disable edition
-                onChange={handleChange} // handle innerHTML change
-                //onBlur={sanitize}
+              innerRef={summaryRef}
+              id={selectedTitle.i + "_" + selectedCommentary.key}
+              className={
+                showFullSummary ? "editable_full_summary" : "editable_summary"
+              }
+              tagName="p"
+              html={editedText} // innerHTML of the editable div
+              disabled={!editable} // use true to disable edition
+              onChange={handleChange} // handle innerHTML change
+              //onBlur={sanitize}
             />
             {/* <Typography
               ref={summaryRef}
@@ -452,7 +475,13 @@ const DetailPage = () => {
             )} */}
           </Box>
           <Stack
-            sx={{ mt: 4 }}
+            sx={{
+              mt: 4,
+              position: "sticky",
+              background: "white",
+              top: 0,
+              zIndex: 3,
+            }}
             direction="row"
             justifyContent="space-between"
             alignItems="center"

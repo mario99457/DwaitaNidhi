@@ -1,4 +1,12 @@
-import { Backdrop, Box, CircularProgress, Collapse, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Collapse,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import React, { useDebugValue, useEffect, useState } from "react";
 import playButton from "../../assets/Play_no_track.svg";
 import pencilEdit from "../../assets/pencil_edit.svg";
@@ -40,7 +48,6 @@ const DetailsContent = ({
   setShowPlayer,
   editContent,
 }: DetailsContentProps) => {
-  
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
   const { creds } = useToken();
@@ -49,32 +56,34 @@ const DetailsContent = ({
   const [editedText, setEditedText] = React.useState("<html></html>");
   const { state } = useAppData();
 
-  const handleChange = evt => {
+  const handleChange = (evt) => {
     setEditedText(evt.target.value);
   };
 
   const handleSave = (id) => {
     CachedData.getBookClass("sutraani")?.updateContent(
-      selectedCommentary.key, selectedTitle.i, editedText);
-    //TODO: 
+      selectedCommentary.key,
+      selectedTitle.i,
+      editedText
+    );
+    //TODO:
     //create json object with title number, commentary name
-    //preprocess text 
+    //preprocess text
     //call service to update text to GitHub
     setEditable(!editable);
   };
-  
-  const handleCancel = (id) => {
 
-    //TODO: 
+  const handleCancel = (id) => {
+    //TODO:
     //create json object with title number, commentary name
-    //preprocess text 
+    //preprocess text
     //call service to update text to GitHub
     setEditable(!editable);
   };
 
   const sanitizeConf = {
     allowedTags: ["b", "i", "em", "strong", "a", "p", "h1"],
-    allowedAttributes: { a: ["href"] }
+    allowedAttributes: { a: ["href"] },
   };
 
   // const sanitize = () => {
@@ -94,7 +103,9 @@ const DetailsContent = ({
   }, [selectedTitle]);
 
   useEffect(() => {
-    setEditedText(commentaries?.find((data) => data.key == selectedCommentary.key)?.text);
+    setEditedText(
+      commentaries?.find((data) => data.key == selectedCommentary.key)?.text
+    );
   }, [commentaries]);
 
   useEffect(() => {
@@ -119,6 +130,12 @@ const DetailsContent = ({
         className="detail-header"
         direction="row"
         justifyContent="space-between"
+        sx={{
+          top: "30px",
+          position: "sticky",
+          background: "#f4f4f4",
+          zIndex: 2,
+        }}
       >
         <div
           className={`d-flex detail-meta ${
@@ -159,24 +176,37 @@ const DetailsContent = ({
             <></>
           )}
           {/* <img src={bookmark} alt="bookmark" style={{ marginLeft: "3rem" }} /> */}
-          {creds?.token ?
-            (!editable ? 
-              <img 
-              src={pencilEdit} 
-              alt="edit" 
-              style={{ marginLeft: "3rem" }}
-              onClick={() => toggleEditable()} 
-            /> : <div><img 
-              src={saveEdit} 
-              alt="save" 
-              style={{ marginLeft: "3rem" }}
-              onClick={() => handleSave(selectedTitle.i + "_" + selectedCommentary.key)} 
-            /> <img 
-            src={cancelEdit} 
-            alt="save" 
-            style={{ marginLeft: "3rem" }}
-            onClick={() => handleCancel(selectedTitle.i + "_" + selectedCommentary.key)} 
-          /></div> ) : <></>}         
+          {creds?.token ? (
+            !editable ? (
+              <img
+                src={pencilEdit}
+                alt="edit"
+                style={{ marginLeft: "3rem" }}
+                onClick={() => toggleEditable()}
+              />
+            ) : (
+              <div>
+                <img
+                  src={saveEdit}
+                  alt="save"
+                  style={{ marginLeft: "3rem" }}
+                  onClick={() =>
+                    handleSave(selectedTitle.i + "_" + selectedCommentary.key)
+                  }
+                />{" "}
+                <img
+                  src={cancelEdit}
+                  alt="save"
+                  style={{ marginLeft: "3rem" }}
+                  onClick={() =>
+                    handleCancel(selectedTitle.i + "_" + selectedCommentary.key)
+                  }
+                />
+              </div>
+            )
+          ) : (
+            <></>
+          )}
           <IconButton
             onClick={() => setExpanded(!expanded)}
             sx={{ color: "#616161", marginLeft: "26px" }}
@@ -190,7 +220,7 @@ const DetailsContent = ({
           id={selectedTitle.i + "_" + selectedCommentary.key}
           className="editable"
           tagName="pre"
-          html= { editedText }// innerHTML of the editable div
+          html={editedText} // innerHTML of the editable div
           disabled={!editable} // use true to disable edition
           onChange={handleChange} // handle innerHTML change
           //onBlur={sanitize}
@@ -208,7 +238,6 @@ const DetailsContent = ({
         </Typography> */}
       </Collapse>
     </Box>
-    
   );
 };
 
