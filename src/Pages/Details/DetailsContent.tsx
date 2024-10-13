@@ -131,10 +131,10 @@ const DetailsContent = ({
         direction="row"
         justifyContent="space-between"
         sx={{
-          top: "30px",
+          top: "100px",
           position: "sticky",
           background: "#f4f4f4",
-          zIndex: 2,
+          zIndex: 2
         }}
       >
         <div

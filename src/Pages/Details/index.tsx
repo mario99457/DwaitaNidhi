@@ -263,7 +263,13 @@ const DetailPage = () => {
               </Typography>
             </div>
           </Box>
-          <Box className="title-box-wrapper" sx={{ pt: 2 }}>
+          <Box className="title-box-wrapper" 
+            sx={{ 
+              pt: 2,  
+              position: "sticky",
+              background: "white",
+              top: 0,
+              zIndex: 3 }}>
             <Box sx={{ display: "flex" }}>
               <img
                 src={prevButton}
@@ -479,7 +485,7 @@ const DetailPage = () => {
               mt: 4,
               position: "sticky",
               background: "white",
-              top: 0,
+              top: 70,
               zIndex: 3,
             }}
             direction="row"
