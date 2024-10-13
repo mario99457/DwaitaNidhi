@@ -180,7 +180,7 @@ const DetailPage = () => {
 
     const timeoutId = setTimeout(() => {
       checkOverflow();
-    }, 1);
+    }, 100);
 
     window.addEventListener("resize", checkOverflow);
     return () => window.removeEventListener("resize", checkOverflow);
