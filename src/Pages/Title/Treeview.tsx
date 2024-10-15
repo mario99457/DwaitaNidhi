@@ -250,7 +250,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                     )}{" "}
                                     &nbsp;
                                   </span>
-                                  <span>{title.s}</span>
+                                  <span>{Formatter.toPlainText(title.s)}</span>
                                 </ListItemText>
                               </ListItem>
                             )
@@ -307,7 +307,7 @@ const TreeView: React.FC<ListViewProps> = ({
                           )}{" "}
                           &nbsp;
                         </span>
-                        <span>{title.s}</span>
+                        <span>{Formatter.toPlainText(title.s)}</span>
                       </ListItemText>
                     </ListItem>
                   ))}

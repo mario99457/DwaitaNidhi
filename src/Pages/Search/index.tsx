@@ -104,7 +104,7 @@ const SearchPage = () => {
           variant="outlined"
           hiddenLabel
           size="small"
-          sx={{ width: "75%" }}
+          sx={{ width: "75%", fontSize: "1.1em" }}
           value={searchParam}
           onChange={(e) => {
             setSearchParam(e.target.value);
@@ -132,6 +132,7 @@ const SearchPage = () => {
           variant="contained"
           sx={{
             color: "#FFFFFF",
+            fontSize:"1em",
             background: "#BC4501",
             "&:hover": {
               bgcolor: "#BC4501",
@@ -144,7 +145,8 @@ const SearchPage = () => {
       </Stack>
       <Stack direction="row" mt={3} spacing={2}>
         <StyledChip
-          label={`All ${
+            sx={{ fontSize:"1.1em" }}
+            label={`All ${
             searchResult?.length ? `(${searchResult.length})` : ""
           }`}
           selected={selectedOption == "all"}
@@ -155,6 +157,7 @@ const SearchPage = () => {
 
         {availableBooks.map((item: any) => (
           <StyledChip
+            sx={{ fontSize:"1.1em" }}
             label={item.label}
             selected={selectedOption == item.name}
             disabled={!searchEnabledBooks.includes(item.name)}
