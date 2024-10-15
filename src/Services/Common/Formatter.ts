@@ -56,7 +56,9 @@ export default class Formatter {
         return t && t.trim() ? (t = Formatter.toDevanagariNumeral(t), t = TagProcessor.processCustomTags(t), t = TagProcessor.processTitleNumberTag(t, e.includeAnchor), t = TagProcessor.processSutraReferences(t), t = Formatter.formatExternalResourcesLinks(t), Formatter.highlightString(t, e.highlight || Query.getQueryValue("highlight"))) : ""
     }
     static toPlainText(e : any) {
-        return e && ([...Object.keys(TagProcessor.customTagExpansions), "\\+", "!", "=", "\\[", "\\]", "\\{", "\\}", "#", ";", "\\&", "\\^", "\\$", "→"].map((t => new RegExp(t, "g"))).forEach((t => e = e.replaceAll(t, ""))), e = (e = (e = e.replace(/<[^>]*>/g, "")).replaceAll("<", "")).replaceAll(">", "")), e
+        return e && ([...Object.keys(TagProcessor.customTagExpansions), "\\+", "!", "=", "\\[", "\\]", "\\{", "\\}", "#", ";", "\\&", "\\^", "\\$", "→"].map(t => new RegExp(t,"g")).forEach(t => e = e.replaceAll(t, "")),
+        e = (e = (e = e.replace(/<[^>]*>/g, "")).replaceAll("<", "")).replaceAll(">", "")),
+        e
     }
     static trimAndHighlightString(t : any, e : any) {
         if (t && t.trim()) {

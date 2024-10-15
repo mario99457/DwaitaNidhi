@@ -18,7 +18,7 @@
   "background_color": "#600000",
   "display": "standalone",
   "scope": "/",
-  "theme_color": "#f8ecc2",
+  "theme_color": "#600000",
   "description": "A study resource for the students of Paninian grammar",
   "orientation": "portrait",
   "lang": "sa",
