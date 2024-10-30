@@ -240,9 +240,9 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
+}
 
-  .editable_full_summary {
+.editable_full_summary {
     font-size: 14px;
     font-family: sans-serif !important;
     color: #BC4501;
@@ -254,12 +254,22 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
+}
 
-.editable{
+.editable {
     font-size: 22px;
     font-family: "Adishila" !important;
     line-height: 33px;
     margin-top: 27px;
     white-space: pre-line;
-  }
+}
+
+.custom-progress-bar {
+    .MuiLinearProgress-bar1Indeterminate {
+        background: #A74600;
+    }
+
+    .MuiLinearProgress-bar2Indeterminate {
+        background: #A74600;
+    }
+}
