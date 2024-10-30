@@ -1,5 +1,11 @@
 import { ReactNode, useState, useEffect } from "react";
-import { Box, CircularProgress, useMediaQuery, useTheme } from "@mui/material";
+import {
+  Box,
+  CircularProgress,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
+} from "@mui/material";
 import TopBar from "../Components/TopBar";
 import TopBarSmall from "../Components/TopBar/TopBarMobile";
 import CachedData, { Prefetch } from "../Services/Common/GlobalServices";
@@ -7,7 +13,7 @@ import NavigationMenu from "../Components/NavigationMenu";
 import NavigationMenuSmall from "../Components/NavigationMenu/NavigationMenuSmall";
 import { useLocation } from "react-router-dom";
 import { useAppData } from "../Store/AppContext";
-import { Outlet } from 'react-router';
+import { Outlet } from "react-router";
 
 interface LayoutProps {
   children: ReactNode;
@@ -126,12 +132,14 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
         ) : (
           <Box
             sx={{
+              width: "80%",
               position: "absolute",
               top: "50%",
-              left: "50%",
+              left: "10%",
             }}
+            className="custom-progress-bar"
           >
-            <CircularProgress />
+            <LinearProgress sx={{ backgroundColor: "#600000" }} />
           </Box>
         )}
       </Box>
