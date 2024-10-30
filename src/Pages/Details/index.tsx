@@ -63,6 +63,7 @@ const DetailPage = () => {
 
   const [editable, setEditable] = React.useState(false);
   const [editedText, setEditedText] = React.useState("");
+  const [hideSummary, setHideSummary] = React.useState(false);
 
   const BookClass = CachedData.getBookClass(bookName || "");
   const availableLanguages = [
@@ -94,11 +95,17 @@ const DetailPage = () => {
   }, [titleNumber]);
 
   useEffect(() => {
-    setEditedText(
-      BookClass?.getSummary(selectedTitle?.i)
-        ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
-        : ""
-    );
+    const summary = BookClass?.getSummary(selectedTitle?.i);
+    setEditedText(summary ? summary[selectedLanguage] : "");
+    if (
+      !summary ||
+      Object.values(summary).length <= 0 ||
+      Object.values(summary).filter((e) => e).length <= 0
+    ) {
+      setHideSummary(true);
+    } else {
+      setHideSummary(false);
+    }
   }, [selectedTitle]);
 
   const handleChange = (evt) => {
@@ -263,13 +270,16 @@ const DetailPage = () => {
               </Typography>
             </div>
           </Box>
-          <Box className="title-box-wrapper" 
-            sx={{ 
-              pt: 2,  
+          <Box
+            className="title-box-wrapper"
+            sx={{
+              pt: 2,
               position: "sticky",
               background: "white",
               top: 0,
-              zIndex: 3 }}>
+              zIndex: 3,
+            }}
+          >
             <Box sx={{ display: "flex" }}>
               <img
                 src={prevButton}
@@ -283,7 +293,7 @@ const DetailPage = () => {
 
               <Container
                 sx={{
-                  height: "60px",
+                  height: "auto",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -338,6 +348,7 @@ const DetailPage = () => {
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
             sx={{
+              display: hideSummary ? "none" : "block",
               mt: 2,
               background: "#FCF4CD",
               borderRadius: "6px",

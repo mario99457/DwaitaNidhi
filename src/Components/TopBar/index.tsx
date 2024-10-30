@@ -23,7 +23,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
   const logout = () => {
     setToken(null);
-    navigate("/", { replace:true });
+    navigate("/", { replace: true });
   };
 
   return (
@@ -43,8 +43,7 @@ const TopBar: React.FC<TopBarProps> = ({
           padding: "0 30px 0 10px !important",
         }}
       >
-       {!pathName.includes("login") && 
-        (
+        {!pathName.includes("login") && (
           <IconButton
             size="large"
             edge="start"
@@ -66,7 +65,7 @@ const TopBar: React.FC<TopBarProps> = ({
             display: "flex",
             alignItems: "center",
             flexGrow: 2,
-          }}          
+          }}
         >
           <IconButton
             sx={{ marginRight: "8px", marginLeft: "6px" }}
@@ -106,13 +105,24 @@ const TopBar: React.FC<TopBarProps> = ({
           )}
           {/* <BookmarkBorderOutlinedIcon sx={{ mx: 3, color: "#fffffd" }} /> */}
           {!pathName.includes("login") && creds == null ? (
-          <Link href="/login" style={{ fontSize: "13px", color: "#fffffd" }}>Login</Link>) :
-          (creds?.username? 
+            <Link href="/login" style={{ fontSize: "13px", color: "#fffffd" }}>
+              Login
+            </Link>
+          ) : creds?.username ? (
             <div className="app-name-wrapper">
-              <Link style={{ fontSize: "13px", color: "#fffffd" }}>{creds?.username}</Link>
-              <Link onClick={logout} style={{ fontSize: "13px", color: "red" }}>Logout</Link>
-            </div> : <></>
-          )}         
+              <Link style={{ fontSize: "13px", color: "#fffffd" }}>
+                {creds?.username}
+              </Link>
+              <Link
+                onClick={logout}
+                style={{ fontSize: "13px", color: "red", cursor: "pointer" }}
+              >
+                Logout
+              </Link>
+            </div>
+          ) : (
+            <></>
+          )}
         </Box>
       </Toolbar>
     </AppBar>
