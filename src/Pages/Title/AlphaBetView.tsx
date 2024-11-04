@@ -42,7 +42,7 @@ const AlphaBetView: React.FC<ListViewProps> = ({
               }}
             >
               {Formatter.toDevanagariNumeral(
-                `${data?.a}.${data?.p}.${data?.n}`
+                `${data?.a}${data?.p ? `.${data?.p}` : ""}.${data?.n}`
               )}{" "}
               &nbsp;
             </span>

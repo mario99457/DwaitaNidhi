@@ -37,7 +37,7 @@ const TitlePage = () => {
   };
 
   const handleSearch = (searchTerm: string) => {
-    const result = Sutraani.searchSutraani(searchTerm);
+    const result = CachedData.getBookClass(CachedData.data.selectedBook)?.searchBook(searchTerm);
     setSearchResult(result);
     setSelectedView("search");
   };

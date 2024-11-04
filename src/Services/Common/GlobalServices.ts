@@ -656,7 +656,7 @@ export class Sutraani {
     return null != (e = e.match(/([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)){0,1}){0,1}){0,1}){0,1}/)) && (void 0 !== e[3] ? t.a == e[1] && t.p == e[2] && (t.n + "").startsWith(e[3] + "") : void 0 !== e[2] ? t.a == e[1] && t.p == e[2] : void 0 !== e[1] && t.a == e[1])
   }
 
-  static searchSutraani(i: string):any[] {
+  static searchBook(i: string):any[] {
     var a = GlobalSearch.getDevanagariSearchStrings(i);
     Sutraani.populateIndexList();      
     Sutraani.allTitles.forEach(((t : any) => {

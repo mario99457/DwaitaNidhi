@@ -299,7 +299,7 @@ const DetailPage = () => {
                   justifyContent: "center",
                 }}
               >
-                <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
+                <Typography fontSize="34px" lineHeight="auto" color="#BC4501">
                   {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
                 </Typography>
               </Container>
@@ -328,9 +328,13 @@ const DetailPage = () => {
             sx={{ mt: 4, mb: 2 }}
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
-              ब्र.सू.{" "}
+              {
+                CachedData.data.books.find(
+                  (b) => b.name == CachedData.data.selectedBook
+                )?.abbrev
+              }{" "}
               {Formatter.toDevanagariNumeral(
-                `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`
+                `${selectedTitle?.a}${selectedTitle?.p ? `.${selectedTitle?.p}` : ""}.${selectedTitle?.n}`
               )}
             </Typography>
             <ReactHowler
