@@ -49,6 +49,9 @@ const TitlePage = () => {
     if (book) {
       setSlectedBook(book);
     }
+    else{
+      console.log('No book found')
+    }
   }, [bookName]);
 
   const handleClearSearch = () => {

@@ -33,15 +33,15 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
 
   useEffect(() => {
     const requiredData = [
-      "sutraani",
-      "bhashyam",
-      "sutradipika",
+      // "sutraani",
+      // "bhashyam",
+      // "sutradipika",
       "books",
-      "sutraaniSummary",
-      "gitaIndex",
-      "gbhashyam",
-      "gitaSummary",
-      "prameyadipika",
+      // "sutraaniSummary",
+      // "gitaIndex",
+      // "gbhashyam",
+      // "gitaSummary",
+      // "prameyadipika",
     ];
     Prefetch.prefetchRequiredServerData(requiredData, () => {});
     // let bookName = "";
@@ -53,6 +53,29 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
     const timer = setInterval(() => {
       if (Object.keys(CachedData.data).length == requiredData.length) {
         setProgress(false);
+
+        //build the keys required to fetch data for each book
+        var keysToPrefetch: string[] = [];
+        var prefetchEndPoints: { [key: string]: string };
+        //   sutraani: "sutraani/index.txt",
+        //   bhashyam: "sutraani/bhashya.txt",
+        //   sutradipika: "sutraani/sutradipika.txt",
+        //   books: "books.txt",
+        //   sutraaniSummary: "sutraani/summary.txt",
+        //   gitaIndex: "gita/index.txt",
+        //   gbhashyam: "gita/bhashya.txt",
+        //   gitaSummary: "gita/summary.txt",
+        //   prameyadipika: "gita/prameyadipika.txt"
+        // };
+
+        CachedData.data.books.map(book => {
+          prefetchEndPoints[book.name + 'index'] = book.name + '/index.txt';
+          prefetchEndPoints[book.name + 'summary'] = book.name + '/summary.txt';
+          book.commentaries.map(c=> prefetchEndPoints[c.ename] = c.data);
+        });
+
+        CachedData.fetchDataForKeys(keysToPrefetch);
+
         clearInterval(timer);
         if (path && path.split("/").length > 1) {
           const book = path.split("/")[1];
