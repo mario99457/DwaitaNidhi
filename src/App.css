@@ -5,10 +5,7 @@
     margin: 0;
     box-sizing: border-box;
     /* font-family: "Roboto", sans-serif; */
-  }
-
-  body {
-    font-family: 'Adishila', "Vesper Libre","Poppins", sans-serif !important;
+    scroll-padding-top: 100px;
   }
 
   

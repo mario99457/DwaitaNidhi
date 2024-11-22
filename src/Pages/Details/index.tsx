@@ -15,7 +15,9 @@ import {
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import pencilEdit from "../../assets/pencil_edit.svg";
+import saveEdit from "../../assets/save_edit.svg";
+import cancelEdit from "../../assets/cancel_edit.svg";
 import ToC_Icon from "../../assets/toc.svg";
 import prevButton from "../../assets/prev_button.svg";
 import nextButton from "../../assets/next_button.svg";
@@ -33,6 +35,9 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
+import useToken from "../../Services/Auth/useToken";
+import React from "react";
+import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
@@ -42,6 +47,7 @@ interface Commentary {
   lang: string;
   number: string;
   hidden: boolean;
+  audio: boolean;
 }
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
@@ -49,13 +55,19 @@ const DetailPage = () => {
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [showFullSummary, setShowFullSummary] = useState(false);
+  const { creds } = useToken();
   const [playAudio, setPlayAudio] = useState(false);
   const [showPlayer, setShowPlayer] = useState(false);
+  const [showFullSummary, setShowFullSummary] = useState(false);
+  const [isOverflowing, setIsOverflowing] = useState(false);
+  const summaryRef = useRef<HTMLParagraphElement>(null);
+
+  const [editable, setEditable] = React.useState(false);
+  const [editedText, setEditedText] = React.useState("");
+  const [hideSummary, setHideSummary] = React.useState(false);
   const { state } = useAppData();
 
   const BookClass = CachedData.getBookClass(bookName || "");
-
   const availableLanguages = [
     {
       id: "k",
@@ -64,18 +76,6 @@ const DetailPage = () => {
     {
       id: "e",
       label: "English",
-    },
-    {
-      id: "te",
-      label: "తెలుగు",
-    },
-    {
-      id: "t",
-      label: "தமிழ்",
-    },
-    {
-      id: "m",
-      label: "മലയാളം",
     },
   ];
   const navigate = useNavigate();
@@ -96,8 +96,63 @@ const DetailPage = () => {
     }
   }, [titleNumber]);
 
+  useEffect(() => {
+    const summary = BookClass?.getSummary(selectedTitle?.i);
+    setEditedText(summary ? summary[selectedLanguage] : "");
+    if (
+      !summary ||
+      Object.values(summary).length <= 0 ||
+      Object.values(summary).filter((e) => e).length <= 0
+    ) {
+      setHideSummary(true);
+    } else {
+      setHideSummary(false);
+    }
+  }, [selectedTitle]);
+
+  const handleChange = (evt) => {
+    setEditedText(evt.target.value);
+  };
+
+  const handleSave = (id) => {
+    CachedData.getBookClass("sutraani")?.updateSummary(
+      "sutraani" + "Summary",
+      selectedLanguage,
+      selectedTitle?.i,
+      editedText
+    );
+    //TODO:
+    //create json object with title number, commentary name
+    //preprocess text
+    //call service to update text to GitHub
+    setEditable(!editable);
+    setShowFullSummary(false);
+  };
+
+  const handleCancel = (id) => {
+    //TODO:
+    //create json object with title number, commentary name
+    //preprocess text
+    //call service to update text to GitHub
+    setEditable(!editable);
+    setShowFullSummary(false);
+  };
+
+  const toggleEditable = () => {
+    setEditable(!editable);
+    setShowFullSummary(true);
+  };
+
   const handleLanguageChange = (event: SelectChangeEvent) => {
     setSelectedLanguage(event.target.value);
+
+    setEditedText(
+      Parser(
+        BookClass?.getSummary(selectedTitle?.i)
+          ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+          : ""
+      )
+    );
   };
 
   const handleCommentaryChange = (key: string) => {
@@ -123,6 +178,23 @@ const DetailPage = () => {
     }
   }, [selectedCommentary]);
 
+  useEffect(() => {
+    const checkOverflow = () => {
+      if (summaryRef.current) {
+        const isOverflowing =
+          summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
+        setIsOverflowing(isOverflowing);
+      }
+    };
+
+    const timeoutId = setTimeout(() => {
+      checkOverflow();
+    }, 100);
+
+    window.addEventListener("resize", checkOverflow);
+    return () => window.removeEventListener("resize", checkOverflow);
+  }, [selectedTitle, selectedLanguage]);
+
   const handleNavigateTitle = (navigation: string) => {
     if (navigation == "next" && selectedTitle && selectedTitle.srno) {
       const nextTitle: any = BookClass?.getRightArrow(selectedTitle);
@@ -137,28 +209,6 @@ const DetailPage = () => {
   const handlePlayPause = () => {
     setPlayAudio((prevState) => !prevState);
   };
-
-  const breadcrumbs = [
-    <Link
-      underline="hover"
-      key="1"
-      color="inherit"
-      href={`/${bookName}`}
-      onClick={() => {}}
-    >
-      <Typography key="2" color="text.primary" fontFamily={"Vesper Libre"}>
-        Home
-      </Typography>
-    </Link>,
-    <Typography key="3" color="#A74600" fontFamily={"Vesper Libre"}>
-      ब्र.सू.{" "}
-      {Formatter.toDevanagariNumeral(
-        `${selectedTitle?.a}${
-          selectedTitle?.p !== 0 ? "." + selectedTitle?.p : ""
-        }.${selectedTitle?.n}`
-      )}
-    </Typography>,
-  ];
 
   return (
     <Box
@@ -222,7 +272,16 @@ const DetailPage = () => {
               </Typography>
             </div>
           </Box>
-          <Box className="title-box-wrapper" sx={{ pt: 2 }}>
+          <Box
+            className="title-box-wrapper"
+            sx={{
+              pt: 2,
+              position: "sticky",
+              background: "white",
+              top: 0,
+              zIndex: 3,
+            }}
+          >
             <Box sx={{ display: "flex" }}>
               <img
                 src={prevButton}
@@ -291,11 +350,12 @@ const DetailPage = () => {
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
             sx={{
+              display: hideSummary ? "none" : "block",
               mt: 2,
               background: "#FCF4CD",
               borderRadius: "6px",
               minHeight: "100px",
-              padding: { lg: "10px 36px 10px 20px", xs: "10px 20px 10px 20px" },
+              padding: { lg: "10px 36px 10px 20px", xs: "10px 10px 10px 10px" },
             }}
           >
             <Stack
@@ -312,42 +372,110 @@ const DetailPage = () => {
               >
                 संक्षेपार्थः
               </Typography>
-              <FormControl sx={{ minWidth: 120 }} size="small">
-                <Select
-                  labelId="demo-select-small-label"
-                  id="demo-select-small"
-                  value={selectedLanguage}
-                  onChange={handleLanguageChange}
-                  hiddenLabel
-                >
-                  {availableLanguages.map((language) => (
-                    <MenuItem key={language.id} value={language.id}>
-                      {language.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <div
+                className={`d-flex ${
+                  isMobile ? "align-items-baseline" : "align-items-center"
+                }`}
+              >
+                {creds?.token ? (
+                  !editable ? (
+                    <img
+                      src={pencilEdit}
+                      alt="edit"
+                      style={{ marginLeft: "3rem" }}
+                      onClick={() => toggleEditable()}
+                    />
+                  ) : (
+                    <div>
+                      <img
+                        src={saveEdit}
+                        alt="save"
+                        style={{ marginLeft: "3rem" }}
+                        onClick={() =>
+                          handleSave(
+                            selectedTitle.i + "_" + selectedCommentary.key
+                          )
+                        }
+                      />{" "}
+                      <img
+                        src={cancelEdit}
+                        alt="save"
+                        style={{ marginLeft: "3rem" }}
+                        onClick={() =>
+                          handleCancel(
+                            selectedTitle.i + "_" + selectedCommentary.key
+                          )
+                        }
+                      />
+                    </div>
+                  )
+                ) : (
+                  <></>
+                )}
+                <FormControl sx={{ minWidth: 120 }} size="small">
+                  <Select
+                    labelId="demo-select-small-label"
+                    id="demo-select-small"
+                    value={selectedLanguage}
+                    onChange={handleLanguageChange}
+                    hiddenLabel
+                  >
+                    {availableLanguages.map((language) => (
+                      <MenuItem key={language.id} value={language.id}>
+                        {language.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
             </Stack>
-            <Typography
+            <ContentEditable
+              innerRef={summaryRef}
+              id={selectedTitle.i + "_" + selectedCommentary.key}
+              className={
+                showFullSummary ? "editable_full_summary" : "editable_summary"
+              }
+              tagName="p"
+              html={editedText} // innerHTML of the editable div
+              disabled={!editable} // use true to disable edition
+              onChange={handleChange} // handle innerHTML change
+              //onBlur={sanitize}
+            />
+            {/* <Typography
+              ref={summaryRef}
               fontFamily="Vesper Libre"
+              contentEditable={editable}
+              onChange={handleChange}
               fontSize="18px"
               color="#BC4501"
               lineHeight="33px"
-              whiteSpace="pre-line"
-              // sx={{
-              //   display: "-webkit-box",
-              //   WebkitLineClamp: showFullSummary ? "unset" : "3",
-              //   WebkitBoxOrient: "vertical",
-              //   overflow: "hidden",
-              //   textOverflow: "ellipsis",
-              // }}
+              sx={{
+                display: "-webkit-box",
+                WebkitLineClamp: showFullSummary ? "unset" : 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
             >
-              {Parser(
-                BookClass?.getSummary(selectedTitle?.i)
-                  ? BookClass?.getSummary(selectedTitle?.i)[selectedLanguage]
-                  : ""
-              )}
-            </Typography>
+              { editedText }
+            </Typography> */}
+            {isOverflowing && (
+              <Typography
+                fontFamily="poppins"
+                fontSize="14px"
+                fontWeight={400}
+                lineHeight="23.94px"
+                sx={{
+                  textAlign: "right",
+                  cursor: "pointer",
+                  marginTop: "8px",
+                  color: "#A74600",
+                }}
+                onClick={() => setShowFullSummary((prevState) => !prevState)}
+              >
+                {showFullSummary ? "Read Less" : "Read More"}
+              </Typography>
+            )}
             {/* {!showFullSummary && (
               <Typography
                 fontFamily="poppins"
@@ -366,7 +494,13 @@ const DetailPage = () => {
             )} */}
           </Box>
           <Stack
-            sx={{ mt: 4 }}
+            sx={{
+              mt: 4,
+              position: "sticky",
+              background: "white",
+              top: 70,
+              zIndex: 3,
+            }}
             direction="row"
             justifyContent="space-between"
             alignItems="center"

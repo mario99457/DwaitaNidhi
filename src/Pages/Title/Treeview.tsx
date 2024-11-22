@@ -45,11 +45,11 @@ const TreeView: React.FC<ListViewProps> = ({
   };
 
   useEffect(() => {
+    const titleObject: any = {};
     setLoader(true);
     setTimeout(() => {
       setLoader(false);
     }, 1000);
-    const titleObject: any = {};
     tocData?.map((chapter) => {
       if (chapter.sub) {
         chapter.sub.map((subchapter) => {
@@ -100,13 +100,12 @@ const TreeView: React.FC<ListViewProps> = ({
 
   return (
     <>
-      {/* <Backdrop
+      <Backdrop
         sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
         open={loader}
-        onClick={() => setLoader(false)}
       >
         <CircularProgress color="inherit" />
-      </Backdrop> */}
+      </Backdrop>
       <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
         {tocData?.map((chapter) => (
           <React.Fragment key={chapter.n}>
@@ -250,7 +249,7 @@ const TreeView: React.FC<ListViewProps> = ({
                                     )}{" "}
                                     &nbsp;
                                   </span>
-                                  <span>{title.s}</span>
+                                  <span>{Formatter.toPlainText(title.s)}</span>
                                 </ListItemText>
                               </ListItem>
                             )
@@ -303,11 +302,13 @@ const TreeView: React.FC<ListViewProps> = ({
                           }}
                         >
                           {Formatter.toDevanagariNumeral(
-                            `${title?.a}.${title?.p}.${title?.n}`
-                          )}{" "}
+                            `${title?.a}${title?.p ? `.${title?.p}` : ""}.${
+                              title?.n
+                            }`
+                          )}
                           &nbsp;
                         </span>
-                        <span>{title.s}</span>
+                        <span>{Formatter.toPlainText(title.s)}</span>
                       </ListItemText>
                     </ListItem>
                   ))}

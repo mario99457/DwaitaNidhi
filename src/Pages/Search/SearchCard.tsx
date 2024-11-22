@@ -39,10 +39,11 @@ const SearchCard: React.FC<SearchCardProps> = ({
       <CardContent>
         <Stack direction="row" justifyContent="space-between">
           <Typography
-            fontSize="18px"
+            fontSize="1.5em"
             lineHeight="37px"
             fontWeight="400"
             color="#A74600"
+            className="ellipsis"
           >
             {title}
           </Typography>
@@ -50,7 +51,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
             variant="outlined"
             sx={{
               color: "#0085FF",
-              fontSize: "12px",
+              fontSize: "1.1em",
               border: "1px solid #D4D2D2",
               borderRadius: "5px",
               textTransform: "none",
@@ -65,7 +66,7 @@ const SearchCard: React.FC<SearchCardProps> = ({
           </Button>
         </Stack>
         <Typography
-          fontSize="14px"
+          fontSize="1.2em"
           color="#616161"
           lineHeight="21px"
           fontWeight="400"

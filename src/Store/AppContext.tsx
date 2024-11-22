@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { AppContextType, AppAction, AppState } from "../types/Context.type";
+import { Backdrop, CircularProgress } from "@mui/material";
 
 const AppContext = createContext<AppContextType | null>(null);
 
@@ -14,6 +15,14 @@ export const AppDataProvider = ({
 
   return (
     <AppContext.Provider value={{ state, dispatch }}>
+      {state.showLoader && (
+        <Backdrop
+          sx={(theme) => ({ color: "#fff", zIndex: theme.zIndex.drawer + 1 })}
+          open={state.showLoader}
+        >
+          <CircularProgress color="inherit" />
+        </Backdrop>
+      )}
       {children}
     </AppContext.Provider>
   );
@@ -35,6 +44,12 @@ function appsReducer(state: AppState, action: AppAction): AppState {
         selectedBook: action.book,
       };
     }
+    case "setLoader": {
+      return {
+        ...state,
+        showLoader: action.showLoader,
+      };
+    }
     default: {
       throw Error("Unknown action: ");
     }
@@ -43,4 +58,5 @@ function appsReducer(state: AppState, action: AppAction): AppState {
 
 const initialState: AppState = {
   selectedBook: null,
+  showLoader: false,
 };

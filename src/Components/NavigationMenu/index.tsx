@@ -413,7 +413,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                     fontFamily: "Vesper Libre",
                   }}
                 >
-                  Sri Sripadaraja Mutt, Mulabagilu
+                  Dwaita Nidhi Software Solutions
                 </div>
                 <div
                   className="d-flex align-items-center"

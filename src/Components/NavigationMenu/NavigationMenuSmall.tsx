@@ -80,7 +80,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
     },
     {
       key: "books",
-      label: "सर्वमूलग्रन्था",
+      label: "सर्वमूलग्रन्थाः",
       icon: (
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
@@ -96,7 +96,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
     },
     {
       key: "otherBooks",
-      label: "अन्यग्रन्था",
+      label: "अन्यग्रन्थाः",
       icon: (
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),

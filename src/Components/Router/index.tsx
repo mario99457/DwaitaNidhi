@@ -1,20 +1,35 @@
-import { Routes, Route } from "react-router-dom";
+import { Navigate, Routes, Route } from "react-router-dom";
 import Landing from "../../Pages/Landing";
 import TitlePage from "../../Pages/Title";
 import DetailPage from "../../Pages/Details";
 import SearchPage from "../../Pages/Search";
+import LoginPage from "../../Pages/Login";
+import WithoutNav from "../../Layout/WithoutNav";
+import WithNav from "../../Layout/WithNav";
+import { PrivateRoute } from "../Router/PrivateRoute";
+import useToken from '../../Services/Auth/useToken'; 
+
 
 const Router = () => {
+  const { creds } = useToken();
+
   return (
     <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/:bookName" element={<TitlePage />} />
-      <Route path="/:bookName/:titleNumber" element={<DetailPage />} />
-      <Route
-        path="/:bookName/:titleNumber/:commentary"
-        element={<DetailPage />}
-      />
-      <Route path="/search" element={<SearchPage />} />
+      <Route element={<WithNav />}>
+        <Route> 
+          <Route path="/" element={<Landing />} />
+          <Route path="/:bookName" element={<TitlePage />} />
+          <Route path="/:bookName/:titleNumber" element={<DetailPage />} />
+          <Route
+            path="/:bookName/:titleNumber/:commentary"
+            element={<DetailPage />}
+          />
+          <Route path="/search" element={<SearchPage />} />
+        </Route>
+      </Route>
+      <Route element={<WithoutNav />}>
+        <Route path="/login" element={ creds?.token ? <Navigate to="/"/> : <LoginPage/> } /> 
+      </Route>
     </Routes>
   );
 };
