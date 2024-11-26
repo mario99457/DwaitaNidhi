@@ -5,8 +5,7 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import CloseIcon from "@mui/icons-material/Close";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
-import audioSample from "../../assets/audio/large.mp3";
-import audioSample2 from "../../assets/audio/large2.mp3";
+import audioSample from "../../assets/audio/sutra_audio_complete.ogg";
 import { Box, Slider, Stack, Typography } from "@mui/material";
 import raf from "raf";
 import { Title } from "../../types/GlobalType.type";
@@ -49,6 +48,12 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     };
   }, []);
 
+  // useEffect(() => {
+  //   let url = "https://github.com/mario99457/dwaitanidhi_data/raw/refs/heads/main/sutraani/sutra_audio_complete.ogg";
+  //   var audio = getResourceFromGit(url);
+  //   setAudioSutra(audio)
+  // })
+
   const handleOnLoad = () => {
     setLoaded(true);
     if (playerRef.current) {
@@ -80,14 +85,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     renderSeekPos();
   };
 
-  const renderSeekPos = () => {
-    if (!seekingRef.current) {
-      setSeek(playerRef.current.seek());
-    }
-    if (playingRef.current) {
-      rafRef.current = raf(renderSeekPos);
-    }
-  };
+  // const renderSeekPos = () => {
+  //   if (!seekingRef.current) {
+  //     setSeek(playerRef.current.seek());
+  //   }
+  //   if (playingRef.current) {
+  //     rafRef.current = raf(renderSeekPos);
+  //   }
+  // };
 
   const clearRAF = () => {
     if (rafRef.current) {
@@ -226,8 +231,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       </Box>
 
       <ReactHowler
-        src={[audioSample, audioSample2]}
+        src={audioSample}
         playing={playing}
+        // html5={true}
         onEnd={() => {
           playingRef.current = false;
           setIsPlaying(false);

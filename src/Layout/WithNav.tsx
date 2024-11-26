@@ -36,6 +36,7 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
       "gbhashyam",
       "gitaSummary",
       "prameyadipika",
+      "audio"
     ];
     Prefetch.prefetchRequiredServerData(requiredData, () => {});
     // let bookName = "";
