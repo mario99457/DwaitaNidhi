@@ -154,7 +154,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
               <img src={appIcon} />
             </IconButton>
             <div className="app-name-wrapper app-name-wrap-small">
-              <span className="app-name app-name-small"> द्वैत निधि</span>
+              <span className="app-name app-name-small"> द्वैत निधिः</span>
               <span className="app-tagline app-tagline-small">
                 Dwaita Nidhi
               </span>
