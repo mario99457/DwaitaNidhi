@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AppBar, Toolbar, IconButton, Box, Typography, Link } from "@mui/material";
-import appIcon from "../../assets/app_logo.svg";
+import appIcon from "../../assets/madhwa2.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import CachedData from "../../Services/Common/GlobalServices";
@@ -146,12 +146,12 @@ const TopBarSmall: React.FC<TopBarProps> = ({
             }}
           >
             <IconButton
-              sx={{ marginRight: "8px", marginLeft: "6px", width: "50px" }}
+              sx={{ marginRight: "8px", marginLeft: "6px", width: "50px", height: "48px" }}
               edge="start"
               color="inherit"
               aria-label="menu"
             >
-              <img src={appIcon} />
+              <img  style={{ width : "50px", height: "48px" }} src={appIcon} />
             </IconButton>
             <div className="app-name-wrapper app-name-wrap-small">
               <span className="app-name app-name-small"> द्वैत निधिः</span>
