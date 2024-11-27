@@ -113,16 +113,16 @@ const Landing = () => {
     <>
       <Swiper
         spaceBetween={8}
-        effect={'coverflow'}
+        effect={isMobile ? '' : 'coverflow'}
         grabCursor={true}
         centeredSlides={true}
         slidesPerView={3}
         coverflowEffect={{
-          rotate: 50,
+          rotate: 20,
           stretch: 0,
           depth: 100,
           modifier: 1,
-          slideShadows: true,
+          slideShadows: false,
         }}
         autoplay={{
           delay: 2500,
