@@ -95,12 +95,11 @@ const DetailPage = () => {
       setSelectedTitle(title);
     }
 
-    const audio = CachedData.data.audio[titleNumber]
+    const audio = CachedData.data.audio[titleNumber];
     if (audio) {
       setSelectedAudio(audio);
-    }
-    else {
-      setSelectedAudio(null); //TODO: Add a file with "No audio available" 
+    } else {
+      setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
   }, [titleNumber]);
 
@@ -155,11 +154,9 @@ const DetailPage = () => {
     setSelectedLanguage(event.target.value);
 
     setEditedText(
-      Parser(
-        BookClass?.getSummary(selectedTitle?.i)
-          ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
-          : ""
-      )
+      BookClass?.getSummary(selectedTitle?.i)
+        ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+        : ""
     );
   };
 
@@ -465,7 +462,7 @@ const DetailPage = () => {
                 textOverflow: "ellipsis",
               }}
             >
-              { editedText }
+              {editedText}
             </Typography> */}
             {isOverflowing && (
               <Typography
