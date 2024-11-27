@@ -77,7 +77,7 @@ const TopBar: React.FC<TopBarProps> = ({
             <img src={appIcon} />
           </IconButton>
           <div className="app-name-wrapper">
-            <span className="app-name"> द्वैत निधि</span>
+            <span className="app-name"> द्वैत निधिः</span>
             <span className="app-tagline">Dwaita Nidhi</span>
           </div>
           <div className="app-sub-name">
