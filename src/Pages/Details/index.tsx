@@ -37,6 +37,7 @@ import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
 import React from "react";
 import ContentEditable from "react-contenteditable";
+import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
   name: string;
@@ -64,6 +65,7 @@ const DetailPage = () => {
   const [editable, setEditable] = React.useState(false);
   const [editedText, setEditedText] = React.useState("");
   const [hideSummary, setHideSummary] = React.useState(false);
+  const { state } = useAppData();
 
   const BookClass = CachedData.getBookClass(bookName || "");
   const availableLanguages = [
@@ -272,7 +274,7 @@ const DetailPage = () => {
               >
                 {
                   CachedData.data.books.find(
-                    (b) => b.name == CachedData.data.selectedBook
+                    (b) => b.name == state.selectedBook?.name
                   )?.index
                 }
               </Typography>
@@ -301,7 +303,7 @@ const DetailPage = () => {
 
               <Container
                 sx={{
-                  height: "auto",
+                  minHeight: "60px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -333,7 +335,7 @@ const DetailPage = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ mt: 4, mb: 2 }}
+            sx={{ mt: 2, mb: 2 }}
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
               ब्र.सू.{" "}

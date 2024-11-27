@@ -1,7 +1,11 @@
 .card-wrapper {
     .card-content {
-        height: 25%;
+        position: absolute;
+        bottom: 13%;
+        // height: 25%;
         padding: 16px 17px 0px 0;
+        width: 98%;
+
 
         .card-quote {
             font-weight: 400;
@@ -19,7 +23,7 @@
     }
 
     .card-image {
-        height: 75%;
+        height: 100%;
 
         img {
             width: 100%;
