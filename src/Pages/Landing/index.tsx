@@ -1,4 +1,4 @@
-import { useMediaQuery, useTheme } from "@mui/material";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 // import React from "react";
 // import card1Img from "../../assets/LandingPageCards/image 10.png";
 import card1Img from "../../assets/LandingPageCards/Variant1.png";
@@ -35,7 +35,7 @@ const Landing = () => {
       image: isMobile ? card1Img : card1Img,
       title: "Card 1",
       quote: isMobile ? "" :
-        "ज्ञानानन्दं देव निर्मलस्फटिकाकृतिं । आधारं सर्वविद्यानां हयग्रीवनुपास्महे ॥",
+        "ज्ञानानन्दं देव निर्मलस्फटिकाकृतिं ।\nआधारं सर्वविद्यानां हयग्रीवनुपास्महे ॥",
       author: isMobile ? "" : "-श्रीमद्वादिराजतीर्थाः",
       style: {
         background: "#4D0301", 
@@ -46,7 +46,7 @@ const Landing = () => {
       image: isMobile ? card2Img : card2Img,
       title: "Card 2",
       quote: isMobile ? "" :
-        "वेदव्यास! गुणावास! विद्याधीश! सतां वश। \nमां निराशं गतक्लेशं कुर्वनाशं हरेsनिशम् ॥",
+        "वेदव्यास! गुणावास! विद्याधीश! सतां वश।\nमां निराशं गतक्लेशं कुर्वनाशं हरेsनिशम् ॥",
       author: isMobile ? "" : "-श्रीमद्वादिराजतीर्थाः",
       style: {
         background: "#4D0301",
@@ -57,7 +57,7 @@ const Landing = () => {
       image: isMobile ? card3Img : card3Img,
       title: "Card 3",
       quote: isMobile ? "" :
-        "अभ्रमं भङ्गरहितं अजडं विमलं सदा | आनन्दतीर्थमतुलं भजे तापत्रयापहम् || ",
+        "अभ्रमं भङ्गरहितं अजडं विमलं सदा |\nआनन्दतीर्थमतुलं भजे तापत्रयापहम् || ",
       author: isMobile ? "" : "-श्रीव्यासराजतीर्थाः",
       style: {
         background:
@@ -68,7 +68,7 @@ const Landing = () => {
       image: isMobile ? card4Img : card4Img,
       title: "Card 4",
       quote: isMobile ? "" :
-        "यस्यवाक्कामधेनुर्नः कामितार्थान् प्रयच्छति । सेवे तं जययोगीन्द्रं कामबाणच्छिदं सदा ॥",
+        "यस्यवाक्कामधेनुर्नः कामितार्थान् प्रयच्छति ।\nसेवे तं जययोगीन्द्रं कामबाणच्छिदं सदा ॥",
       author: isMobile ? "" : "-श्रीविजयेन्द्रतीर्थाः ",
       style: {
         background:
@@ -79,7 +79,7 @@ const Landing = () => {
       image: isMobile ? card5Img : card5Img,
       title: "Card 5",
       quote: isMobile ? "" :
-        "ज्ञानवैराग्यभक्त्यादि कल्याणगुणशालिनः । लक्ष्मीनारायणमुनीन् वन्दे विद्यगुरून् मम ॥",
+        "ज्ञानवैराग्यभक्त्यादि कल्याणगुणशालिनः ।\nलक्ष्मीनारायणमुनीन् वन्दे विद्यगुरून् मम ॥",
       author: isMobile ? "" : "-श्रीव्यासराजतीर्थाः ",
       style: {
         background:
@@ -90,7 +90,7 @@ const Landing = () => {
       image: isMobile ? card6Img : card6Img,
       title: "Card 6",
       quote: isMobile ? "" :
-        "अर्थिकल्पितकल्पोsयं प्रत्यर्थिगजकेसरी। व्यासतीर्थगुरुर्भूयादस्मदिsर्थ सिद्धये।। ",
+        "अर्थिकल्पितकल्पोsयं प्रत्यर्थिगजकेसरी।\nव्यासतीर्थगुरुर्भूयादस्मदिsर्थ सिद्धये।। ",
       author: isMobile ? "" : "-श्रीश्रीनिवासतीर्थाः",
       style: {
         background:
@@ -101,7 +101,7 @@ const Landing = () => {
       image: isMobile ? card7Img : card7Img,
       title: "Card 7",
       quote: isMobile ? "" :
-        "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे। श्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
+        "दुर्वादिध्वान्तरवये वैष्णवेन्दीवरेन्दवे।\nश्रीराघवेन्द्रगुरवे नमोsत्यन्त दयालवे।।  ",
       author: isMobile ? "" : "-श्रीअप्पण्णाचार्याः",
       style: {
         background:
@@ -110,15 +110,15 @@ const Landing = () => {
     }
   ];
   return (
-    <>
+    <Box>
       <Swiper
         spaceBetween={8}
-        effect={isMobile ? '' : 'coverflow'}
+        effect={'coverflow'}
         grabCursor={true}
         centeredSlides={true}
         slidesPerView={3}
         coverflowEffect={{
-          rotate: 20,
+          rotate: 50,
           stretch: 0,
           depth: 100,
           modifier: 1,
@@ -128,6 +128,7 @@ const Landing = () => {
           delay: 2500,
           disableOnInteraction: false,
         }}
+        speed={4000}
         loop={true}
         pagination={{
           clickable: true,
@@ -168,7 +169,7 @@ const Landing = () => {
         <div className="swiper-button-next"></div>
         <div className="swiper-pagination"></div>
       </div>
-    </>
+    </Box>
   );
 };
 
