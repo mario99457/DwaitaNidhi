@@ -26,7 +26,7 @@ const HomePageCard = ({ image, quote, author, style }: HomePageCardProps) => {
       </div>
       <Box
         className="card-content"
-        sx={{ background: style?.background, opacity: 0.7 }}
+        sx={{ background: style?.background, opacity: 0.9 }}
       >
         <div className="card-quote">{quote}</div>
         <div className="card-author">{author}</div>

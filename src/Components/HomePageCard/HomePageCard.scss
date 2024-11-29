@@ -2,21 +2,21 @@
     .card-content {
         position: absolute;
         bottom: 1%;
-        // bottom: 13%;
-        // height: 25%;
+        //height: 25%;
         //padding: 16px 17px 0px 0;
         width: 100%;
 
 
         .card-quote {
             font-weight: 400;
-            font-size: 34px;
+            font-size: 24px;
             color: #ffffff;
+            white-space: pre-line;
         }
 
         .card-author {
             font-weight: 400;
-            font-size: 22px;
+            font-size: 18px;
             color: #ffffff;
             font-style: italic;
         }
@@ -36,7 +36,7 @@
 
 @media (max-width: 1400px) {
     .card-wrapper .card-content .card-quote {
-        font-size: 24px;
+        font-size: 20px;
     }
 }
 

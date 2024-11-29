@@ -300,7 +300,7 @@ const DetailPage = () => {
 
               <Container
                 sx={{
-                  height: "auto",
+                  minHeight: "60px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
