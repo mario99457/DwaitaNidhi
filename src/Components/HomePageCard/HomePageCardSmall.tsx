@@ -21,7 +21,7 @@ const HomePageCardSmall = ({
         borderRadius: "9px",
         width: "auto",
         display: "block",
-        height: "50%",
+        // height: "50%",
         ...style,
       }}
       className="card-wrapper"
@@ -29,10 +29,12 @@ const HomePageCardSmall = ({
       <div className="card-image">
         <img src={image} />
       </div>
-      <div className="card-content">
-        <div className="card-quote">{quote}</div>
-        <div className="card-author">{author}</div>
-      </div>
+      <Box className="card-content-wrapper-mobile" sx={{ ...style }}>
+        <div className="card-content">
+          <div className="card-quote">{quote}</div>
+          <div className="card-author">{author}</div>
+        </div>
+      </Box>
     </Box>
   );
 };

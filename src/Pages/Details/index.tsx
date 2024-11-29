@@ -33,7 +33,6 @@ import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
 // import { Howl, Howler } from "howler";
 import ReactHowler from "react-howler";
-import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
 import React from "react";
@@ -52,6 +51,7 @@ interface Commentary {
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
   const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
+  const [selectedAudio, setSelectedAudio] = useState<Title | null>(null);
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -93,6 +93,13 @@ const DetailPage = () => {
     );
     if (title) {
       setSelectedTitle(title);
+    }
+
+    const audio = CachedData.data.audio[titleNumber];
+    if (audio) {
+      setSelectedAudio(audio);
+    } else {
+      setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
   }, [titleNumber]);
 
@@ -147,11 +154,9 @@ const DetailPage = () => {
     setSelectedLanguage(event.target.value);
 
     setEditedText(
-      Parser(
-        BookClass?.getSummary(selectedTitle?.i)
-          ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
-          : ""
-      )
+      BookClass?.getSummary(selectedTitle?.i)
+        ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+        : ""
     );
   };
 
@@ -338,7 +343,7 @@ const DetailPage = () => {
                 `${selectedTitle?.a}${selectedTitle?.p !== "" ? "." + selectedTitle?.p : ""}.${selectedTitle?.n}`)}             
             </Typography>
             <ReactHowler
-              src={[testAudio]}
+              src={[selectedAudio]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
@@ -459,7 +464,7 @@ const DetailPage = () => {
                 textOverflow: "ellipsis",
               }}
             >
-              { editedText }
+              {editedText}
             </Typography> */}
             {isOverflowing && (
               <Typography

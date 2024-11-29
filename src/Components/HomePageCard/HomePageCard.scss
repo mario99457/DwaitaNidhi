@@ -39,3 +39,23 @@
         font-size: 20px;
     }
 }
+
+.card-content-wrapper-mobile {
+    display: flex;
+    justify-content: center;
+    // margin-top: 12px;
+
+    .card-content {
+        padding-top: 12px;
+        width: 80%;
+        position: inherit;
+
+        // .card-quote {
+        //     color: inherit;
+        // }
+
+        // .card-author {
+        //     color: inherit;
+        // }
+    }
+}

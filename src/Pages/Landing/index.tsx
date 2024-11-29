@@ -19,9 +19,14 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 import "swiper/css/free-mode";
-import 'swiper/css/effect-coverflow';
+import "swiper/css/effect-coverflow";
 import "./landing.scss";
-import { Autoplay, Pagination, Navigation, EffectCoverflow } from "swiper/modules";
+import {
+  Autoplay,
+  Pagination,
+  Navigation,
+  EffectCoverflow,
+} from "swiper/modules";
 import HomePageCard from "../../Components/HomePageCard";
 import HomePageCardSmall from "../../Components/HomePageCard/HomePageCardSmall";
 import { Height } from "@mui/icons-material";
@@ -38,8 +43,8 @@ const Landing = () => {
         "ज्ञानानन्दं देव निर्मलस्फटिकाकृतिं ।\nआधारं सर्वविद्यानां हयग्रीवनुपास्महे ॥",
       author: isMobile ? "" : "-श्रीमद्वादिराजतीर्थाः",
       style: {
-        background: "#4D0301", 
-        Height: "70vw"
+        background: "#4D0301",
+        Height: "70vw",
       },
     },
     {
@@ -50,7 +55,7 @@ const Landing = () => {
       author: isMobile ? "" : "-श्रीमद्वादिराजतीर्थाः",
       style: {
         background: "#4D0301",
-        Height: "70vw"
+        Height: "70vw",
       },
     },
     {
@@ -107,23 +112,27 @@ const Landing = () => {
         background:
           "radial-gradient(92.71% 55.9% at 71.21% 40.48%, #7F1B63 0%, #820D45 100%)",
       },
-    }
+    },
   ];
   return (
     <Box>
       <Swiper
         spaceBetween={8}
-        effect={'coverflow'}
+        effect={isMobile ? "" : "coverflow"}
         grabCursor={true}
         centeredSlides={true}
-        slidesPerView={3}
-        coverflowEffect={{
-          rotate: 50,
-          stretch: 0,
-          depth: 100,
-          modifier: 1,
-          slideShadows: false,
-        }}
+        slidesPerView={isMobile ? 1 : 3}
+        coverflowEffect={
+          isMobile
+            ? undefined
+            : {
+                rotate: 20,
+                stretch: 0,
+                depth: 100,
+                modifier: 1,
+                slideShadows: false,
+              }
+        }
         autoplay={{
           delay: 2500,
           disableOnInteraction: false,
@@ -164,11 +173,19 @@ const Landing = () => {
         <div className="left-gradient"></div>
         <div className="right-gradient"></div>
       </Swiper>
-      <div className={`swiper-button-group ${isMobile ? "swiper-mobile" : ""}`}>
+      {/* <Stack flexDirection="row" mt={1} justifyContent="center" gap={2}>
+        <Card variant="outlined" sx={{ p: 1 }}>
+          Book1
+        </Card>
+        <Card variant="outlined" sx={{ p: 1 }}>
+          Book2
+        </Card>
+      </Stack> */}
+      {/* <div className={`swiper-button-group ${isMobile ? "swiper-mobile" : ""}`}>
         <div className="swiper-button-prev"></div>
         <div className="swiper-button-next"></div>
         <div className="swiper-pagination"></div>
-      </div>
+      </div> */}
     </Box>
   );
 };

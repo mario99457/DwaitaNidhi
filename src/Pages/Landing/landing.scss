@@ -20,6 +20,10 @@
     z-index: 1;
 }
 
+.swiper-pagination-bullets {
+    display: none;
+}
+
 .left-gradient {
     left: 0;
     background: linear-gradient(90deg, #E0E0E0 26.5%, rgba(224, 224, 224, 0) 100%);
