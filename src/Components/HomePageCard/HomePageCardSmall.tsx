@@ -19,12 +19,9 @@ const HomePageCardSmall = ({
     <Box
       sx={{
         borderRadius: "9px",
-        width: {
-          xs: "90vw",
-          lg: "768px",
-        },
+        width: "auto",
         display: "block",
-        height: "auto",
+        height: "50%",
         ...style,
       }}
       className="card-wrapper"

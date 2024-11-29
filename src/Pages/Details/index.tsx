@@ -300,14 +300,15 @@ const DetailPage = () => {
 
               <Container
                 sx={{
-                  minHeight: "60px",
+                  height: "auto",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  whiteSpace: "pre-line"
                 }}
               >
                 <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
-                  {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
+                {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
                 </Typography>
               </Container>
 
@@ -335,10 +336,11 @@ const DetailPage = () => {
             sx={{ mt: 2, mb: 2 }}
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
-              ब्र.सू.{" "}
+              {CachedData.data.books.find(
+                    (b) => b.name == state.selectedBook?.name
+                  )?.abbrev}
               {Formatter.toDevanagariNumeral(
-                `${selectedTitle?.a}.${selectedTitle?.p}.${selectedTitle?.n}`
-              )}
+                `${selectedTitle?.a}${selectedTitle?.p !== "" ? "." + selectedTitle?.p : ""}.${selectedTitle?.n}`)}             
             </Typography>
             <ReactHowler
               src={[selectedAudio]}
