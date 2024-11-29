@@ -1,7 +1,8 @@
 .card-wrapper {
     .card-content {
         position: absolute;
-        bottom: 13%;
+        bottom: 1%;
+        // bottom: 13%;
         // height: 25%;
         //padding: 16px 17px 0px 0;
         width: 100%;
@@ -36,5 +37,25 @@
 @media (max-width: 1400px) {
     .card-wrapper .card-content .card-quote {
         font-size: 24px;
+    }
+}
+
+.card-content-wrapper-mobile {
+    display: flex;
+    justify-content: center;
+    // margin-top: 12px;
+
+    .card-content {
+        padding-top: 12px;
+        width: 80%;
+        position: inherit;
+
+        // .card-quote {
+        //     color: inherit;
+        // }
+
+        // .card-author {
+        //     color: inherit;
+        // }
     }
 }
