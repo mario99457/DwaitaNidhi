@@ -87,7 +87,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
           name: book.name,
           key: book.name,
           label: book.title,
-          path: `/${book.name}`,
+          path: book.chapters ? `/${book.name}` : "/coming-soon",
         };
       }),
     },
