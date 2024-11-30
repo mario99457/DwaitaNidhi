@@ -208,12 +208,17 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
             }}
           >
             <IconButton
-              sx={{ marginRight: "8px", marginLeft: "6px", width: "50px", height: "48px" }}
+              sx={{
+                marginRight: "8px",
+                marginLeft: "6px",
+                width: "50px",
+                height: "48px",
+              }}
               edge="start"
               color="inherit"
               aria-label="menu"
             >
-              <img style={{ width : "50px", height: "48px" }} src={appIcon} />
+              <img style={{ width: "50px", height: "48px" }} src={appIcon} />
             </IconButton>
             <div className="app-name-wrapper app-name-wrap-small">
               <span className="app-name app-name-small"> द्वैत निधिः</span>
@@ -278,7 +283,15 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
                     timeout="auto"
                     unmountOnExit
                   >
-                    <List component="div" disablePadding>
+                    <List
+                      component="div"
+                      disablePadding
+                      sx={{
+                        maxHeight: "33vh",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                      }}
+                    >
                       {item.subMenu?.map((subMenu: NavigationItem) => (
                         <React.Fragment key={subMenu.key}>
                           <ListItem

@@ -113,7 +113,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       CachedData.getBookClass(bookname)?.populateIndexList();
       dispatch({
         type: "setSelectedBook",
-        book: CachedData?.data.books.find((item: any) => item.name === bookname),
+        book: CachedData?.data.books.find(
+          (item: any) => item.name === bookname
+        ),
       });
     }
   }, [pathname]);
@@ -261,7 +263,15 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   timeout="auto"
                   unmountOnExit
                 >
-                  <List component="div" disablePadding>
+                  <List
+                    component="div"
+                    disablePadding
+                    sx={{
+                      maxHeight: "33vh",
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                    }}
+                  >
                     {item.subMenu?.map((subMenu: NavigationItem) => (
                       <React.Fragment key={subMenu.key}>
                         <ListItem
