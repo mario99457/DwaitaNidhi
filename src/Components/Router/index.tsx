@@ -7,8 +7,8 @@ import LoginPage from "../../Pages/Login";
 import WithoutNav from "../../Layout/WithoutNav";
 import WithNav from "../../Layout/WithNav";
 import { PrivateRoute } from "../Router/PrivateRoute";
-import useToken from '../../Services/Auth/useToken'; 
-
+import useToken from "../../Services/Auth/useToken";
+import ComingSoon from "../../Pages/ComingSoon";
 
 const Router = () => {
   const { creds } = useToken();
@@ -16,7 +16,7 @@ const Router = () => {
   return (
     <Routes>
       <Route element={<WithNav />}>
-        <Route> 
+        <Route>
           <Route path="/" element={<Landing />} />
           <Route path="/:bookName" element={<TitlePage />} />
           <Route path="/:bookName/:titleNumber" element={<DetailPage />} />
@@ -25,10 +25,14 @@ const Router = () => {
             element={<DetailPage />}
           />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/coming-soon" element={<ComingSoon />} />
         </Route>
       </Route>
       <Route element={<WithoutNav />}>
-        <Route path="/login" element={ creds?.token ? <Navigate to="/"/> : <LoginPage/> } /> 
+        <Route
+          path="/login"
+          element={creds?.token ? <Navigate to="/" /> : <LoginPage />}
+        />
       </Route>
     </Routes>
   );
