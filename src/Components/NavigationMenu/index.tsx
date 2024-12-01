@@ -87,7 +87,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
           name: book.name,
           key: book.name,
           label: book.title,
-          path: `/${book.name}`,
+          path: book.chapters ? `/${book.name}` : "/coming-soon",
         };
       }),
     },
@@ -113,7 +113,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       CachedData.getBookClass(bookname)?.populateIndexList();
       dispatch({
         type: "setSelectedBook",
-        book: CachedData?.data.books.find((item: any) => item.name === bookname),
+        book: CachedData?.data.books.find(
+          (item: any) => item.name === bookname
+        ),
       });
     }
   }, [pathname]);
@@ -237,7 +239,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{
-                      fontSize: "18px",
+                      fontSize: "20px",
                     }}
                     sx={{
                       opacity: expandSideBar ? 1 : 0,
@@ -261,7 +263,15 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   timeout="auto"
                   unmountOnExit
                 >
-                  <List component="div" disablePadding>
+                  <List
+                    component="div"
+                    disablePadding
+                    sx={{
+                      maxHeight: "33vh",
+                      overflowY: "auto",
+                      overflowX: "hidden",
+                    }}
+                  >
                     {item.subMenu?.map((subMenu: NavigationItem) => (
                       <React.Fragment key={subMenu.key}>
                         <ListItem
@@ -294,7 +304,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                           </ListItemIcon>
                           <ListItemText
                             primaryTypographyProps={{
-                              fontSize: "18px",
+                              fontSize: "20px",
                               display: "flex",
                               alignItems: "center",
                               color:

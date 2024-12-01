@@ -21,6 +21,7 @@ import { Book } from "../../types/Context.type";
 import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
 import SearchView from "./SearchView";
 import { useAppData } from "../../Store/AppContext";
+import AudioPlayer from "../../Pages/Details/AudioPlayer";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -31,6 +32,7 @@ const TitlePage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [searchResult, setSearchResult] = useState<any[] | boolean>(false);
   const { state, dispatch } = useAppData();
+  const [showPlayer, setShowPlayer] = useState(false);
 
   const handleTitleClick = (selectedTitle: Title) => {
     navigate(`/${bookName}/${selectedTitle.i}`);
@@ -72,6 +74,12 @@ const TitlePage = () => {
         },
       }}
     >
+      {showPlayer && (
+        <AudioPlayer
+          selectedTitle={CachedData.data.selectedBook}
+          handleClosePlayer={() => setShowPlayer(false)}
+        />
+      )}
       <Box
         sx={{
           display: "flex",
@@ -138,7 +146,13 @@ const TitlePage = () => {
                 onClear={handleClearSearch}
               />
             )}
-            <img src={playButton} />
+            {/* <img src={playButton} /> */}
+            <img
+              src={playButton}
+              style={{ cursor: "pointer" }}
+              alt="play"
+              onClick={() => setShowPlayer(!showPlayer)}
+            />
           </Box>
         </Box>
         <Box

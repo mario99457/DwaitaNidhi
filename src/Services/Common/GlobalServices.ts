@@ -20,13 +20,8 @@ class ApiEndpoints {
   static gitHubServerUrls: string[] = ApiEndpoints.gitHubServerDefaultUrls;
   static audioEndPoints: { [key: string]: string } = (() => {
     let t: { [key: string]: string } = {
-      //     audio_0_0: "audio/sutraani/0-0.txt"
-    };
-    // for (let e = 1; e <= 8; ++e) {
-    //     for (let a = 1; a <= 4; ++a) {
-    //         t[`audio_${e}_` + a] = `audio/sutraani/${e}-${a}.txt`;
-    //     }
-    // }
+          audio: "/sutraani/audio.txt"
+    };    
     return t;
   })();
 
@@ -39,7 +34,8 @@ class ApiEndpoints {
     gitaIndex: "gita/index.txt",
     gbhashyam: "gita/bhashya.txt",
     gitaSummary: "gita/summary.txt",
-    prameyadipika: "gita/prameyadipika.txt"
+    prameyadipika: "gita/prameyadipika.txt",
+    audio:"sutraani/audio.txt"
   };
   static allEndPoints: { [key: string]: string } = {
     ...ApiEndpoints.prefetchEndPoints,
@@ -188,7 +184,7 @@ class ApiEndpoints {
     //   console.log(`Error: The endpoint ${e} is unknown.`);
     //   i("UNKNOWN_ENDPOINT");
     // }
-  }
+  }  
   // static fetchContentFromGit(n, r, i){
   //   const customHeaders = new Headers();
   //   customHeaders.append("Accept", "application/vnd.github+json");

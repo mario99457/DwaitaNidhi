@@ -33,11 +33,11 @@ import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
 // import { Howl, Howler } from "howler";
 import ReactHowler from "react-howler";
-import testAudio from "../../assets/audio/small.mp3";
 import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
 import React from "react";
 import ContentEditable from "react-contenteditable";
+import { useAppData } from "../../Store/AppContext";
 
 interface Commentary {
   name: string;
@@ -51,6 +51,7 @@ interface Commentary {
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
   const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
+  const [selectedAudio, setSelectedAudio] = useState<Title | null>(null);
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -64,6 +65,7 @@ const DetailPage = () => {
   const [editable, setEditable] = React.useState(false);
   const [editedText, setEditedText] = React.useState("");
   const [hideSummary, setHideSummary] = React.useState(false);
+  const { state } = useAppData();
 
   const BookClass = CachedData.getBookClass(bookName || "");
   const availableLanguages = [
@@ -91,6 +93,13 @@ const DetailPage = () => {
     );
     if (title) {
       setSelectedTitle(title);
+    }
+
+    const audio = CachedData.data.audio[titleNumber];
+    if (audio) {
+      setSelectedAudio(audio);
+    } else {
+      setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
   }, [titleNumber]);
 
@@ -145,11 +154,9 @@ const DetailPage = () => {
     setSelectedLanguage(event.target.value);
 
     setEditedText(
-      Parser(
-        BookClass?.getSummary(selectedTitle?.i)
-          ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
-          : ""
-      )
+      BookClass?.getSummary(selectedTitle?.i)
+        ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+        : ""
     );
   };
 
@@ -264,7 +271,7 @@ const DetailPage = () => {
               >
                 {
                   CachedData.data.books.find(
-                    (b) => b.name == CachedData.data.selectedBook
+                    (b) => b.name == state.selectedBook?.name
                   )?.index
                 }
               </Typography>
@@ -293,15 +300,16 @@ const DetailPage = () => {
 
               <Container
                 sx={{
-                  height: "auto",
+                  minHeight: "60px",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  whiteSpace: "pre-line"
                 }}
               >
-                <Typography fontSize="34px" lineHeight="auto" color="#BC4501">
-                  {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
-                </Typography>
+              <Typography fontSize="34px" lineHeight="auto" color="#BC4501">
+                {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
+              </Typography>
               </Container>
 
               <img
@@ -325,7 +333,7 @@ const DetailPage = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ mt: 4, mb: 2 }}
+            sx={{ mt: 2, mb: 2 }}
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
               {
@@ -338,7 +346,7 @@ const DetailPage = () => {
               )}
             </Typography>
             <ReactHowler
-              src={[testAudio]}
+              src={[selectedAudio]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
@@ -459,7 +467,7 @@ const DetailPage = () => {
                 textOverflow: "ellipsis",
               }}
             >
-              { editedText }
+              {editedText}
             </Typography> */}
             {isOverflowing && (
               <Typography

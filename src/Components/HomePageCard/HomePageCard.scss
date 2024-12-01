@@ -1,17 +1,22 @@
 .card-wrapper {
     .card-content {
-        height: 25%;
-        padding: 16px 17px 0px 0;
+        position: absolute;
+        bottom: 1%;
+        //height: 25%;
+        //padding: 16px 17px 0px 0;
+        width: 100%;
+
 
         .card-quote {
             font-weight: 400;
-            font-size: 34px;
+            font-size: 24px;
             color: #ffffff;
+            white-space: pre-line;
         }
 
         .card-author {
             font-weight: 400;
-            font-size: 22px;
+            font-size: 18px;
             color: #ffffff;
             font-style: italic;
         }
@@ -19,7 +24,7 @@
     }
 
     .card-image {
-        height: 75%;
+        height: 100%;
 
         img {
             width: 100%;
@@ -31,6 +36,26 @@
 
 @media (max-width: 1400px) {
     .card-wrapper .card-content .card-quote {
-        font-size: 24px;
+        font-size: 20px;
+    }
+}
+
+.card-content-wrapper-mobile {
+    display: flex;
+    justify-content: center;
+    // margin-top: 12px;
+
+    .card-content {
+        padding-top: 12px;
+        width: 80%;
+        position: inherit;
+
+        // .card-quote {
+        //     color: inherit;
+        // }
+
+        // .card-author {
+        //     color: inherit;
+        // }
     }
 }

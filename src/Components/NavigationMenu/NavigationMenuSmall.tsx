@@ -22,7 +22,7 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
-import appIcon from "../../assets/app_logo.svg";
+import appIcon from "../../assets/madhwa2.png";
 import { useAppData } from "../../Store/AppContext";
 
 interface NavigationMenuProps {
@@ -208,15 +208,20 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
             }}
           >
             <IconButton
-              sx={{ marginRight: "8px", marginLeft: "6px", width: "50px" }}
+              sx={{
+                marginRight: "8px",
+                marginLeft: "6px",
+                width: "50px",
+                height: "48px",
+              }}
               edge="start"
               color="inherit"
               aria-label="menu"
             >
-              <img src={appIcon} />
+              <img style={{ width: "50px", height: "48px" }} src={appIcon} />
             </IconButton>
             <div className="app-name-wrapper app-name-wrap-small">
-              <span className="app-name app-name-small"> द्वैत निधि</span>
+              <span className="app-name app-name-small"> द्वैत निधिः</span>
               <span className="app-tagline app-tagline-small">
                 Dwaita Nidhi
               </span>
@@ -278,7 +283,15 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
                     timeout="auto"
                     unmountOnExit
                   >
-                    <List component="div" disablePadding>
+                    <List
+                      component="div"
+                      disablePadding
+                      sx={{
+                        maxHeight: "33vh",
+                        overflowY: "auto",
+                        overflowX: "hidden",
+                      }}
+                    >
                       {item.subMenu?.map((subMenu: NavigationItem) => (
                         <React.Fragment key={subMenu.key}>
                           <ListItem

@@ -1,6 +1,6 @@
 import React from "react";
 import { AppBar, Toolbar, IconButton, Box, Link, Button } from "@mui/material";
-import appIcon from "../../assets/app_logo.svg";
+import appIcon from "../../assets/madhwa2.png";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import BookmarkBorderOutlinedIcon from "@mui/icons-material/BookmarkBorderOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -68,15 +68,15 @@ const TopBar: React.FC<TopBarProps> = ({
           }}
         >
           <IconButton
-            sx={{ marginRight: "8px", marginLeft: "6px" }}
+            sx={{ marginRight: "8px", marginLeft: "6px", height: "48px", width:"48px" }}
             edge="start"
             color="inherit"
             aria-label="menu"
           >
-            <img src={appIcon} />
+            <img  style={{ width : "50px", height: "48px" }} src={appIcon} />
           </IconButton>
           <div className="app-name-wrapper">
-            <span className="app-name"> द्वैत निधि</span>
+            <span className="app-name"> द्वैत निधिः</span>
             <span className="app-tagline">Dwaita Nidhi</span>
           </div>
           <div className="app-sub-name">

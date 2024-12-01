@@ -6,7 +6,7 @@ interface HomePageCardProps {
   image: string;
   quote: string;
   author: string;
-  style: React.CSSProperties;
+  style?: React.CSSProperties;
 }
 
 const HomePageCard = ({ image, quote, author, style }: HomePageCardProps) => {
@@ -14,20 +14,23 @@ const HomePageCard = ({ image, quote, author, style }: HomePageCardProps) => {
     <Box
       sx={{
         borderRadius: "9px",
-        width: "768px",
+        width: "100%",
         display: "block",
         height: "87%",
-        ...style,
+        // ...style,
       }}
       className="card-wrapper"
     >
       <div className="card-image">
         <img src={image} />
       </div>
-      <div className="card-content">
+      <Box
+        className="card-content"
+        sx={{ background: style?.background, opacity: 0.9 }}
+      >
         <div className="card-quote">{quote}</div>
         <div className="card-author">{author}</div>
-      </div>
+      </Box>
     </Box>
   );
 };
