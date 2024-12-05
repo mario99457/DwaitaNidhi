@@ -95,7 +95,7 @@ const DetailPage = () => {
       setSelectedTitle(title);
     }
 
-    const audio = CachedData.data.audio[titleNumber];
+    const audio = CachedData.data.sutraaniaudio[titleNumber];
     if (audio) {
       setSelectedAudio(audio);
     } else {
@@ -425,7 +425,6 @@ const DetailPage = () => {
                     id="demo-select-small"
                     value={selectedLanguage}
                     onChange={handleLanguageChange}
-                    hiddenLabel
                   >
                     {availableLanguages.map((language) => (
                       <MenuItem key={language.id} value={language.id}>
@@ -443,7 +442,7 @@ const DetailPage = () => {
                 showFullSummary ? "editable_full_summary" : "editable_summary"
               }
               tagName="p"
-              html={editedText} // innerHTML of the editable div
+              html={editedText?"<html></html>" : editedText} // innerHTML of the editable div
               disabled={!editable} // use true to disable edition
               onChange={handleChange} // handle innerHTML change
               //onBlur={sanitize}
@@ -517,7 +516,7 @@ const DetailPage = () => {
               spacing={2}
               divider={<Divider orientation="vertical" flexItem />}
             >
-              {BookClass?.supportedCommentaries.map((commentary) => (
+              {BookClass?.supportedCommentaries?.map((commentary) => (
                 <Link
                   // href={`#${commentary.key}`}
                   key={commentary.key}

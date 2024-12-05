@@ -112,8 +112,9 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
       bookname &&
       CachedData.data.books.find((book: Book) => book.name == bookname)
     ) {
-      CachedData.data.selectedBook = bookname;
+      CachedData.selectedBook = bookname;
       CachedData.getBookClass(bookname)?.populateIndexList();
+      CachedData.getBookClass(bookname)?.populateCommenatries();
       dispatch({
         type: "setSelectedBook",
         book: CachedData?.data.books.find(

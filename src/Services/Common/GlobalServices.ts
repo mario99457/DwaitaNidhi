@@ -243,6 +243,7 @@ export default class CachedData {
   static staleKeys: string[] = [];
   static staleThresholdInMs: number = 2592e5;
   static expireThresholdInMs: number = 2592e6;
+  static selectedBook: string = "";
   static EMPTY_DATA: { data: any[] } = {
     data: [],
   };
@@ -284,11 +285,18 @@ export default class CachedData {
   static fetchDataForKeys(
     t: string[],
     n: () => void = () => {},
-    s: (t: string) => void = () => {}
+    s: (t: string) => void = () => {},
+    a: {} = {}
   ): void {
     let r: string[], o: number;
     r = [];
     o = t.length;
+
+    //Set the endpoints for all books 
+    if(a)
+      for(const [key, value] of Object.entries(a))
+        ApiEndpoints.allEndPoints[key] = value;
+
     t.forEach((e) => {
       if (CachedData.fetchDone[e]) {
         n();
@@ -632,13 +640,19 @@ export class Sutraani {
 
   static populateIndexList() {
     0 == Sutraani.allTitles?.length &&
-      (Sutraani.allTitles = CachedData.data?.sutraani?.data
+      (Sutraani.allTitles = CachedData.data?.sutraaniindex?.data
         .sort((t : any, e : any) => t.i - e.i)
         .map((e : any, t : any) => ((e.srno = t + 1), e)));
   }
 
+  static populateCommenatries(){
+    0 == Sutraani.supportedCommentaries?.length &&
+    (Sutraani.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+          book.name == CachedData.selectedBook).commentaries);
+  }
+
   static getSummary(i: string) {
-    return CachedData.data.sutraaniSummary[i];
+    return CachedData.data.sutraanisummary[i];
   }
 
   static generateScore(t : any, e : any) {
@@ -737,26 +751,27 @@ export class Sutraani {
 
 export class Gita {
   static allTitles = [];
+  static summary = CachedData.data.gitasummary;
+  static supportedCommentaries = [];
+  
+  //   {
+  //     name: "भाष्यम्",
+  //     key: "gbhashyam",
+  //     author: "श्रीमदानन्दतीर्थ भगवद्पादाचार्य विरचितं",
+  //     lang: "s",
+  //     number: "",
+  //     hidden: true,
+  //   },{
+  //     name: "प्रमोयदीपिका",
+  //     key: "prameyadipika",
+  //     author: "श्रीजयतीर्थंंयति विरचिता",
+  //     lang: "s",
+  //     number: "",
+  //     hidden: true,
+  //   },
+  // ];
 
-  static summary = CachedData.data.gitaSummary;
 
-  static supportedCommentaries = [
-    {
-      name: "भाष्यम्",
-      key: "gbhashyam",
-      author: "श्रीमदानन्दतीर्थ भगवद्पादाचार्य विरचितं",
-      lang: "s",
-      number: "",
-      hidden: true,
-    },{
-      name: "प्रमोयदीपिका",
-      key: "prameyadipika",
-      author: "श्रीजयतीर्थंंयति विरचिता",
-      lang: "s",
-      number: "",
-      hidden: true,
-    },
-  ];
   static init() {
     CachedData.defaultDataToEmpty(["gita"]);
   }
@@ -805,13 +820,19 @@ export class Gita {
 
   static populateIndexList() {
     0 == Gita.allTitles?.length &&
-      (Gita.allTitles = CachedData.data?.gitaIndex?.data
+      (Gita.allTitles = CachedData.data?.gitaindex?.data
         .sort((t : any, e : any) => t.i - e.i)
         .map((e : any, t : any) => ((e.srno = t + 1), e)));
   }
 
+  static populateCommenatries(){
+    0 == Gita.supportedCommentaries?.length &&
+    (Gita.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+          book.name == CachedData.selectedBook).commentaries);
+  }
+
   static getSummary(i: string) {
-    return CachedData.data.gitaSummary[i];
+    return CachedData.data.gitasummary[i];
   }
 
   static generateScore(t : any, e : any) {

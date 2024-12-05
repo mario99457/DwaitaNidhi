@@ -73,7 +73,7 @@ const TitlePage = () => {
     >
       {showPlayer && (
         <AudioPlayer
-          selectedTitle={CachedData.data.selectedBook}
+          selectedTitle={CachedData.selectedBook}
           handleClosePlayer={() => setShowPlayer(false)}
         />
       )}
