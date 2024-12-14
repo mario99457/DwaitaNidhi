@@ -14,7 +14,7 @@ import saveEdit from "../../assets/save_edit.svg";
 import cancelEdit from "../../assets/cancel_edit.svg";
 // import bookmark from "../../assets/bookmark.svg";
 // import details from "./details.json";
-import CachedData from "../../Services/Common/GlobalServices";
+import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Parser from "html-react-parser";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
@@ -61,7 +61,7 @@ const DetailsContent = ({
   };
 
   const handleSave = (id) => {
-    CachedData.getBookClass("sutraani")?.updateContent(
+    GenericBook?.updateContent(
       selectedCommentary.key,
       selectedTitle.i,
       editedText
@@ -96,7 +96,7 @@ const DetailsContent = ({
 
   useEffect(() => {
     setCommentaries(
-      CachedData.getBookClass(state.selectedBook?.name)?.getCommentaries(
+      GenericBook.getCommentaries(
         selectedTitle
       )
     );

@@ -347,8 +347,6 @@ export default class CachedData {
           console.log("Refreshing stale keys from Github server");
           ApiEndpoints.chooseGitHubServer(() => CachedData._refreshStaleData());
         }
-
-        //Sutraani.render()
       });
     }
   }
@@ -904,6 +902,167 @@ export class Gita {
 
     static updateContent(i, t){
       ApiEndpoints.pushToGitHubServer(i, t);
+    }
+}
+
+export class GenericBook {
+  static allTitles = [];
+  static summary = CachedData.data[CachedData.selectedBook + "summary"];
+  static supportedCommentaries = [];
+
+  static init() {
+    CachedData.defaultDataToEmpty([CachedData.selectedBook]);
+  }
+  
+  static getCommentaries(e : any) {
+    return GenericBook.supportedCommentaries.map((t : any) => {
+      return {
+        key: t.key,
+        commname: t.name,
+        author: t.author,
+        hidden: t.hidden,
+        editHref: "", //Sutraani.getEditCommentaryTag(t.key, e),
+        show: true,
+        lang: t.lang,
+        //extLink: Sutraani.getExternalPageForCommentary(e, t),
+        number:
+          t.number && 0 < e[t.number]
+            ? Formatter.toDevanagariNumeral(e[t.number])
+            : "",
+        text: Formatter.formatVyakhya(CachedData.data[t.key][e.i]),
+      };
+    });
+  }
+  static getLeftArrow(e : any) {
+    const t = GenericBook.allTitles.find((t : any) => t.srno == e.srno - 1);
+    return t;
+  }
+  static getRightArrow(e : any) {
+    const t = GenericBook.allTitles.find((t : any) => t.srno == e.srno + 1);
+    return t;
+  }
+  static getIndexList(t?: any): any {
+    var e = [...GenericBook.allTitles];
+    return "" == t
+      ? {
+          titles: e,
+        }
+      : "z" == t
+      ? {
+          titles: e.sort((t : any, e : any) => t.s.localeCompare(e.s)),
+        }
+      : {
+          titles: e,
+        };
+  }
+
+  static populateIndexList() {
+    GenericBook.allTitles = CachedData.data[CachedData.selectedBook + "index"].data
+        .sort((t : any, e : any) => t.i - e.i)
+        .map((e : any, t : any) => ((e.srno = t + 1), e))
+  }
+
+  static populateCommenatries(){
+    GenericBook.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+          book.name == CachedData.selectedBook).commentaries;
+  }
+
+  static getSummary(i: string) {
+    return CachedData.data[CachedData.selectedBook + "summary"][i];
+  }
+
+  static generateScore(t : any, e : any) {
+    e = (e = E(e)).replaceAll(" ", "").replaceAll("ऽ", "");
+    var a = t.s.trim().replaceAll(" ", "").replaceAll("ऽ", ""), i = 9e4 - t.i;
+    
+    return GenericBook.partialMatchWithTitleNumber(t, e) ? 81e4 + i : a == e ? 72e4 + i : a.startsWith(e) ? 63e4 + i : 0 <= a.indexOf(e) ? 54e4 + i : 0
+  }
+
+  static partialMatchWithTitleNumber(t : any, e : any) {
+    return null != (e = e.match(/([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)(?:[^a-zA-Z0-9](?:([\d]+)){0,1}){0,1}){0,1}){0,1}/)) && (void 0 !== e[3] ? t.a == e[1] && t.p == e[2] && (t.n + "").startsWith(e[3] + "") : void 0 !== e[2] ? t.a == e[1] && t.p == e[2] : void 0 !== e[1] && t.a == e[1])
+  }
+
+  static searchBook(i: string):any[] {
+    var a = GlobalSearch.getDevanagariSearchStrings(i);
+    GenericBook.populateIndexList();      
+    GenericBook.allTitles.forEach(((t : any) => {
+        t.searchData = {
+            score: 0,
+            datanav: `/${CachedData.selectedBook}/` + t["n"]
+      }
+    })), 
+    GenericBook.allTitles.forEach(((e : any) => a.forEach(((t : any) => e.searchData.score = Math.max(e.searchData.score, GenericBook.generateScore(e, t))))));
+      return GenericBook.allTitles.filter(((t : any) => 0 < t.searchData.score)).sort(((t : any, e : any) => e.searchData.score - t.searchData.score)).map(((t : any) => ({
+          titlenum: F(`${t.a}.${t.p}.` + t.n, a),            
+          title: F(t.s, a),
+          datanav: t.searchData.datanav,
+          i: t.i
+      })));
+    }
+   
+    static searchBooks (q : any, b: any) {
+
+      var booksToSearch = b && b !== "all" ? CachedData.data.books.filter((book: Book) => book.name == b) :
+                            CachedData.data.books.filter((book: Book) => book.searchable)
+      
+      var o = GlobalSearch.getDevanagariSearchStrings(q)
+        , t : any[] = [];
+      return booksToSearch.map(bs => { 
+        return CachedData.data[bs.name + "index"].data.forEach((i : any) => {
+          var n = i.i
+            , s : any[] = [];
+            
+          //var booksToSearch = b && b !== "all" ? booksToSearch?.filter(c=>c.key == b) : commentariesToSearch;
+          bs.commentaries.forEach((t :any) => {
+              var e : any, a;
+              e = "",
+              a = CachedData.data[t.key][n],
+              e = a ? a : e, 
+              (a = o.find(t => 0 <= e.indexOf(t))) && s.push({
+                  name: t.name,
+                  key: t.key,
+                  fragment: TH(D(e), o),
+                  show: true,
+                  author: t.author,
+                  datanav: `/${bs.name}/${n}/${t.key}?highlight=` + a,
+                  //datanav: `/sutraani/${t.key}?expand=sutra-commentary-${t.key}-region&focus=sutra-commentary-${t.key}-region&highlight=` + a
+              })
+          }),
+          0 < s.length && t.push({
+              name: i.s,
+              titlenum: D(`${i.a}.${i.p}.` + i.n),
+              commentaries: s,
+              visible: !0
+          })
+        })
+      }),
+      t          
+    }      
+
+    static updateContent(key, i, t){
+      //TODO: get commentary
+      //update text based on i
+      //convert to json string
+      //convert to base64 string
+      //send to server
+
+      CachedData.data[key][i] = t; 
+      let updatedContent = JSON.stringify(CachedData.data[key]);
+      let encodedData = Buffer.from(updatedContent).toString('base64');
+      ApiEndpoints.pushToGitHubServer(key, encodedData);
+    }
+
+    static updateSummary(key, lang, i, t){
+      //TODO: get commentary
+      //update text based on i
+      //convert to json string
+      //convert to base64 string
+      //send to server
+
+      CachedData.data[key][i][lang] = t; 
+      let updatedContent = JSON.stringify(CachedData.data[key]);
+      let encodedData = Buffer.from(updatedContent).toString('base64');
+      ApiEndpoints.pushToGitHubServer(key, encodedData);
     }
 }
 

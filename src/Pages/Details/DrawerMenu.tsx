@@ -70,7 +70,11 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
                 marginLeft: "10px",
               }}
             >
-              सूत्रावलि
+              {
+                  CachedData.data.books.find(
+                    (b) => b.name == selectedBook?.name
+                  )?.index
+                }
             </Typography>
           </div>
           <div className="">

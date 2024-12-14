@@ -271,17 +271,22 @@ const TreeView: React.FC<ListViewProps> = ({
                 <List component="div" disablePadding>
                   {cacheTitle[`${chapter.n}`]?.map((title) => (
                     <ListItem
-                      sx={{
-                        cursor: "pointer",
-                        borderBottom: "1px solid #dddddd",
-                        pl: {
-                          lg: "60px",
-                          xs: "20px",
-                        },
-                        py: 0.5,
-                      }}
+                    sx={{
+                      cursor: "pointer",
+                      borderBottom: "1px solid #dddddd",
+                      pl: {
+                        lg: "60px",
+                        xs: "20px",
+                      },
+                      py: 0.5,
+                      backgroundColor:
+                        title.i == selectedTitle?.i
+                          ? "#DDDDDD"
+                          : "",
+                    }}
                       key={title.i}
-                      onClick={() => handleTitleClick(title)}
+                      onClick={() => handleTitleClick(title)}                      
+                      ref={(el) => (titleRef.current[title.i] = el)}
                     >
                       <ListItemText
                         primaryTypographyProps={{
