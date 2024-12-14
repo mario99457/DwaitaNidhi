@@ -18,7 +18,7 @@ import alphaIconSelected from "../../assets/alpha_selected.svg";
 import AlphaBetView from "./AlphaBetView";
 import { Title } from "../../types/GlobalType.type";
 import { Book } from "../../types/Context.type";
-import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
+import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
 import SearchView from "./SearchView";
 import { useAppData } from "../../Store/AppContext";
 import AudioPlayer from "../../Pages/Details/AudioPlayer";
@@ -39,7 +39,7 @@ const TitlePage = () => {
   };
 
   const handleSearch = (searchTerm: string) => {
-    const result = Sutraani.searchSutraani(searchTerm);
+    const result = GenericBook.searchBook(searchTerm);
     setSearchResult(result);
     setSelectedView("search");
   };
@@ -73,7 +73,7 @@ const TitlePage = () => {
     >
       {showPlayer && (
         <AudioPlayer
-          selectedTitle={CachedData.data.selectedBook}
+          selectedTitle={CachedData.selectedBook}
           handleClosePlayer={() => setShowPlayer(false)}
         />
       )}
@@ -143,13 +143,14 @@ const TitlePage = () => {
                 onClear={handleClearSearch}
               />
             )}
-            {/* <img src={playButton} /> */}
+            {selectedBook?.audio &&
             <img
               src={playButton}
               style={{ cursor: "pointer" }}
               alt="play"
               onClick={() => setShowPlayer(!showPlayer)}
             />
+            }
           </Box>
         </Box>
         <Box
@@ -178,14 +179,14 @@ const TitlePage = () => {
           <AlphaBetView
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            titles={CachedData.getBookClass(bookName)?.getIndexList}
+            titles={GenericBook.getIndexList}
           />
         )}
         {selectedView == "list" && (
           <TreeView
             handleTitleClick={handleTitleClick}
             toc={selectedBook?.chapters}
-            titles={CachedData.getBookClass(bookName || "")?.allTitles}
+            titles={GenericBook.allTitles}
             isMobile={isMobile}
           />
         )}

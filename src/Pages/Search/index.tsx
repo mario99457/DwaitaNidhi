@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import CachedData from "../../Services/Common/GlobalServices";
+import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
@@ -38,16 +38,18 @@ export const StyledChip = styled(Chip)<{ selected: boolean }>(
 const SearchPage = () => {
   const [selectedOption, setSelectedOption] = useState("all");
   const [searchParam, setSearchParam] = useState("");
-  const availableBooks = CachedData.data.books.map((book: Book) => {
-    return {
-      name: book.name,
-      label: book.title,
-    };
-  });
+  const availableBooks = CachedData.data.books
+          .filter((book: Book) => book.searchable)
+          .map((book: Book) => {
+            return {
+              name: book.name,
+              label: book.title,
+            };
+          });
   const [searchResult, setSearchResult] = useState<
     SearchResultData[] | undefined
   >([]);
-  const searchEnabledBooks = ["sutraani", "gita"];
+  const searchEnabledBooks = CachedData.data.books.filter((book: Book) => book.searchable).map(b => b.name);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
@@ -72,7 +74,7 @@ const SearchPage = () => {
   // var searchResults = getBookClass().
 
   const handleSearch = (searchTerm = searchParam) => {
-    const result = CachedData.getBookClass("sutraani")?.searchBooks(
+    const result = GenericBook.searchBooks(
       searchTerm,
       selectedOption
     );

@@ -36,7 +36,6 @@ const TopBarSmall: React.FC<TopBarProps> = ({
   const pages = ["home", "title", "detail", "search"];
   const [pageName, setPageName] = useState(pages[0]);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
-  const BookClass = CachedData.getBookClass(bookName || "");
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
@@ -210,7 +209,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
             p: "",
             s: "",
           }}
-          titles={BookClass?.allTitles}
+          titles={GenericBook.allTitles}
         />
       ) : (
         ""

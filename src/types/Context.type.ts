@@ -32,6 +32,8 @@ export type Book = {
   chapters: Chapters[];
   data: Title[];
   commentaries: Commentaries[];
+  searchable: boolean,
+  audio: boolean
 };
 
 export interface AppState {

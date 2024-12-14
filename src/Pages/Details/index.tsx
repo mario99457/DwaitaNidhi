@@ -27,7 +27,7 @@ import Divider from "@mui/material/Divider";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
-import CachedData from "../../Services/Common/GlobalServices";
+import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
@@ -67,7 +67,6 @@ const DetailPage = () => {
   const [hideSummary, setHideSummary] = React.useState(false);
   const { state } = useAppData();
 
-  const BookClass = CachedData.getBookClass(bookName || "");
   const availableLanguages = [
     {
       id: "k",
@@ -88,14 +87,14 @@ const DetailPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
-    const title = BookClass?.allTitles?.find(
+    const title = GenericBook.allTitles?.find(
       (title: Title) => title.i == titleNumber
     );
     if (title) {
       setSelectedTitle(title);
     }
 
-    const audio = CachedData.data.audio[titleNumber];
+    const audio = CachedData.data.sutraaniaudio[titleNumber];
     if (audio) {
       setSelectedAudio(audio);
     } else {
@@ -104,7 +103,7 @@ const DetailPage = () => {
   }, [titleNumber]);
 
   useEffect(() => {
-    const summary = BookClass?.getSummary(selectedTitle?.i);
+    const summary = GenericBook.getSummary(selectedTitle?.i);
     setEditedText(summary ? summary[selectedLanguage] : "");
     if (
       !summary ||
@@ -122,8 +121,8 @@ const DetailPage = () => {
   };
 
   const handleSave = (id) => {
-    CachedData.getBookClass("sutraani")?.updateSummary(
-      "sutraani" + "Summary",
+    GenericBook.updateSummary(
+      CachedData.selectedBook + "Summary",
       selectedLanguage,
       selectedTitle?.i,
       editedText
@@ -154,8 +153,8 @@ const DetailPage = () => {
     setSelectedLanguage(event.target.value);
 
     setEditedText(
-      BookClass?.getSummary(selectedTitle?.i)
-        ? BookClass?.getSummary(selectedTitle?.i)[event.target.value]
+      GenericBook.getSummary(selectedTitle?.i)
+        ? GenericBook.getSummary(selectedTitle?.i)[event.target.value]
         : ""
     );
   };
@@ -202,11 +201,11 @@ const DetailPage = () => {
 
   const handleNavigateTitle = (navigation: string) => {
     if (navigation == "next" && selectedTitle && selectedTitle.srno) {
-      const nextTitle: any = BookClass?.getRightArrow(selectedTitle);
+      const nextTitle: any = GenericBook.getRightArrow(selectedTitle);
       navigate(`/${bookName}/${nextTitle?.i}`);
     }
     if (navigation == "prev" && selectedTitle && selectedTitle.srno) {
-      const prevTitle: any = BookClass?.getLeftArrow(selectedTitle);
+      const prevTitle: any = GenericBook.getLeftArrow(selectedTitle);
       navigate(`/${bookName}/${prevTitle?.i}`);
     }
   };
@@ -318,9 +317,9 @@ const DetailPage = () => {
                 style={{
                   cursor: "pointer",
                   visibility:
-                    BookClass?.allTitles &&
+                    GenericBook.allTitles &&
                     selectedTitle &&
-                    selectedTitle?.srno <= BookClass?.allTitles.length
+                    selectedTitle?.srno <= GenericBook.allTitles.length
                       ? "visible"
                       : "hidden",
                 }}
@@ -347,12 +346,12 @@ const DetailPage = () => {
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
-            <img
+            {state.selectedBook?.audio && <img
               src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
               alt={playAudio ? "pause" : "play"}
               style={{ cursor: "pointer" }}
               onClick={handlePlayPause} // Use a single handler for both play and pause
-            />
+            />}
           </Stack>
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
@@ -425,7 +424,6 @@ const DetailPage = () => {
                     id="demo-select-small"
                     value={selectedLanguage}
                     onChange={handleLanguageChange}
-                    hiddenLabel
                   >
                     {availableLanguages.map((language) => (
                       <MenuItem key={language.id} value={language.id}>
@@ -443,7 +441,7 @@ const DetailPage = () => {
                 showFullSummary ? "editable_full_summary" : "editable_summary"
               }
               tagName="p"
-              html={editedText} // innerHTML of the editable div
+              html={!editedText?"<html></html>" : editedText} // innerHTML of the editable div
               disabled={!editable} // use true to disable edition
               onChange={handleChange} // handle innerHTML change
               //onBlur={sanitize}
@@ -517,7 +515,7 @@ const DetailPage = () => {
               spacing={2}
               divider={<Divider orientation="vertical" flexItem />}
             >
-              {BookClass?.supportedCommentaries.map((commentary) => (
+              {GenericBook.supportedCommentaries?.map((commentary) => (
                 <Link
                   // href={`#${commentary.key}`}
                   key={commentary.key}
@@ -542,7 +540,7 @@ const DetailPage = () => {
           </div>
         )} */}
           </Stack>
-          {BookClass?.supportedCommentaries.map((commentary: Commentary) => (
+          {GenericBook.supportedCommentaries.map((commentary: Commentary) => (
             <DetailsContent
               selectedCommentary={commentary}
               selectedTitle={selectedTitle}
@@ -571,7 +569,7 @@ const DetailPage = () => {
         onClose={() => setOpenDrawer(false)}
         bookName={bookName}
         selectedTitle={selectedTitle}
-        titles={BookClass?.allTitles}
+        titles={GenericBook.allTitles}
       />
     </Box>
   );

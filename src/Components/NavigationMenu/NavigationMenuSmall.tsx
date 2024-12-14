@@ -16,7 +16,7 @@ import {
 import React, { useEffect, useState } from "react";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import MenuBookTwoToneIcon from "@mui/icons-material/MenuBookTwoTone";
-import CachedData, { Sutraani } from "../../Services/Common/GlobalServices";
+import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
@@ -112,8 +112,9 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
       bookname &&
       CachedData.data.books.find((book: Book) => book.name == bookname)
     ) {
-      CachedData.data.selectedBook = bookname;
-      CachedData.getBookClass(bookname)?.populateIndexList();
+      CachedData.selectedBook = bookname;
+      GenericBook.populateIndexList();
+      GenericBook.populateCommenatries();
       dispatch({
         type: "setSelectedBook",
         book: CachedData?.data.books.find(
