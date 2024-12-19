@@ -50,18 +50,24 @@ const TreeView: React.FC<ListViewProps> = ({
     setTimeout(() => {
       setLoader(false);
     }, 1000);
-    tocData?.map((chapter) => {
-      if (chapter.sub) {
-        chapter.sub.map((subchapter) => {
-          titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
-            chapter.n,
-            subchapter.n
-          );
-        });
-      } else {
-        titleObject[`${chapter.n}`] = getTitle(chapter.n, "");
-      }
-    });
+
+    if (tocData?.length == 0) {
+      titleObject[0] = titles;
+    }
+    else{
+      tocData?.map((chapter) => {
+        if (chapter.sub) {
+          chapter.sub.map((subchapter) => {
+            titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
+              chapter.n,
+              subchapter.n
+            );
+          });
+        } else {
+          titleObject[`${chapter.n}`] = getTitle(chapter.n, "");
+        }
+      });
+    }
     setCacheTitle(titleObject);
   }, [tocData]);
 
@@ -107,6 +113,59 @@ const TreeView: React.FC<ListViewProps> = ({
         <CircularProgress color="inherit" />
       </Backdrop>
       <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
+        {tocData?.length == 0 &&
+            <List component="div" disablePadding>
+            {cacheTitle?.map(
+              (title) => (
+                <ListItem
+                  sx={{
+                    cursor: "pointer",
+                    borderBottom: "1px solid #dddddd",
+                    pl: {
+                      lg: "60px",
+                      xs: "20px",
+                    },
+                    py: 0.5,
+                    backgroundColor:
+                      title.i == selectedTitle?.i
+                        ? "#DDDDDD"
+                        : "",
+                  }}
+                  key={title.i}
+                  onClick={() => handleTitleClick(title)}
+                  ref={(el) => (titleRef.current[title.i] = el)}
+                >
+                  <ListItemText
+                    primaryTypographyProps={{
+                      // fontFamily: "Vesper Libre",
+                      fontSize: "22px",
+                      color: "#616161",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div className="circle-bullet"></div>
+                    &nbsp;
+                    <span
+                      style={{
+                        color: "#787878",
+                        // fontFamily: "Vesper Libre",
+                        flexShrink: "0",
+                        fontSize: "22px",
+                      }}
+                    >
+                      {Formatter.toDevanagariNumeral(
+                        `${title?.n}`
+                      )}{" "}
+                      &nbsp;
+                    </span>
+                    <span>{Formatter.toPlainText(title.s)}</span>
+                  </ListItemText>
+                </ListItem>
+              )
+            )}
+          </List>
+        }
         {tocData?.map((chapter) => (
           <React.Fragment key={chapter.n}>
             <ListItem
