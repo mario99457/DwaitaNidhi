@@ -45,16 +45,18 @@ const TreeView: React.FC<ListViewProps> = ({
   };
 
   useEffect(() => {
-    const titleObject: any = {};
+    let titleObject: any = {};
     setLoader(true);
     setTimeout(() => {
       setLoader(false);
     }, 1000);
 
     if (tocData?.length == 0) {
-      titleObject[0] = titles;
-    }
-    else{
+      titleObject = {
+        noTree: true,
+        titles: titles,
+      };
+    } else {
       tocData?.map((chapter) => {
         if (chapter.sub) {
           chapter.sub.map((subchapter) => {
@@ -113,10 +115,11 @@ const TreeView: React.FC<ListViewProps> = ({
         <CircularProgress color="inherit" />
       </Backdrop>
       <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
-        {tocData?.length == 0 &&
-            <List component="div" disablePadding>
-            {cacheTitle?.map(
-              (title) => (
+        {tocData?.length == 0 && (
+          <List component="div" disablePadding>
+            {cacheTitle.noTree &&
+              cacheTitle?.titles &&
+              cacheTitle?.titles.map((title) => (
                 <ListItem
                   sx={{
                     cursor: "pointer",
@@ -127,9 +130,7 @@ const TreeView: React.FC<ListViewProps> = ({
                     },
                     py: 0.5,
                     backgroundColor:
-                      title.i == selectedTitle?.i
-                        ? "#DDDDDD"
-                        : "",
+                      title.i == selectedTitle?.i ? "#DDDDDD" : "",
                   }}
                   key={title.i}
                   onClick={() => handleTitleClick(title)}
@@ -154,18 +155,14 @@ const TreeView: React.FC<ListViewProps> = ({
                         fontSize: "22px",
                       }}
                     >
-                      {Formatter.toDevanagariNumeral(
-                        `${title?.n}`
-                      )}{" "}
-                      &nbsp;
+                      {Formatter.toDevanagariNumeral(`${title?.n}`)} &nbsp;
                     </span>
                     <span>{Formatter.toPlainText(title.s)}</span>
                   </ListItemText>
                 </ListItem>
-              )
-            )}
+              ))}
           </List>
-        }
+        )}
         {tocData?.map((chapter) => (
           <React.Fragment key={chapter.n}>
             <ListItem
@@ -330,21 +327,19 @@ const TreeView: React.FC<ListViewProps> = ({
                 <List component="div" disablePadding>
                   {cacheTitle[`${chapter.n}`]?.map((title) => (
                     <ListItem
-                    sx={{
-                      cursor: "pointer",
-                      borderBottom: "1px solid #dddddd",
-                      pl: {
-                        lg: "60px",
-                        xs: "20px",
-                      },
-                      py: 0.5,
-                      backgroundColor:
-                        title.i == selectedTitle?.i
-                          ? "#DDDDDD"
-                          : "",
-                    }}
+                      sx={{
+                        cursor: "pointer",
+                        borderBottom: "1px solid #dddddd",
+                        pl: {
+                          lg: "60px",
+                          xs: "20px",
+                        },
+                        py: 0.5,
+                        backgroundColor:
+                          title.i == selectedTitle?.i ? "#DDDDDD" : "",
+                      }}
                       key={title.i}
-                      onClick={() => handleTitleClick(title)}                      
+                      onClick={() => handleTitleClick(title)}
                       ref={(el) => (titleRef.current[title.i] = el)}
                     >
                       <ListItemText

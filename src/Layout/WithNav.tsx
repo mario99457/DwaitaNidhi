@@ -75,7 +75,7 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
             keysToPrefetch.push(book.name + 'index');
             keysToPrefetch.push(book.name + 'summary');
   
-            book.commentaries?.map(c=> {
+            book?.commentaries?.map(c=> {
               prefetchEndPoints[c.key] = c.data
               keysToPrefetch.push(c.key)
             });
