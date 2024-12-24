@@ -339,7 +339,7 @@ const DetailPage = () => {
                     (b) => b.name == state.selectedBook?.name
                   )?.abbrev}
               {Formatter.toDevanagariNumeral(
-                `${selectedTitle?.a}${selectedTitle?.p !== "" ? "." + selectedTitle?.p : ""}.${selectedTitle?.n}`)}             
+                `${selectedTitle?.a && selectedTitle?.a !== "" ? selectedTitle?.a + "." : ""}${selectedTitle?.p && selectedTitle?.p !== "" ? selectedTitle?.p + "." : ""}${selectedTitle?.n}`)}             
             </Typography>
             <ReactHowler
               src={[selectedAudio]}
