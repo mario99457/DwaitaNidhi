@@ -350,8 +350,7 @@ const DetailPage = () => {
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             /> */}
-            <AudioPlayer    
-              style={{ display: "none"}}     
+            <AudioPlayer         
               ref={playerRef}      
               onEnd={() => setPlayAudio(false)}
               src={baseAudioUrl + selectedTitle.i + audioExtension}
