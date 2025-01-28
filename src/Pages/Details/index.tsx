@@ -96,7 +96,7 @@ const DetailPage = () => {
 
     const audio = CachedData.data.sutraaniaudio[titleNumber];
     if (audio) {
-      setSelectedAudio(audio);
+      setSelectedAudio("https://github.com/mario99457/dwaitanidhi_data/raw/refs/heads/main/sutraani/audio/11001.mp3");
     } else {
       setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
@@ -343,7 +343,6 @@ const DetailPage = () => {
             </Typography>
             <ReactHowler
               src={[selectedAudio]}
-              html5={true}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
