@@ -98,9 +98,9 @@ const DetailPage = () => {
       setSelectedTitle(title);
     }
 
-    const audio = CachedData.data.sutraaniaudio[titleNumber];
+    const audio = "src/assets/audio/small.mp3";
     if (audio) {
-      setSelectedAudio(audio);
+      setSelectedAudio('/src/assets/audio/small.mp3');
     } else {
       setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
@@ -354,7 +354,7 @@ const DetailPage = () => {
               ref={playerRef}      
               onEnd={() => setPlayAudio(false)}
               // src={baseAudioUrl + selectedTitle.i + audioExtension}
-              src={"/src/assets/audio/small.mp3"}
+              src={selectedAudio}
               volume={50}
               volumePlacement="bottom"
             />
