@@ -343,6 +343,7 @@ const DetailPage = () => {
             </Typography>
             <ReactHowler
               src={[selectedAudio]}
+              html5={true}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
