@@ -40,6 +40,7 @@ import useToken from "../../Services/Auth/useToken";
 import React from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
+import audioFile from "../../assets/audio/small.mp3";
 
 interface Commentary {
   name: string;
@@ -100,7 +101,7 @@ const DetailPage = () => {
 
     const audio = "src/assets/audio/small.mp3";
     if (audio) {
-      setSelectedAudio('/src/assets/audio/small.mp3');
+      setSelectedAudio(audioFile);
     } else {
       setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
@@ -354,7 +355,7 @@ const DetailPage = () => {
               ref={playerRef}      
               onEnd={() => setPlayAudio(false)}
               // src={baseAudioUrl + selectedTitle.i + audioExtension}
-              src={selectedAudio}
+              src={audioFile}
               volume={50}
               volumePlacement="bottom"
             />
