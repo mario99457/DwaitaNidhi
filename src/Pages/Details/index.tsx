@@ -12,7 +12,6 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-  utils,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -25,7 +24,6 @@ import nextButton from "../../assets/next_button.svg";
 import playButton from "../../assets/Play_no_track.svg";
 import pauseButton from "../../assets/pauseButton.svg";
 import Divider from "@mui/material/Divider";
-import { AudioPlayer, AudioPlayerRef } from "react-audio-play";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
@@ -35,7 +33,7 @@ import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
 // import { Howl, Howler } from "howler";
 import ReactHowler from "react-howler";
-//import AudioPlayer from "./AudioPlayer";
+import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
 import React from "react";
 import ContentEditable from "react-contenteditable";
@@ -60,7 +58,7 @@ const DetailPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { creds } = useToken();
   const [playAudio, setPlayAudio] = useState(false);
-  const playerRef = useRef<AudioPlayerRef>(null);
+  const [showPlayer, setShowPlayer] = useState(false);
   const [showFullSummary, setShowFullSummary] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const summaryRef = useRef<HTMLParagraphElement>(null);
@@ -81,8 +79,6 @@ const DetailPage = () => {
     },
   ];
   const navigate = useNavigate();
-  const baseAudioUrl = "https://github.com/mario99457/dwaitanidhi_data/raw/refs/heads/main/sutraani/audio/";
-  const audioExtension = ".ogg";
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
@@ -99,9 +95,9 @@ const DetailPage = () => {
       setSelectedTitle(title);
     }
 
-    const audio = "src/assets/audio/small.mp3";
+    const audio = CachedData.data.sutraaniaudio[titleNumber];
     if (audio) {
-      setSelectedAudio(audioFile);
+      setSelectedAudio(audio);
     } else {
       setSelectedAudio(null); //TODO: Add a file with "No audio available"
     }
@@ -216,12 +212,7 @@ const DetailPage = () => {
   };
 
   const handlePlayPause = () => {
-    setPlayAudio((prevState) => !prevState);    
-
-    if(!playAudio)
-      playerRef.current?.play();
-    else 
-      playerRef.current?.stop();
+    setPlayAudio((prevState) => !prevState);
   };
 
   return (
@@ -239,7 +230,12 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
-
+      {showPlayer && (
+        <AudioPlayer
+          selectedTitle={selectedTitle}
+          handleClosePlayer={() => setShowPlayer(false)}
+        />
+      )}
       {selectedTitle ? (
         <>
           <Box
@@ -346,18 +342,10 @@ const DetailPage = () => {
               {Formatter.toDevanagariNumeral(
                 `${selectedTitle?.a && selectedTitle?.a !== "" ? selectedTitle?.a + "." : ""}${selectedTitle?.p && selectedTitle?.p !== "" ? selectedTitle?.p + "." : ""}${selectedTitle?.n}`)}             
             </Typography>
-            {/* <ReactHowler
-              src={[selectedAudio]}
+            <ReactHowler
+              src={[audioFile]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
-            /> */}
-            <AudioPlayer         
-              ref={playerRef}      
-              onEnd={() => setPlayAudio(false)}
-              // src={baseAudioUrl + selectedTitle.i + audioExtension}
-              src={audioFile}
-              volume={50}
-              volumePlacement="bottom"
             />
             {state.selectedBook?.audio && <img
               src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
