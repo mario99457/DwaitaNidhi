@@ -353,7 +353,8 @@ const DetailPage = () => {
             <AudioPlayer         
               ref={playerRef}      
               onEnd={() => setPlayAudio(false)}
-              src={baseAudioUrl + selectedTitle.i + audioExtension}
+              // src={baseAudioUrl + selectedTitle.i + audioExtension}
+              src={"/src/assets/audio/small.mp3"}
               volume={50}
               volumePlacement="bottom"
             />
