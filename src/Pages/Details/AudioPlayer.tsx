@@ -232,8 +232,8 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
       <ReactHowler
         src={audioSample}
+        html5={true}
         playing={playing}
-        // html5={true}
         onEnd={() => {
           playingRef.current = false;
           setIsPlaying(false);
