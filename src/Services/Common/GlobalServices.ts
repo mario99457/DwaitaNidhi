@@ -5,7 +5,7 @@ import GlobalSearch, { CommentarySearch } from "./Search";
 import { json } from "react-router-dom";
 import { Buffer } from "buffer";
 
-class ApiEndpoints {
+export class ApiEndpoints {
 
   static FetchTimeoutMs: number = 4e3;
   static gitHubServer: string = "";

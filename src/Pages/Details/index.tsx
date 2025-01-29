@@ -27,7 +27,7 @@ import Divider from "@mui/material/Divider";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
-import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
+import CachedData, { ApiEndpoints, GenericBook } from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
@@ -94,12 +94,11 @@ const DetailPage = () => {
       setSelectedTitle(title);
     }
 
-    // const audio = CachedData.data.sutraaniaudio[titleNumber];
-    //const audioUrl = `/assets/audio/${title?.i}.ogg`
-    //if (audioUrl) {
-    const audioUrl = `/assets/audio/${title?.i}.mp3`
+    const BASE_URL = ApiEndpoints.availableGithubServerUrls.githubusercontent;
+    const EXTENSION = ".txt";
+    const audioUrl = `${BASE_URL}sutraani/audio/${title?.i}${EXTENSION}`
 
-    fetch("https://raw.githubusercontent.com/mario99457/dwaitanidhi_data/refs/heads/main/sutraani/audio/11001.txt")
+    fetch(audioUrl)
         .then((r)=>{
           r.text().then(d=>setSelectedAudio(d))
         })
