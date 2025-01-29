@@ -5,7 +5,7 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import CloseIcon from "@mui/icons-material/Close";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
-import audioSample from "../../assets/audio/sutra_audio_complete.ogg";
+import audioSample from "../../assets/audio/bsb_full.mp3";
 import { Box, Slider, Stack, Typography } from "@mui/material";
 import raf from "raf";
 import { Title } from "../../types/GlobalType.type";
