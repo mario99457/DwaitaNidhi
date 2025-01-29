@@ -346,7 +346,7 @@ const DetailPage = () => {
             </Typography>
             <ReactHowler
               preload={true}
-              src={[audioURL]}
+              src={[selectedAudio]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
