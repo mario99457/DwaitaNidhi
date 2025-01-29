@@ -38,7 +38,6 @@ import useToken from "../../Services/Auth/useToken";
 import React , { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
-import audioFile from "/assets/audio/small.mp3";
 
 interface Commentary {
   name: string;
@@ -95,12 +94,13 @@ const DetailPage = () => {
       setSelectedTitle(title);
     }
 
-    const audio = CachedData.data.sutraaniaudio[titleNumber];
-    if (audio) {
-      setSelectedAudio(audio);
-    } else {
-      setSelectedAudio(null); //TODO: Add a file with "No audio available"
-    }
+    // const audio = CachedData.data.sutraaniaudio[titleNumber];
+    const audioUrl = `/assets/audio/${title?.i}.ogg`
+    //if (audioUrl) {
+    setSelectedAudio(audioUrl);
+    //} else {
+      //setSelectedAudio(null); //TODO: Add a file with "No audio available"
+    //}
   }, [titleNumber]);
 
   useEffect(() => {
@@ -213,10 +213,6 @@ const DetailPage = () => {
 
   const handlePlayPause = () => {
     setPlayAudio((prevState) => !prevState);
-
-    var howler = new ReactHowler();
-    howler.src = audioFile
-    howler.preload = true;
   };
 
   return (
@@ -348,7 +344,7 @@ const DetailPage = () => {
             </Typography>
             <ReactHowler
               preload={true}
-              src={[audioFile]}
+              src={[selectedAudio]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
