@@ -215,6 +215,9 @@ const DetailPage = () => {
   const handlePlayPause = () => {
     setPlayAudio((prevState) => !prevState);
 
+    var howler = new ReactHowler();
+    howler.src = selectedAudio
+    howler.preload = true;
   };
 
   return (
