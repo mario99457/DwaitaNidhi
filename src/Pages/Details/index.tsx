@@ -35,10 +35,11 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
-import React from "react";
+import React , { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
 import audioFile from "../../assets/audio/small.mp3";
+const audioURL = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
 
 interface Commentary {
   name: string;
@@ -213,6 +214,7 @@ const DetailPage = () => {
 
   const handlePlayPause = () => {
     setPlayAudio((prevState) => !prevState);
+
   };
 
   return (
@@ -343,6 +345,7 @@ const DetailPage = () => {
                 `${selectedTitle?.a && selectedTitle?.a !== "" ? selectedTitle?.a + "." : ""}${selectedTitle?.p && selectedTitle?.p !== "" ? selectedTitle?.p + "." : ""}${selectedTitle?.n}`)}             
             </Typography>
             <ReactHowler
+              preload={true}
               src={[audioFile]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
@@ -504,7 +507,7 @@ const DetailPage = () => {
               mt: 4,
               position: "sticky",
               background: "white",
-              top: 70,
+              top: 210,
               zIndex: 3,
             }}
             direction="row"
