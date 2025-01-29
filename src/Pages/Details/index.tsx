@@ -38,8 +38,7 @@ import useToken from "../../Services/Auth/useToken";
 import React , { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
-import audioFile from "../../assets/audio/small.mp3";
-const audioURL = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3"
+import audioFile from "/assets/audio/small.mp3";
 
 interface Commentary {
   name: string;
@@ -216,7 +215,7 @@ const DetailPage = () => {
     setPlayAudio((prevState) => !prevState);
 
     var howler = new ReactHowler();
-    howler.src = selectedAudio
+    howler.src = audioFile
     howler.preload = true;
   };
 
@@ -349,7 +348,7 @@ const DetailPage = () => {
             </Typography>
             <ReactHowler
               preload={true}
-              src={[selectedAudio]}
+              src={[audioFile]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
