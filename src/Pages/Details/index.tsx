@@ -95,8 +95,9 @@ const DetailPage = () => {
     }
 
     // const audio = CachedData.data.sutraaniaudio[titleNumber];
-    const audioUrl = `/assets/audio/${title?.i}.ogg`
+    //const audioUrl = `/assets/audio/${title?.i}.ogg`
     //if (audioUrl) {
+    const audioUrl = `/assets/audio/${title?.i}.mp3`
     setSelectedAudio(audioUrl);
     //} else {
       //setSelectedAudio(null); //TODO: Add a file with "No audio available"
