@@ -98,7 +98,12 @@ const DetailPage = () => {
     //const audioUrl = `/assets/audio/${title?.i}.ogg`
     //if (audioUrl) {
     const audioUrl = `/assets/audio/${title?.i}.mp3`
-    setSelectedAudio(audioUrl);
+
+    fetch("https://raw.githubusercontent.com/mario99457/dwaitanidhi_data/refs/heads/main/sutraani/audio/11001.txt")
+        .then((r)=>{
+          r.text().then(d=>setSelectedAudio(d))
+        })
+    ;
     //} else {
       //setSelectedAudio(null); //TODO: Add a file with "No audio available"
     //}
