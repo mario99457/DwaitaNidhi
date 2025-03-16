@@ -32,60 +32,67 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
   };
 
   useEffect(() => {
-    const requiredData = [
-      "books"
-    ];
+    const requiredData = ["books"];
 
     var keysToPrefetch: string[] = [];
     var prefetchEndPoints: { [key: string]: string } = {};
     Prefetch.prefetchRequiredServerData(requiredData, () => {});
-    
+
     const path = location.pathname;
     // if (path && path.split("/").length > 1) {
     //   bookName = path.split("/")[1];
     // }
 
-    const checkAllTrue = (fetchDone: { [key: string]: boolean; }) => {
-        let result = true;
-        const keys = Object.keys(fetchDone);
+    const checkAllTrue = (fetchDone: { [key: string]: boolean }) => {
+      let result = true;
+      const keys = Object.keys(fetchDone);
 
-        for (var o = 0; o < keys.length;++o) {
-            result = result && fetchDone[keys[o]];
-        }
+      for (var o = 0; o < keys.length; ++o) {
+        result = result && fetchDone[keys[o]];
+      }
 
-        return result;
-    }
+      return result;
+    };
     const timer = setInterval(() => {
-      if(CachedData.data['books']){
+      if (CachedData.data["books"]) {
         //if (checkAllTrue(CachedData.fetchDone)){
         // setProgress(false);
         // clearInterval(timer);
         // }
         // else{
-        if(Object.keys(CachedData.data).length == 1)
-        {
-          CachedData.data.books.map(book => {
-            prefetchEndPoints[book.name + 'index'] = book.name + '/index.txt';
-            prefetchEndPoints[book.name + 'summary'] = book.name + '/summary.txt';
-  
-            if(book.audio) {
-              prefetchEndPoints[book.name + 'audio'] = book.name + '/audio.txt';
-              keysToPrefetch.push(book.name + 'audio')
+        if (Object.keys(CachedData.data).length == 1) {
+          keysToPrefetch = [];
+          CachedData.data.books.map((book) => {
+            prefetchEndPoints[book.name + "index"] = book.name + "/index.txt";
+            prefetchEndPoints[book.name + "summary"] =
+              book.name + "/summary.txt";
+
+            if (book.audio) {
+              prefetchEndPoints[book.name + "audio"] = book.name + "/audio.txt";
+              keysToPrefetch.push(book.name + "audio");
             }
-            keysToPrefetch.push(book.name + 'index');
-            keysToPrefetch.push(book.name + 'summary');
-  
-            book?.commentaries?.map(c=> {
-              prefetchEndPoints[c.key] = c.data
-              keysToPrefetch.push(c.key)
+            keysToPrefetch.push(book.name + "index");
+            keysToPrefetch.push(book.name + "summary");
+
+            book?.commentaries?.map((c) => {
+              prefetchEndPoints[c.key] = c.data;
+              keysToPrefetch.push(c.key);
             });
           });
 
-          CachedData.fetchDataForKeys(keysToPrefetch, () => {}, () => {}, prefetchEndPoints);
-        }          
-        
+          CachedData.fetchDataForKeys(
+            keysToPrefetch,
+            () => {},
+            () => {},
+            prefetchEndPoints
+          );
+        }
+
         const timer1 = setInterval(() => {
-          if (Object.keys(CachedData.data).length == keysToPrefetch.length + 1) {            
+          if (
+            Object.keys(CachedData.data).length ==
+            keysToPrefetch.length + 1
+          ) {
             if (path && path.split("/").length > 1) {
               const book = path.split("/")[1];
               if (
@@ -186,5 +193,3 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
 };
 
 export default LayoutWithNav;
-
-

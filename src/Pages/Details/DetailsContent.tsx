@@ -37,6 +37,7 @@ interface DetailsContentProps {
   isMobile: boolean;
   setShowPlayer: () => void;
   editContent: () => void;
+  titleBoxHeight: string;
 }
 
 const DetailsContent = ({
@@ -47,6 +48,7 @@ const DetailsContent = ({
   isMobile,
   setShowPlayer,
   editContent,
+  titleBoxHeight,
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
@@ -131,7 +133,7 @@ const DetailsContent = ({
         direction="row"
         justifyContent="space-between"
         sx={{
-          top: "100px",
+          top: titleBoxHeight + 30,
           position: "sticky",
           background: "#f4f4f4",
           zIndex: 2

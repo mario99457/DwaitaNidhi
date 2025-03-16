@@ -27,7 +27,10 @@ import Divider from "@mui/material/Divider";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
-import CachedData, { ApiEndpoints, GenericBook } from "../../Services/Common/GlobalServices";
+import CachedData, {
+  ApiEndpoints,
+  GenericBook,
+} from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
@@ -35,7 +38,7 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
-import React , { lazy } from "react";
+import React, { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
 
@@ -66,6 +69,8 @@ const DetailPage = () => {
   const [editedText, setEditedText] = React.useState("");
   const [hideSummary, setHideSummary] = React.useState(false);
   const { state } = useAppData();
+  const titleBoxRef = useRef<HTMLDivElement>(null);
+  const [titleBoxHeight, setTitleBoxHeight] = useState(0);
 
   const availableLanguages = [
     {
@@ -96,15 +101,13 @@ const DetailPage = () => {
 
     const BASE_URL = ApiEndpoints.availableGithubServerUrls.githubusercontent;
     const EXTENSION = ".txt";
-    const audioUrl = `${BASE_URL}sutraani/audio/${title?.i}${EXTENSION}`
+    const audioUrl = `${BASE_URL}sutraani/audio/${title?.i}${EXTENSION}`;
 
-    fetch(audioUrl)
-        .then((r)=>{
-          r.text().then(d=>setSelectedAudio(d))
-        })
-    ;
+    fetch(audioUrl).then((r) => {
+      r.text().then((d) => setSelectedAudio(d));
+    });
     //} else {
-      //setSelectedAudio(null); //TODO: Add a file with "No audio available"
+    //setSelectedAudio(null); //TODO: Add a file with "No audio available"
     //}
   }, [titleNumber]);
 
@@ -196,6 +199,9 @@ const DetailPage = () => {
         setIsOverflowing(isOverflowing);
       }
     };
+    if (titleBoxRef.current) {
+      setTitleBoxHeight(titleBoxRef.current.clientHeight);
+    }
 
     const timeoutId = setTimeout(() => {
       checkOverflow();
@@ -283,6 +289,7 @@ const DetailPage = () => {
             </div>
           </Box>
           <Box
+            ref={titleBoxRef}
             className="title-box-wrapper"
             sx={{
               pt: 2,
@@ -309,11 +316,11 @@ const DetailPage = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  whiteSpace: "pre-line"
+                  whiteSpace: "pre-line",
                 }}
               >
                 <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
-                {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
+                  {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
                 </Typography>
               </Container>
 
@@ -341,11 +348,22 @@ const DetailPage = () => {
             sx={{ mt: 2, mb: 2 }}
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
-              {CachedData.data.books.find(
-                    (b) => b.name == state.selectedBook?.name
-                  )?.abbrev}
+              {
+                CachedData.data.books.find(
+                  (b) => b.name == state.selectedBook?.name
+                )?.abbrev
+              }
               {Formatter.toDevanagariNumeral(
-                `${selectedTitle?.a && selectedTitle?.a !== "" ? selectedTitle?.a + "." : ""}${selectedTitle?.p && selectedTitle?.p !== "" ? selectedTitle?.p + "." : ""}${selectedTitle?.n}`)}             
+                `${
+                  selectedTitle?.a && selectedTitle?.a !== ""
+                    ? selectedTitle?.a + "."
+                    : ""
+                }${
+                  selectedTitle?.p && selectedTitle?.p !== ""
+                    ? selectedTitle?.p + "."
+                    : ""
+                }${selectedTitle?.n}`
+              )}
             </Typography>
             <ReactHowler
               preload={true}
@@ -353,12 +371,14 @@ const DetailPage = () => {
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
-            {state.selectedBook?.audio && <img
-              src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
-              alt={playAudio ? "pause" : "play"}
-              style={{ cursor: "pointer" }}
-              onClick={handlePlayPause} // Use a single handler for both play and pause
-            />}
+            {state.selectedBook?.audio && (
+              <img
+                src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
+                alt={playAudio ? "pause" : "play"}
+                style={{ cursor: "pointer" }}
+                onClick={handlePlayPause} // Use a single handler for both play and pause
+              />
+            )}
           </Stack>
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
@@ -448,7 +468,7 @@ const DetailPage = () => {
                 showFullSummary ? "editable_full_summary" : "editable_summary"
               }
               tagName="p"
-              html={!editedText?"<html></html>" : editedText} // innerHTML of the editable div
+              html={!editedText ? "<html></html>" : editedText} // innerHTML of the editable div
               disabled={!editable} // use true to disable edition
               onChange={handleChange} // handle innerHTML change
               //onBlur={sanitize}
@@ -510,7 +530,7 @@ const DetailPage = () => {
               mt: 4,
               position: "sticky",
               background: "white",
-              top: 210,
+              top: titleBoxHeight,
               zIndex: 3,
             }}
             direction="row"
@@ -557,6 +577,7 @@ const DetailPage = () => {
               }
               isMobile={isMobile}
               setShowPlayer={() => setShowPlayer((val) => !val)}
+              titleBoxHeight={titleBoxHeight}
             />
           ))}
         </>
