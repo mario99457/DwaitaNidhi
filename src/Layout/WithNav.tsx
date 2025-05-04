@@ -20,7 +20,7 @@ interface LayoutProps {
 }
 
 const LayoutWithNav = ({ children }: LayoutProps) => {
-  const [progress, setProgress] = useState(true);
+  const [progress, setProgress] = useState(false);
   const [expandNavigationMenu, setExpandNavigationMenu] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -32,95 +32,109 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
   };
 
   useEffect(() => {
-    const requiredData = ["books"];
-
-    var keysToPrefetch: string[] = [];
-    var prefetchEndPoints: { [key: string]: string } = {};
-    Prefetch.prefetchRequiredServerData(requiredData, () => {});
-
-    const path = location.pathname;
-    // if (path && path.split("/").length > 1) {
-    //   bookName = path.split("/")[1];
-    // }
-
-    const checkAllTrue = (fetchDone: { [key: string]: boolean }) => {
-      let result = true;
-      const keys = Object.keys(fetchDone);
-
-      for (var o = 0; o < keys.length; ++o) {
-        result = result && fetchDone[keys[o]];
-      }
-
-      return result;
-    };
-    const timer = setInterval(() => {
-      if (CachedData.data["books"]) {
-        //if (checkAllTrue(CachedData.fetchDone)){
-        // setProgress(false);
-        // clearInterval(timer);
-        // }
-        // else{
-        if (Object.keys(CachedData.data).length == 1) {
-          keysToPrefetch = [];
-          CachedData.data.books.map((book) => {
-            prefetchEndPoints[book.name + "index"] = book.name + "/index.txt";
-            prefetchEndPoints[book.name + "summary"] =
-              book.name + "/summary.txt";
-
-            if (book.audio) {
-              prefetchEndPoints[book.name + "audio"] = book.name + "/audio.txt";
-              keysToPrefetch.push(book.name + "audio");
-            }
-            keysToPrefetch.push(book.name + "index");
-            keysToPrefetch.push(book.name + "summary");
-
-            book?.commentaries?.map((c) => {
-              prefetchEndPoints[c.key] = c.data;
-              keysToPrefetch.push(c.key);
-            });
-          });
-
-          CachedData.fetchDataForKeys(
-            keysToPrefetch,
-            () => {},
-            () => {},
-            prefetchEndPoints
-          );
-        }
-
-        const timer1 = setInterval(() => {
-          if (
-            Object.keys(CachedData.data).length ==
-            keysToPrefetch.length + 1
-          ) {
-            if (path && path.split("/").length > 1) {
-              const book = path.split("/")[1];
-              if (
-                book &&
-                CachedData?.data?.books &&
-                CachedData?.data.books.find((item: any) => item.name === book)
-              ) {
-                dispatch({
-                  type: "setSelectedBook",
-                  book: CachedData?.data.books.find(
-                    (item: any) => item.name === book
-                  ),
-                });
-              }
-            }
-
-            setProgress(false);
-            clearInterval(timer);
-            clearInterval(timer1);
-          }
-        }, 200);
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(timer);
-    };
+    if(!progress){
+      const fetchData = async () => {
+        setProgress(true);
+        // Prefetching data from local storage or server
+        await Prefetch.prefetchBooksAndDependencies(() => {
+          console.log("All files have been downloaded or fetched from local storage.");
+          setProgress(false);
+        });
+      };
+      fetchData();
+    }  
   }, []);
+
+  // useEffect(() => {
+  //   const requiredData = ["books"];
+
+  //   var keysToPrefetch: string[] = [];
+  //   var prefetchEndPoints: { [key: string]: string } = {};
+  //   Prefetch.prefetchRequiredServerData(requiredData, () => {});
+
+  //   const path = location.pathname;
+  //   // if (path && path.split("/").length > 1) {
+  //   //   bookName = path.split("/")[1];
+  //   // }
+
+  //   const checkAllTrue = (fetchDone: { [key: string]: boolean }) => {
+  //     let result = true;
+  //     const keys = Object.keys(fetchDone);
+
+  //     for (var o = 0; o < keys.length; ++o) {
+  //       result = result && fetchDone[keys[o]];
+  //     }
+
+  //     return result;
+  //   };
+  //   const timer = setInterval(() => {
+  //     if (CachedData.data["books"]) {
+  //       //if (checkAllTrue(CachedData.fetchDone)){
+  //       // setProgress(false);
+  //       // clearInterval(timer);
+  //       // }
+  //       // else{
+  //       if (Object.keys(CachedData.data).length == 1) {
+  //         keysToPrefetch = [];
+  //         CachedData.data.books.map((book) => {
+  //           prefetchEndPoints[book.name + "index"] = book.name + "/index.txt";
+  //           prefetchEndPoints[book.name + "summary"] =
+  //             book.name + "/summary.txt";
+
+  //           if (book.audio) {
+  //             prefetchEndPoints[book.name + "audio"] = book.name + "/audio.txt";
+  //             keysToPrefetch.push(book.name + "audio");
+  //           }
+  //           keysToPrefetch.push(book.name + "index");
+  //           keysToPrefetch.push(book.name + "summary");
+
+  //           book?.commentaries?.map((c) => {
+  //             prefetchEndPoints[c.key] = c.data;
+  //             keysToPrefetch.push(c.key);
+  //           });
+  //         });
+
+  //         CachedData.fetchDataForKeys(
+  //           keysToPrefetch,
+  //           () => {},
+  //           () => {},
+  //           prefetchEndPoints
+  //         );
+  //       }
+
+  //       const timer1 = setInterval(() => {
+  //         if (
+  //           Object.keys(CachedData.data).length ==
+  //           keysToPrefetch.length + 1
+  //         ) {
+  //           if (path && path.split("/").length > 1) {
+  //             const book = path.split("/")[1];
+  //             if (
+  //               book &&
+  //               CachedData?.data?.books &&
+  //               CachedData?.data.books.find((item: any) => item.name === book)
+  //             ) {
+  //               dispatch({
+  //                 type: "setSelectedBook",
+  //                 book: CachedData?.data.books.find(
+  //                   (item: any) => item.name === book
+  //                 ),
+  //               });
+  //             }
+  //           }
+
+  //           setProgress(false);
+  //           clearInterval(timer);
+  //           clearInterval(timer1);
+  //         }
+  //       }, 200);
+  //     }
+  //   }, 200);
+
+  //   return () => {
+  //     clearInterval(timer);
+  //   };
+  // }, []);
 
   return (
     <Box

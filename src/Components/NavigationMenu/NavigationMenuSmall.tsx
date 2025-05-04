@@ -110,7 +110,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
     setSelectedBook(bookname);
     if (
       bookname &&
-      CachedData.data.books.find((book: Book) => book.name == bookname)
+      CachedData.data.books?.find((book: Book) => book.name == bookname)
     ) {
       CachedData.selectedBook = bookname;
       GenericBook.populateIndexList();
@@ -127,7 +127,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
   useEffect(() => {
     if (
       selectedBook &&
-      CachedData.data.books.find((book: Book) => book.name == selectedBook)
+      CachedData.data.books?.find((book: Book) => book.name == selectedBook)
     ) {
       setSelectedMenu("books");
       setExpandedMenu({ books: true });

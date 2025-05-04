@@ -31,7 +31,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
   };
 
   useEffect(() => {
-    const book = CachedData.data.books.find(
+    const book = CachedData.data.books?.find(
       (book: Book) => book.name == bookName
     );
     if (book) {
@@ -71,7 +71,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
               }}
             >
               {
-                  CachedData.data.books.find(
+                  CachedData.data.books?.find(
                     (b) => b.name == selectedBook?.name
                   )?.index
                 }

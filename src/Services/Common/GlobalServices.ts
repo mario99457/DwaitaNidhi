@@ -1,8 +1,7 @@
 import localforage from "localforage";
 import Utils from "./Utils";
 import Formatter, { D, E, F, TH } from "./Formatter";
-import GlobalSearch, { CommentarySearch } from "./Search";
-import { json } from "react-router-dom";
+import GlobalSearch from "./Search";
 import { Buffer } from "buffer";
 
 export class ApiEndpoints {
@@ -41,7 +40,8 @@ export class ApiEndpoints {
     ...ApiEndpoints.prefetchEndPoints,
     ...ApiEndpoints.audioEndPoints,
   };
-  static setAvailableServerList(): void {
+
+  static async setAvailableServerList(): Promise<void> {
     let t: string | "" = localStorage.userSelectedDataSource;
     if (ApiEndpoints.availableGithubServerUrls[t]) {
       ApiEndpoints.gitHubServerUrls = [
@@ -56,8 +56,8 @@ export class ApiEndpoints {
       console.log("Github Server set to ALL.");
     }
   }
-  static chooseGitHubServer(e: () => void = () => {}, a: number = 0): void {
-    let t: string | null, i: string;
+
+  static async chooseGitHubServer(e: () => void = () => {}, a: number = 0): Promise<void> {
     ApiEndpoints.gitHubServer = "";
     if (navigator.onLine) {
       if (a >= ApiEndpoints.gitHubServerUrls.length) {
@@ -66,56 +66,49 @@ export class ApiEndpoints {
         );
         e();
       } else {
-        t = localStorage.userSelectedDataSource;
-        if (t && "auto" !== t) {
-          console.log(
-            "Reminder: Github Server restricted by the user to: ",
-            ApiEndpoints.availableGithubServerUrls[t]
-          );
-        }
-        i = ApiEndpoints.gitHubServerUrls[a];
+        const i = ApiEndpoints.gitHubServerUrls[a];
         console.log("Attempting to reach github server: ", i + "README.md");
-        fetch(i + "README.md")
-          .then((t : any) => {
-            if (t && 200 == t.status) {
-              ApiEndpoints.gitHubServer = i;
-              console.log("Successfully contacted GitHub URL: ", i);
-              e();
-            } else {
-              console.log("Unable to contact Github URL: ", i);
-              ApiEndpoints.chooseGitHubServer(e, a + 1);
-            }
-          })
-          .catch((t : any) => {
-            console.log("Unable to contact GitHub URL: ", t);
-            ApiEndpoints.chooseGitHubServer(e, a + 1);
-          });
+        try {
+          const t = await fetch(i + "README.md");
+          if (t && t.status === 200) {
+            ApiEndpoints.gitHubServer = i;
+            console.log("Successfully contacted GitHub URL: ", i);
+            e();
+          } else {
+            console.log("Unable to contact Github URL: ", i);
+            await ApiEndpoints.chooseGitHubServer(e, a + 1);
+          }
+        } catch (t) {
+          console.log("Unable to contact GitHub URL: ", t);
+          await ApiEndpoints.chooseGitHubServer(e, a + 1);
+        }
       }
     } else {
       console.log("Device is offline. Github url remains empty.");
       e();
     }
   }
-  static sendRequestToGitHubServer(
+
+  static async sendRequestToGitHubServer(
     e: string,
     a: (t: any) => void = () => {},
     i: (t: any) => void = () => {}
-  ): void {
-    let n: string;
+  ): Promise<void> {
     if (ApiEndpoints.allEndPoints[e]) {
       if (ApiEndpoints.gitHubServer) {
-        n = ApiEndpoints.gitHubServer + ApiEndpoints.allEndPoints[e];
-        fetch(n)
-          .then((t) => (e.endsWith(".wasm") ? t.arrayBuffer() : t.text()))
-            .then((t) => {
-              e.endsWith(".tsv") || e.endsWith(".wasm") || (t = JSON.parse(t)),
-                a(t);
-            })
-          .catch((t) => {
-            console.log(`Error: Server returned error for ${n}:`, t);
-            i(t);
-          });
-      } else {  
+        const n = ApiEndpoints.gitHubServer + ApiEndpoints.allEndPoints[e];
+        try {
+          const t = await fetch(n);
+          let result = e.endsWith(".wasm") ? await t.arrayBuffer() : await t.text();
+          if (!e.endsWith(".tsv") && !e.endsWith(".wasm")) {
+            result = JSON.parse(result);
+          }
+          a(result);
+        } catch (t) {
+          console.log(`Error: Server returned error for ${n}:`, t);
+          i(t);
+        }
+      } else {
         console.log("Error: No github servers are reachable.");
         i("SERVERS_UNAVAILABLE");
       }
@@ -124,115 +117,41 @@ export class ApiEndpoints {
       i("UNKNOWN_ENDPOINT");
     }
   }
-  static pushToGitHubServer(
-    e: string,
-    c: string
-  ): void {
-    let n: string;
-    // if (ApiEndpoints.allEndPoints[e]) {
-      if (ApiEndpoints.availableGithubServerUrls.githubapi) {
-        n = ApiEndpoints.availableGithubServerUrls.githubapi + ApiEndpoints.allEndPoints[e];
-        let o: number;
-        o = Utils.getTime();
 
-        let request = {
-          n, e, c, s:""
+  static async pushToGitHubServer(e: string, c: string): Promise<void> {
+    if (ApiEndpoints.availableGithubServerUrls.githubapi) {
+      const n = ApiEndpoints.availableGithubServerUrls.githubapi + ApiEndpoints.allEndPoints[e];
+      const request = { n, e, c, s: "" };
+      const options = { method: 'GET' };
+
+      try {
+        const data = await fetch('https://dwaitanidhiapi.netlify.app/api/git/fetch?resource=' + n, options);
+        if (data.ok) {
+          const response = await data.json();
+          request["s"] = response.sha;
+
+          const updateResponse = await fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+          });
+
+          if (updateResponse.ok) {
+            await localforage.removeItem(e);
+            console.log(`Removed stale key ${e} from Localforage.`);
+          } else {
+            console.log(await updateResponse.json());
+          }
+        } else {
+          console.log(await data.json());
         }
-
-        let options = {
-          method: 'GET'
-        };
-
-        fetch('https://dwaitanidhiapi.netlify.app/api/git/fetch?resource=' + n, options)
-          .then(async data => {
-            if(data.ok)
-            {
-              let response = await data.json();
-              request["s"] = response.sha;
-
-              fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(request)
-              })
-                .then(async data => {
-                  if(data.ok)
-                  {
-                    response = await data.json();
-                    localforage.removeItem(e, () => {
-                      console.log(`Removed stale key ${e} from Localforage.`);
-                    });
-                  }
-                  else{
-                    data.json()
-                  }
-                })
-                .catch(e => { return e })
-            }
-            else{
-              data.json()
-            }
-          })
-          .catch(e => { return e })
-       }        
-       else {  
-        console.log("Error: No github servers are reachable.");
+      } catch (e) {
+        console.log(e);
       }
-    // } else {
-    //   console.log(`Error: The endpoint ${e} is unknown.`);
-    //   i("UNKNOWN_ENDPOINT");
-    // }
-  }  
-  // static fetchContentFromGit(n, r, i){
-  //   const customHeaders = new Headers();
-  //   customHeaders.append("Accept", "application/vnd.github+json");
-  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
-  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
-  //   customHeaders.append("Content-Type", "application/json");
-
-  //   fetch(n, {  method: "GET", 
-  //               headers: customHeaders,
-  //               redirect: "follow"
-  //            })
-  //           .then((response) => r(response))
-  //           .then((result) => console.log(result))
-  //           .catch((t) => {
-  //             console.log(`Error: Server returned error for ${n}:`, t);
-  //             i(t);
-  //           });
-  // }
-
-  // static updateContentToGit(n, e, f, s, i){
-  //   const raw = JSON.stringify({
-  //     "message": "Updated content of " + e,
-  //     "committer": {
-  //       "name": "Pramod H B",
-  //       "email": "pramod.hb86@gmail.com"
-  //     },
-  //     "content": f,
-  //     "sha": s
-  //   });
-
-  //   const customHeaders = new Headers();
-  //   customHeaders.append("Accept", "application/vnd.github+json");
-  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
-  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
-  //   customHeaders.append("Content-Type", "application/json");
-
-  //   fetch(n, {  method: "PUT", 
-  //               headers: customHeaders,
-  //               body: raw,
-  //               redirect: "follow"
-  //            })
-  //           .then((response) => response.text())
-  //           .then((result) => console.log(result))
-  //           .catch((t) => {
-  //             console.log(`Error: Server returned error for ${n}:`, t);
-  //             i(t);
-  //           });
-  // }
+    } else {
+      console.log("Error: No github servers are reachable.");
+    }
+  }
 }
 
 export default class CachedData {
@@ -248,30 +167,27 @@ export default class CachedData {
     data: [],
   };
   static fetchDone: { [key: string]: boolean } = {};
-  static initializeLocalForage(e: () => void): void {
-    localforage.getItem(CachedData.CACHE_VERSION_KEY).then(function (t : any) {
+
+  static async initializeLocalForage(e: () => void): Promise<void> {
+    try {
+      const t = await localforage.getItem(CachedData.CACHE_VERSION_KEY);
       if (t != CachedData.CACHE_VERSION_VALUE) {
         console.log("New User. Welcome !");
         console.log("Localforage is cleared.");
-        localforage.clear().then(() => {
-          localforage
-            .setItem(
-              CachedData.CACHE_VERSION_KEY,
-              CachedData.CACHE_VERSION_VALUE
-            )
-            .then(function (t : any) {
-              console.log("Localforage is initialized." + t);
-              e();
-            })
-            .catch(function () {});
-        });
+        await localforage.clear();
+        await localforage.setItem(CachedData.CACHE_VERSION_KEY, CachedData.CACHE_VERSION_VALUE);
+        console.log("Localforage is initialized.");
+        e();
       } else {
         console.log("Existing User. Welcome back !");
         console.log("Valid localforage found.");
         e();
       }
-    });
+    } catch (error) {
+      console.error("Error initializing localforage:", error);
+    }
   }
+
   static defaultDataToEmpty(t: string[]): void {
     t.forEach((t) => {
       if (!CachedData.data[t] || !CachedData.data[t].data) {
@@ -282,12 +198,14 @@ export default class CachedData {
       }
     });
   }
-  static fetchDataForKeys(
+
+  static async fetchDataForKeys(
     t: string[],
     n: () => void = () => {},
     s: (t: string) => void = () => {},
-    a: {} = {}
-  ): void {
+    a: {} = {},
+    c: () => void = () => {}
+  ): Promise<void> {
     let r: string[], o: number;
     r = [];
     o = t.length;
@@ -306,7 +224,7 @@ export default class CachedData {
     });
     if (0 < r.length) {
       o = Utils.getTime();
-      CachedData._fetchFromLocalforage(r, n, (t, e) => {
+      await CachedData._fetchFromLocalforage(r, n, async (t, e) => {
         let a: number;
         a = Utils.getTime();
         if (0 < t.length) {
@@ -316,9 +234,9 @@ export default class CachedData {
         if (0 < e.length) {
           console.log("Cache Miss for: ", e);
           a = e.length;
-          ApiEndpoints.chooseGitHubServer(() => {
-            e.forEach((t) =>
-              CachedData._fetchFromServer(
+          await ApiEndpoints.chooseGitHubServer(async () => {
+            for (const t of e) {
+              await CachedData._fetchFromServer(
                 t,
                 () => {
                   CachedData.fetchDone[t] = !0;
@@ -339,109 +257,133 @@ export default class CachedData {
                   }
                 },
                 !0
-              )
-            );
+              );
+            }
           });
         } else if (0 < CachedData.staleKeys.length) {
           console.log("Stale Keys = ", CachedData.staleKeys);
           console.log("Refreshing stale keys from Github server");
-          ApiEndpoints.chooseGitHubServer(() => CachedData._refreshStaleData());
+          await ApiEndpoints.chooseGitHubServer(() => CachedData._refreshStaleData());
         }
       });
     }
   }
-  static _fetchFromLocalforage(
+
+  static async _fetchFromLocalforage(
     t: string[],
     a: () => void,
     i: (t: string[], e: string[]) => void
-  ): void {
-    let n: string[], s: string[], r: number;
-    n = [];
-    s = [];
-    r = t.length;
-    t.forEach((e) => {
-      localforage.getItem(e).then(function (t : any) {
-        if (null === t || CachedData.isFetchedDataExpired(e, t)) {
+  ): Promise<void> {
+    const n: string[] = [];
+    const s: string[] = [];
+    let r = t.length;
+
+    for (const e of t) {
+      try {
+        const data = await localforage.getItem(e);
+        if (data === null || CachedData.isFetchedDataExpired(e, data)) {
           s.push(e);
         } else {
+          CachedData.data[e] = data.data;
           a();
-          CachedData.data[e] = t.data;
           n.push(e);
-          if (CachedData.isFetchedDataStale(e, t)) {
+          if (CachedData.isFetchedDataStale(e, data)) {
             CachedData.staleKeys.push(e);
           }
         }
-        --r <= 0 && i(n, s);
-      });
-    });
+      } catch (error) {
+        console.error(`Error fetching from localforage for key ${e}:`, error);
+      } finally {
+        r--;
+        if (r <= 0) {
+          i(n, s);
+        }
+      }
+    }
   }
-  static _refreshStaleData(): void {
-    if (0 < CachedData.staleKeys.length) {
+
+  static async _refreshStaleData(): Promise<void> {
+    if (CachedData.staleKeys.length > 0) {
       console.log("Refreshing stale data: ", CachedData.staleKeys);
-      CachedData.staleKeys.forEach((t) => CachedData._fetchFromServer(t));
+      for (const key of CachedData.staleKeys) {
+        await CachedData._fetchFromServer(key);
+      }
       CachedData.staleKeys = [];
     }
   }
-  static _fetchFromServer(
+
+  static async _fetchFromServer(
     i: string,
     n: () => void = () => {},
     s: (t: any, e: any) => void = () => {},
-    r: boolean = !1
-  ): void {
-    let o: number;
-    o = Utils.getTime();
-    ApiEndpoints.sendRequestToGitHubServer(
-      i,
-      (t) => {
-        let e: number, a: number;
-        e = (Utils.getTime() - o) / 1e3;
-        a = Utils.getStorageOfObjectMB(t);
-        console.log(`Server Success: ${i} : ${a} MB : ${e} sec`);
-        CachedData.setValueInLocalForage(i, t, s);
-        if (r) {
-          CachedData.data[i] = t;
+    r: boolean = false
+  ): Promise<void> {
+    const o = Utils.getTime();
+    try {
+      const t = await ApiEndpoints.sendRequestToGitHubServer(
+        i,
+        async (data) => {
+          const e = (Utils.getTime() - o) / 1000;
+          const a = Utils.getStorageOfObjectMB(data);
+          console.log(`Server Success: ${i} : ${a} MB : ${e} sec`);
+          await CachedData.setValueInLocalForage(i, data, s);
+          if (r) {
+            CachedData.data[i] = data;
+          }
+          n();
+        },
+        (error) => {
+          const e = Utils.getTime();
+          console.log(`Server Failed: ${i}  : ${(e - o) / 1000} sec`);
+          if (!i) {
+            console.log("Error, key is not available");
+          }
+          s(error, i);
         }
-        n();
-      },
-      (t) => {
-        let e: number;
-        e = Utils.getTime();
-        console.log(`Server Failed: ${i}  : ${(e - o) / 1e3} sec`);
-        if (!i) {
-          console.log("Error, key is not available");
-        }
-        s(t, i);
-      }
-    );
+      );
+    } catch (error) {
+      console.error(`Error fetching from server for key ${i}:`, error);
+    }
   }
-  static setValueInLocalForage(
+
+  static async setValueInLocalForage(
     t: string,
     e: any,
     a: (t: any, e: any) => void = () => {}
-  ): void {
-    e = {
-      data: e,
-      time: Utils.getTime(),
-    };
-    localforage.setItem(t, e).catch((t) => a(t, e));
+  ): Promise<void> {
+    try {
+      const data = {
+        data: e,
+        time: Utils.getTime(),
+      };
+      await localforage.setItem(t, data);
+    } catch (error) {
+      a(error, e);
+    }
   }
-  static getValueFromLocalForage(t: string, e: (t: any) => void): void {
-    localforage.getItem(t).then((t) => {
-      e(t);
-    });
+
+  static async getValueFromLocalForage(t: string): Promise<any> {
+    try {
+      return await localforage.getItem(t);
+    } catch (error) {
+      console.error(`Error getting value from localforage for key ${t}:`, error);
+      return null;
+    }
   }
+
   static isFetchedDataExpired(t: any, e: any): boolean {
     return (
       !t.startsWith("audio") &&
       ((t = e.time || 0), Utils.getTime() - t > CachedData.expireThresholdInMs)
     );
   }
+
   static isFetchedDataStale(t: any, e: any): boolean {
     return (
       !t.startsWith("audio") &&
       ((t = e.time || 0), Utils.getTime() - t > CachedData.staleThresholdInMs)
     );
-  }  
+  }
 
   static getBookClass(name: any) {
     if (name == "sutraani") {
@@ -459,113 +401,109 @@ export class Prefetch {
   static callback: any;
   static keysToPrefetch: string[] = [];
   static pendingResolve: number = 0;
-  static showPrefetchDialog(t: () => void): void {
+
+  static async showPrefetchDialog(t: () => void): Promise<void> {
     t();
-    //TODO: Show progress bar
+    // TODO: Show progress bar
   }
-  static hidePrefetchDialog(): void {
-    //TODO: Hide progress bar
+
+  static async hidePrefetchDialog(): Promise<void> {
+    // TODO: Hide progress bar
   }
-  static prefetchRequiredServerData(
+
+  static async prefetchRequiredServerData(
     t: string[],
     e: () => void
   ): Promise<string> {
     t = (t || []).filter((t) => !0 !== CachedData.fetchDone[t]);
-    if (0 == t.length) {
+    if (t.length === 0) {
       e();
-    } else {
-      Prefetch.showPrefetchDialog(() => {
-        Prefetch.keysToPrefetch = t;
-        Prefetch.callback = e;
-        Prefetch.pendingResolve = Prefetch.keysToPrefetch.length;
-        Prefetch.startTime = Utils.getTime();
-        console.log("Attempting to prefetch: ", Prefetch.keysToPrefetch);
-        CachedData.fetchDataForKeys(
-          Prefetch.keysToPrefetch,
-          Prefetch.prefetchProgressHandler,
-          Prefetch.prefetchProgressHandler
-        );
-      });
+      return "No data to prefetch";
     }
-    return new Promise((res) => {
-      res("Data fetched");
+
+    await Prefetch.showPrefetchDialog(async () => {
+      Prefetch.keysToPrefetch = t;
+      Prefetch.callback = e;
+      Prefetch.pendingResolve = Prefetch.keysToPrefetch.length;
+      Prefetch.startTime = Utils.getTime();
+      console.log("Attempting to prefetch: ", Prefetch.keysToPrefetch);
+
+      await CachedData.fetchDataForKeys(
+        Prefetch.keysToPrefetch,
+        Prefetch.prefetchProgressHandler,
+        Prefetch.prefetchErrorHandler
+      );
     });
+
+    return "Data fetched";
   }
-  static prefetchProgressHandler(): void {
-    //TODO: Progress bar % based on number of files to be fetched
+
+  static async prefetchBooksAndDependencies(e: () => void): Promise<void> {
+    try {
+      // Fetch the `books` JSON file
+      console.log("Fetching books.json...");
+      await CachedData.fetchDataForKeys(
+        ["books"],
+        async () => {
+          console.log("books.json fetched successfully.");
+          const books = CachedData.data.books;
+
+          const keysToPrefetch: string[] = [];
+          // Extract keys of additional JSON files to fetch
+          books.map((book: any) => {
+            ApiEndpoints.allEndPoints[book.name + "index"] = book.name + "/index.txt";
+            ApiEndpoints.allEndPoints[book.name + "summary"] = book.name + "/summary.txt";
+
+            keysToPrefetch.push(book.name + "index");
+            keysToPrefetch.push(book.name + "summary");
+                        
+            if (book.audio) {
+              ApiEndpoints.allEndPoints[book.name + "audio"] = book.name + "/audio.txt";
+              keysToPrefetch.push(book.name + "audio");
+            }
+
+            // Add additional keys for commentaries
+            book?.commentaries?.map((c) => {
+              ApiEndpoints.allEndPoints[c.key] = c.data;
+              keysToPrefetch.push(c.key);
+            });
+          });
+          
+          console.log("Additional keys to prefetch:", keysToPrefetch);
+
+          // Prefetch additional JSON files
+          await Prefetch.prefetchRequiredServerData(keysToPrefetch, e);
+        },
+        (errorKey) => {
+          console.error(`Error fetching books.json or dependencies: ${errorKey}`);
+        }
+      );
+    } catch (error) {
+      console.error("Error during prefetchBooksAndDependencies:", error);
+    }
   }
-  static prefetchErrorHandler(): void {
+
+  static async prefetchProgressHandler(): Promise<void> {
+    // TODO: Update progress bar % based on the number of files fetched
+    Prefetch.pendingResolve--;
+    if (Prefetch.pendingResolve <= 0) {
+      Prefetch.endTime = Utils.getTime();
+      console.log(
+        `Prefetch completed in ${(Prefetch.endTime - Prefetch.startTime) / 1000} seconds`
+      );
+      await Prefetch.hidePrefetchDialog();
+      if (Prefetch.callback) {
+        Prefetch.callback();
+      }
+    }
+  }
+
+  static async prefetchErrorHandler(): Promise<void> {
     console.log("Prefetch failed. Showing error page");
-    Prefetch.hidePrefetchDialog();
+    await Prefetch.hidePrefetchDialog();
   }
 }
 
-// class Settings {
-//   static startTime: number = 0;
-//   static endTime: number = 0;
-//   static pendingResolve: number = 0;
-//   static totalKeyCount: number = 0;
-//   static errorsRecorded: any[] = [];
-//   static wakeLock: any = null;
-//   static enableOfflineMode(): string {
-//     Settings.startTime = Utils.getTime();
-//     console.log("Enabling offline mode");
-//     Settings.errorsRecorded = [];
-//     let t: string[] = Object.keys(ApiEndpoints.allEndPoints);
-//     Settings.pendingResolve = t.length;
-//     Settings.totalKeyCount = t.length;
-//     CachedData.fetchDataForKeys(
-//       t,
-//       () => {},
-//       (t) => {
-//         Settings.errorsRecorded.push(t);
-//       }
-//     );
-//     return "";
-//   }
-//   static errorHandler(): void {}
-//   static closeDialog(): void {}
-//   static clearCache(): void {
-//     console.log("clearing the cache.");
-
-//     caches.keys().then((t) => {
-//       t.forEach((t) => {
-//         caches.delete(t);
-//       });
-//     });
-//     localStorage.clear();
-//   }
-//   static resetApp(): void {
-//     console.log("Resetting the app.");
-
-//     caches.keys().then((t) => {
-//       t.forEach((t) => {
-//         caches.delete(t);
-//       });
-//     });
-//     localforage.clear();
-//     localStorage.clear();
-//   }
-//   static enableWakelock(): void {
-//     if (!("wakeLock" in navigator)) {
-//       console.log("Wakelock is not available.");
-//     } else {
-//       Settings.wakeLock = navigator.wakeLock
-//         .request("screen")
-//         .then(() => {
-//           console.log("Screen Wakelock is activated");
-//         })
-//         .catch((t) => {
-//           console.log(`Screen Wakelock NOT activated` + t);
-//         });
-//     }
-//   }
-//   static reEnableWakeLock(): void {
-//     if (Settings.wakeLock && "visible" === document.visibilityState) {
-//       Settings.enableWakelock();
-//     }
-//   }
-// }
 export class Sutraani {
   static allTitles = [];
 
@@ -645,7 +583,7 @@ export class Sutraani {
 
   static populateCommenatries(){
     0 == Sutraani.supportedCommentaries?.length &&
-    (Sutraani.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+    (Sutraani.supportedCommentaries = CachedData.data.books?.find((book: Book) => 
           book.name == CachedData.selectedBook).commentaries);
   }
 
@@ -825,7 +763,7 @@ export class Gita {
 
   static populateCommenatries(){
     0 == Gita.supportedCommentaries?.length &&
-    (Gita.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+    (Gita.supportedCommentaries = CachedData.data.books?.find((book: Book) => 
           book.name == CachedData.selectedBook).commentaries);
   }
 
@@ -963,11 +901,13 @@ export class GenericBook {
   }
 
   static populateCommenatries(){
-    GenericBook.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+    GenericBook.supportedCommentaries = CachedData.data.books?.find((book: Book) => 
           book.name == CachedData.selectedBook).commentaries;
   }
 
   static getSummary(i: string) {
+    if(!CachedData.data[CachedData.selectedBook + "summary"])
+      return null;
     return CachedData.data[CachedData.selectedBook + "summary"][i];
   }
 

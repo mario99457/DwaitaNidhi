@@ -103,9 +103,12 @@ const DetailPage = () => {
     const EXTENSION = ".txt";
     const audioUrl = `${BASE_URL}sutraani/audio/${title?.i}${EXTENSION}`;
 
-    fetch(audioUrl).then((r) => {
-      r.text().then((d) => setSelectedAudio(d));
-    });
+        if(title)
+      fetch(audioUrl).then((r) => {
+        r.text().then((d) => setSelectedAudio(d));
+      }).catch((e) => {
+        console.log("Error fetching audio file:", e); 
+      });  
     //} else {
     //setSelectedAudio(null); //TODO: Add a file with "No audio available"
     //}
@@ -281,7 +284,7 @@ const DetailPage = () => {
                 }}
               >
                 {
-                  CachedData.data.books.find(
+                  CachedData.data.books?.find(
                     (b) => b.name == state.selectedBook?.name
                   )?.index
                 }
@@ -349,7 +352,7 @@ const DetailPage = () => {
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
               {
-                CachedData.data.books.find(
+                CachedData.data.books?.find(
                   (b) => b.name == state.selectedBook?.name
                 )?.abbrev
               }
@@ -581,16 +584,16 @@ const DetailPage = () => {
             />
           ))}
         </>
-      ) : (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-          }}
-        >
-          <CircularProgress />
-        </Box>
+      ) : (<> </>
+        // <Box
+        //   sx={{
+        //     position: "absolute",
+        //     top: "50%",
+        //     left: "50%",
+        //   }}
+        // >
+        //   <CircularProgress />
+        // </Box>
       )}
       <DrawerMenu
         open={openDrawer}

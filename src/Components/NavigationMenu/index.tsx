@@ -82,7 +82,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      subMenu: CachedData.data.books.map((book: Book) => {
+      subMenu: CachedData.data.books?.map((book: Book) => {
         return {
           name: book.name,
           key: book.name,
@@ -107,7 +107,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     setSelectedBook(bookname);
     if (
       bookname &&
-      CachedData.data.books.find((book: Book) => book.name == bookname)
+      CachedData.data.books?.find((book: Book) => book.name == bookname)
     ) {
       CachedData.selectedBook = bookname;
       GenericBook.populateIndexList();
@@ -124,7 +124,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   useEffect(() => {
     if (
       selectedBook &&
-      CachedData.data.books.find((book: Book) => book.name == selectedBook)
+      CachedData.data?.books?.find((book: Book) => book.name == selectedBook)
     ) {
       setSelectedMenu("books");
       setExpandedMenu({ books: true });

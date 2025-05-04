@@ -45,7 +45,7 @@ const TitlePage = () => {
   };
 
   useEffect(() => {
-    const book = CachedData.data.books.find(
+    const book = CachedData.data.books?.find(
       (book: Book) => book.name == bookName
     );
     if (book) {
@@ -129,7 +129,7 @@ const TitlePage = () => {
               }}
             >
               {
-                CachedData.data.books.find(
+                CachedData.data.books?.find(
                   (b) => b.name == state.selectedBook?.name
                 )?.index
               }
