@@ -46,7 +46,7 @@ const TopBarSmall: React.FC<TopBarProps> = ({
     }
     if (pathname && !progress && CachedData?.data?.books?.length) {
       if (sections[0] && sections[0] != "search") {
-        const tempBook = CachedData.data.books.find(
+        const tempBook = CachedData.data.books?.find(
           (book: Book) => book.name == sections[0]
         );
         if (!tempBook) {

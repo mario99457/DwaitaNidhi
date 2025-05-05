@@ -85,7 +85,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      subMenu: CachedData.data.books.map((book: Book) => {
+      subMenu: CachedData.data.books?.map((book: Book) => {
         return {
           name: book.name,
           key: book.name,
@@ -117,7 +117,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
       GenericBook.populateCommenatries();
       dispatch({
         type: "setSelectedBook",
-        book: CachedData?.data.books.find(
+        book: CachedData?.data.books?.find(
           (item: any) => item.name === bookname
         ),
       });
