@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import Router from "./Components/Router";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import { AppDataProvider } from "./Store/AppContext";
+import MaintenanceScreen from "./Pages/maintenance";
 
 const theme = createTheme({
   typography: {
@@ -17,7 +18,8 @@ function App() {
       <CssBaseline />
       <AppDataProvider>
         <ThemeProvider theme={theme}>
-          <Router />
+          {/* <Router /> */}
+          <MaintenanceScreen />
         </ThemeProvider>
       </AppDataProvider>
     </BrowserRouter>

@@ -41,6 +41,7 @@ import useToken from "../../Services/Auth/useToken";
 import React, { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
+import { clamp } from "lodash";
 
 interface Commentary {
   name: string;
@@ -322,7 +323,7 @@ const DetailPage = () => {
                   whiteSpace: "pre-line",
                 }}
               >
-                <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
+                <Typography fontSize="6vw" lineHeight="39.9px" color="#BC4501" textAlign={"center"}>
                   {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
                 </Typography>
               </Container>
