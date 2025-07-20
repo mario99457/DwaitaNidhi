@@ -4,6 +4,7 @@ import TitlePage from "../../Pages/Title";
 import DetailPage from "../../Pages/Details";
 import SearchPage from "../../Pages/Search";
 import LoginPage from "../../Pages/Login";
+import SettingsPage from "../../Pages/Settings";
 import WithoutNav from "../../Layout/WithoutNav";
 import WithNav from "../../Layout/WithNav";
 import { PrivateRoute } from "../Router/PrivateRoute";
@@ -25,6 +26,7 @@ const Router = () => {
             element={<DetailPage />}
           />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/coming-soon" element={<ComingSoon />} />
         </Route>
       </Route>

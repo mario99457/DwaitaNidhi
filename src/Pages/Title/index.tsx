@@ -1,27 +1,20 @@
 import {
   Box,
   Container,
+  Stack,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ToC_Icon from "../../assets/toc.svg";
-import SearchBox from "../../Components/SearchBox";
-import playButton from "../../assets/PlayButton.svg";
-import TreeView from "./Treeview";
-import listIconSelected from "../../assets/list_selected.svg";
-import alphaIcon from "../../assets/alpha.svg";
-import listIcon from "../../assets/list.svg";
-import alphaIconSelected from "../../assets/alpha_selected.svg";
-import AlphaBetView from "./AlphaBetView";
-import { Title } from "../../types/GlobalType.type";
+import CachedData, { GenericBook, Prefetch } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
-import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
-import SearchView from "./SearchView";
+import { Title } from "../../types/GlobalType.type";
 import { useAppData } from "../../Store/AppContext";
-import AudioPlayer from "../../Pages/Details/AudioPlayer";
+import AlphaBetView from "./AlphaBetView";
+import SearchView from "./SearchView";
+import Treeview from "./Treeview";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -33,6 +26,7 @@ const TitlePage = () => {
   const [searchResult, setSearchResult] = useState<any[] | boolean>(false);
   const { state, dispatch } = useAppData();
   const [showPlayer, setShowPlayer] = useState(false);
+  const [isLoadingBook, setIsLoadingBook] = useState(false);
 
   const handleTitleClick = (selectedTitle: Title) => {
     navigate(`/${bookName}/${selectedTitle.i}`);
@@ -45,159 +39,145 @@ const TitlePage = () => {
   };
 
   useEffect(() => {
-    const book = CachedData.data.books?.find(
-      (book: Book) => book.name == bookName
-    );
-    if (book) {
-      setSlectedBook(book);
-    }
-  }, [bookName]);
+    const loadBookData = async () => {
+      if (!bookName) return;
+
+      const book = CachedData.data.books?.find(
+        (book: Book) => book.name == bookName
+      );
+      
+      if (book) {
+        setSlectedBook(book);
+        
+        // Check if book data is already loaded
+        const bookIndexKey = bookName + "index";
+        const bookSummaryKey = bookName + "summary";
+        
+        if (!CachedData.data[bookIndexKey] || !CachedData.data[bookSummaryKey]) {
+          setIsLoadingBook(true);
+          
+          // Load book data lazily
+          await Prefetch.loadBookData(bookName, () => {
+            setIsLoadingBook(false);
+            
+            // Initialize the book data
+            CachedData.selectedBook = bookName;
+            GenericBook.populateIndexList();
+            GenericBook.populateCommenatries();
+            
+            dispatch({
+              type: "setSelectedBook",
+              book: book,
+            });
+          });
+        } else {
+          // Book data already loaded, just initialize
+          CachedData.selectedBook = bookName;
+          GenericBook.populateIndexList();
+          GenericBook.populateCommenatries();
+          
+          dispatch({
+            type: "setSelectedBook",
+            book: book,
+          });
+        }
+      }
+    };
+
+    loadBookData();
+  }, [bookName, dispatch]);
 
   const handleClearSearch = () => {
     setSearchResult(false);
     setSelectedView("list");
   };
 
-  return (
-    <Box
-      sx={{
-        width: { lg: "80%", xs: "100%" },
-        background: "#FFFFFF",
-        margin: "auto",
-        minHeight: "100%",
-        padding: {
-          lg: "16px 38px",
-          xs: "0",
-        },
-      }}
-    >
-      {showPlayer && (
-        <AudioPlayer
-          selectedTitle={CachedData.selectedBook}
-          handleClosePlayer={() => setShowPlayer(false)}
-        />
-      )}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          px: {
-            xs: "20px",
-          },
-        }}
-      >
-        <Typography
-          sx={{
-            fontSize: "34px",
-            color: "#A74600",
-            fontWeight: "600",
-            display: {
-              lg: "block",
-              xs: "none",
-            },
-          }}
-        >
-          {selectedBook?.title}
-        </Typography>
-        {isMobile && (
-          <SearchBox
-            onSearch={handleSearch}
-            placeholder={"Type in English or Devanagari"}
-            onClear={handleClearSearch}
-            textFieldStyle={{
-              width: "100%",
-              borderRadius: "28px",
-              marginTop: 2,
-              fontFamily: "poppins",
-            }}
-            isMobile={true}
-          />
-        )}
-        <Box
-          sx={{ mt: "1rem", display: "flex", justifyContent: "space-between" }}
-        >
-          <div
-            style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
-          >
-            <img src={ToC_Icon} width={`18px`} height={`18px`} />
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontSize: "28px",
-                fontWeight: "300",
-                marginLeft: "10px",
-              }}
-            >
-              {
-                CachedData.data.books?.find(
-                  (b) => b.name == state.selectedBook?.name
-                )?.index
-              }
-            </Typography>
-          </div>
-          <Box className="search-box-wrapper">
-            {!isMobile && (
-              <SearchBox
-                onSearch={handleSearch}
-                placeholder={"Type in English or Devanagari"}
-                onClear={handleClearSearch}
-              />
-            )}
-            {selectedBook?.audio &&
-            <img
-              src={playButton}
-              style={{ cursor: "pointer" }}
-              alt="play"
-              onClick={() => setShowPlayer(!showPlayer)}
-            />
-            }
-          </Box>
-        </Box>
+  if (isLoadingBook) {
+    return (
+      <Container>
         <Box
           sx={{
             display: "flex",
-            justifyContent: "end",
-            mt: 1,
-            pointerEvents: searchResult ? "none" : "auto",
-            opacity: searchResult ? 0.7 : 1,
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "50vh",
           }}
         >
-          <img
-            src={selectedView == "list" ? listIconSelected : listIcon}
-            style={{ cursor: "pointer" }}
-            onClick={() => setSelectedView("list")}
-          />
-          <img
-            src={selectedView == "alpha" ? alphaIconSelected : alphaIcon}
-            style={{ cursor: "pointer", marginLeft: "13px" }}
-            onClick={() => setSelectedView("alpha")}
-          />
+          <Typography variant="h6" color="text.secondary">
+            Loading book data...
+          </Typography>
         </Box>
+      </Container>
+    );
+  }
+
+  return (
+    <Container>
+      <Box
+        sx={{
+          width: {
+            lg: "90%",
+            xs: "100%",
+          },
+          background: "#FFFFFF",
+          margin: "auto",
+          minHeight: "100%",
+          padding: { lg: "16px 38px", xs: "16px" },
+        }}
+      >
+        {selectedBook && (
+          <>
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              sx={{ mb: 4 }}
+            >
+              <Typography
+                variant="h4"
+                sx={{
+                  fontSize: { lg: "48px", xs: "32px" },
+                  fontWeight: "400",
+                  color: "#BC4501",
+                }}
+              >
+                {selectedBook.title}
+              </Typography>
+              {selectedBook.audio && (
+                <img
+                  src="/src/assets/PlayButton.svg"
+                  alt="play"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setShowPlayer(true)}
+                />
+              )}
+            </Stack>
+
+            {selectedView === "list" && (
+              <Treeview
+                handleTitleClick={handleTitleClick}
+                toc={selectedBook.chapters}
+                titles={GenericBook.allTitles}
+                isMobile={isMobile}
+              />
+            )}
+            {selectedView === "search" && (
+              <SearchView
+                titles={searchResult as any[]}
+                handleTitleClick={handleTitleClick}
+              />
+            )}
+            {selectedView === "alphabet" && (
+              <AlphaBetView
+                handleTitleClick={handleTitleClick}
+                toc={selectedBook.chapters}
+                titles={GenericBook.getIndexList}
+              />
+            )}
+          </>
+        )}
       </Box>
-      <Box sx={{ mt: 2 }} className="treeview-box-wrapper">
-        {selectedView == "alpha" && (
-          <AlphaBetView
-            handleTitleClick={handleTitleClick}
-            toc={selectedBook?.chapters}
-            titles={GenericBook.getIndexList}
-          />
-        )}
-        {selectedView == "list" && (
-          <TreeView
-            handleTitleClick={handleTitleClick}
-            toc={selectedBook?.chapters}
-            titles={GenericBook.allTitles}
-            isMobile={isMobile}
-          />
-        )}
-        {selectedView == "search" && (
-          <SearchView
-            titles={searchResult}
-            handleTitleClick={handleTitleClick}
-          />
-        )}
-      </Box>
-    </Box>
+    </Container>
   );
 };
 
