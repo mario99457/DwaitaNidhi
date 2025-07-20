@@ -16,6 +16,7 @@ import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
 import { useLocation, useNavigationType } from "react-router-dom";
+import { Prefetch } from "../../Services/Common/GlobalServices";
 
 export interface SearchResultData {
   title: string;
@@ -74,20 +75,37 @@ const SearchPage = () => {
   // var searchResults = getBookClass().
 
   const handleSearch = (searchTerm = searchParam) => {
-    const result = GenericBook.searchBooks(
-      searchTerm,
-      selectedOption
-    );
-    const searchData = result?.map((item: any) => {
-      const data = {} as SearchResultData;
-      data.title = item.name;
-      data.author = item.commentaries[0]?.author;
-      data.content = item.commentaries[0]?.fragment;
-      data.bookName = item.commentaries[0]?.name;
-      data.datanav = item.commentaries[0]?.datanav;
-      return data;
-    });
-    setSearchResult(searchData);
+    // Load all searchable books if not already loaded
+    const loadSearchableBooks = async () => {
+      const searchableBooks = CachedData.data.books?.filter((book: Book) => book.searchable);
+      
+      for (const book of searchableBooks || []) {
+        const bookIndexKey = book.name + "index";
+        const bookSummaryKey = book.name + "summary";
+        
+        if (!CachedData.data[bookIndexKey] || !CachedData.data[bookSummaryKey]) {
+          await Prefetch.loadBookData(book.name);
+        }
+      }
+      
+      // Now perform the search
+      const result = GenericBook.searchBooks(
+        searchTerm,
+        selectedOption
+      );
+      const searchData = result?.map((item: any) => {
+        const data = {} as SearchResultData;
+        data.title = item.name;
+        data.author = item.commentaries[0]?.author;
+        data.content = item.commentaries[0]?.fragment;
+        data.bookName = item.commentaries[0]?.name;
+        data.datanav = item.commentaries[0]?.datanav;
+        return data;
+      });
+      setSearchResult(searchData);
+    };
+
+    loadSearchableBooks();
   };
 
   return (

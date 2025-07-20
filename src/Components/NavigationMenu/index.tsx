@@ -87,9 +87,9 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
           name: book.name,
           key: book.name,
           label: book.title,
-          path: book.chapters ? `/${book.name}` : "/coming-soon",
+          path: `/${book.name}`,
         };
-      }),
+      }) || [],
     },
     {
       key: "otherBooks",
@@ -110,8 +110,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       CachedData.data.books?.find((book: Book) => book.name == bookname)
     ) {
       CachedData.selectedBook = bookname;
-      GenericBook.populateIndexList();
-      GenericBook.populateCommenatries();
+      // Only populate if data is available
+      if (CachedData.data[bookname + "index"] && CachedData.data[bookname + "summary"]) {
+        GenericBook.populateIndexList();
+        GenericBook.populateCommenatries();
+      }
       dispatch({
         type: "setSelectedBook",
         book: CachedData?.data.books.find(
@@ -369,7 +372,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   justifyContent: expandSideBar ? "initial" : "center",
                   //   px: 2.5,
                 }}
-                onClick={(e) => handleMenuItemClick(e, item)}
+                onClick={() => navigate("/settings")}
               >
                 <ListItemIcon
                   sx={{

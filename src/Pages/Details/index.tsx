@@ -41,6 +41,8 @@ import useToken from "../../Services/Auth/useToken";
 import React, { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
+import { Prefetch } from "../../Services/Common/GlobalServices";
+import { ContentEditableEvent } from "react-contenteditable";
 
 interface Commentary {
   name: string;
@@ -55,6 +57,7 @@ const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
   const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
   const [selectedAudio, setSelectedAudio] = useState<Title | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -92,30 +95,97 @@ const DetailPage = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
 
   useEffect(() => {
-    const title = GenericBook.allTitles?.find(
-      (title: Title) => title.i == titleNumber
-    );
-    if (title) {
-      setSelectedTitle(title);
-    }
+    const loadBookData = async () => {
+      if (!bookName) return;
 
-    const BASE_URL = ApiEndpoints.availableGithubServerUrls.githubusercontent;
-    const EXTENSION = ".txt";
-    const audioUrl = `${BASE_URL}sutraani/audio/${title?.i}${EXTENSION}`;
+      setIsLoading(true);
 
-        if(title)
+      // Check if book data is already loaded
+      const bookIndexKey = bookName + "index";
+      const bookSummaryKey = bookName + "summary";
+      
+      console.log(`Loading book data for ${bookName}`);
+      console.log(`Index key: ${bookIndexKey}, exists: ${!!CachedData.data[bookIndexKey]}`);
+      console.log(`Summary key: ${bookSummaryKey}, exists: ${!!CachedData.data[bookSummaryKey]}`);
+      
+      if (!CachedData.data[bookIndexKey] || !CachedData.data[bookSummaryKey]) {
+        // Load book data lazily if not already loaded
+        try {
+          console.log(`Book data not found, loading from server...`);
+          await Prefetch.loadBookData(bookName, () => {
+            CachedData.selectedBook = bookName;
+            GenericBook.populateIndexList();
+            GenericBook.populateCommenatries();
+            
+            console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
+            console.log(`Commentaries loaded: ${GenericBook.supportedCommentaries?.length}`);
+            
+            // Find the title after data is loaded
+            const title = GenericBook.allTitles?.find(
+              (title: Title) => title.i == titleNumber
+            );
+            if (title) {
+              console.log(`Found title: ${title.i}`);
+              setSelectedTitle(title);
+            } else {
+              console.warn(`Title ${titleNumber} not found in book ${bookName}`);
+            }
+            setIsLoading(false);
+          });
+        } catch (error) {
+          console.error("Error loading book data:", error);
+          setIsLoading(false);
+          // Handle error - could show an error message to user
+        }
+      } else {
+        // Book data already loaded, just initialize
+        console.log(`Book data already loaded for ${bookName}`);
+        CachedData.selectedBook = bookName;
+        GenericBook.populateIndexList();
+        GenericBook.populateCommenatries();
+        
+        console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
+        console.log(`Commentaries loaded: ${GenericBook.supportedCommentaries?.length}`);
+        
+        // Find the title
+        const title = GenericBook.allTitles?.find(
+          (title: Title) => title.i == titleNumber
+        );
+        if (title) {
+          console.log(`Found title: ${title.i}`);
+          setSelectedTitle(title);
+        } else {
+          console.warn(`Title ${titleNumber} not found in book ${bookName}`);
+        }
+        setIsLoading(false);
+      }
+    };
+
+    loadBookData();
+  }, [titleNumber, bookName]);
+
+  // Load audio after selectedTitle is set
+  useEffect(() => {
+    if (selectedTitle && selectedTitle.i) {
+      console.log(`Loading audio for title: ${selectedTitle.i}`);
+      const BASE_URL = ApiEndpoints.availableGithubServerUrls.githubusercontent;
+      const EXTENSION = ".txt";
+      const audioUrl = `${BASE_URL}sutraani/audio/${selectedTitle.i}${EXTENSION}`;
+
       fetch(audioUrl).then((r) => {
-        r.text().then((d) => setSelectedAudio(d));
+        r.text().then((d) => {
+          console.log(`Audio loaded for title: ${selectedTitle.i}`);
+          setSelectedAudio(d as any);
+        });
       }).catch((e) => {
         console.log("Error fetching audio file:", e); 
-      });  
-    //} else {
-    //setSelectedAudio(null); //TODO: Add a file with "No audio available"
-    //}
-  }, [titleNumber]);
+      });
+    }
+  }, [selectedTitle]);
 
   useEffect(() => {
-    const summary = GenericBook.getSummary(selectedTitle?.i);
+    if (!selectedTitle || !selectedTitle.i) return;
+    const summary = GenericBook.getSummary(selectedTitle.i);
     setEditedText(summary ? summary[selectedLanguage] : "");
     if (
       !summary ||
@@ -128,11 +198,12 @@ const DetailPage = () => {
     }
   }, [selectedTitle]);
 
-  const handleChange = (evt) => {
+  // Fix 1: Add types to all function parameters
+  const handleChange = (evt: ContentEditableEvent) => {
     setEditedText(evt.target.value);
   };
 
-  const handleSave = (id) => {
+  const handleSave = (id: string) => {
     GenericBook.updateSummary(
       CachedData.selectedBook + "Summary",
       selectedLanguage,
@@ -147,7 +218,7 @@ const DetailPage = () => {
     setShowFullSummary(false);
   };
 
-  const handleCancel = (id) => {
+  const handleCancel = (id: string) => {
     //TODO:
     //create json object with title number, commentary name
     //preprocess text
@@ -246,7 +317,7 @@ const DetailPage = () => {
     >
       {showPlayer && (
         <AudioPlayer
-          selectedTitle={selectedTitle}
+          selectedTitle={selectedTitle as Title}
           handleClosePlayer={() => setShowPlayer(false)}
         />
       )}
@@ -274,7 +345,7 @@ const DetailPage = () => {
               onClick={() => setOpenDrawer(true)}
               role="button"
             >
-              <img src={ToC_Icon} width={`18px`} height={`18px`} />
+              <img src={ToC_Icon} width={`18px`} height={`18px`} alt="Table of Contents" />
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -285,7 +356,7 @@ const DetailPage = () => {
               >
                 {
                   CachedData.data.books?.find(
-                    (b) => b.name == state.selectedBook?.name
+                    (b: any) => b.name == state.selectedBook?.name
                   )?.index
                 }
               </Typography>
@@ -335,7 +406,8 @@ const DetailPage = () => {
                   visibility:
                     GenericBook.allTitles &&
                     selectedTitle &&
-                    selectedTitle?.srno <= GenericBook.allTitles.length
+                    typeof selectedTitle.srno !== 'undefined' &&
+                    selectedTitle.srno <= GenericBook.allTitles.length
                       ? "visible"
                       : "hidden",
                 }}
@@ -353,7 +425,7 @@ const DetailPage = () => {
             <Typography fontSize="24px" fontWeight="400" color="#969696">
               {
                 CachedData.data.books?.find(
-                  (b) => b.name == state.selectedBook?.name
+                  (b: any) => b.name == state.selectedBook?.name
                 )?.abbrev
               }
               {Formatter.toDevanagariNumeral(
@@ -544,6 +616,7 @@ const DetailPage = () => {
               direction="row"
               spacing={2}
               divider={<Divider orientation="vertical" flexItem />}
+              role="tablist"
             >
               {GenericBook.supportedCommentaries?.map((commentary) => (
                 <Link
@@ -570,36 +643,44 @@ const DetailPage = () => {
           </div>
         )} */}
           </Stack>
-          {GenericBook.supportedCommentaries.map((commentary: Commentary) => (
-            <DetailsContent
-              selectedCommentary={commentary}
-              selectedTitle={selectedTitle}
-              key={commentary.key}
-              defaultExpanded={
-                !commentary.hidden || selectedCommentary?.[commentary.key]
-              }
-              isMobile={isMobile}
-              setShowPlayer={() => setShowPlayer((val) => !val)}
-              titleBoxHeight={titleBoxHeight}
-            />
-          ))}
+          {Array.isArray(GenericBook.supportedCommentaries) &&
+  GenericBook.supportedCommentaries.map((commentary: any) => (
+    <DetailsContent
+      selectedCommentary={commentary}
+      selectedTitle={selectedTitle as Title}
+      key={commentary.key}
+      defaultExpanded={
+        !commentary.hidden || selectedCommentary?.[commentary.key]
+      }
+      isMobile={isMobile}
+      setShowPlayer={() => setShowPlayer((val) => !val)}
+      titleBoxHeight={String(titleBoxHeight)}
+      editContent={() => {}}
+    />
+  ))}
         </>
-      ) : (<> </>
-        // <Box
-        //   sx={{
-        //     position: "absolute",
-        //     top: "50%",
-        //     left: "50%",
-        //   }}
-        // >
-        //   <CircularProgress />
-        // </Box>
+      ) : (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+          }}
+        >
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <Typography variant="h6" color="text.secondary">
+              Book not found or data not available.
+            </Typography>
+          )}
+        </Box>
       )}
       <DrawerMenu
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         bookName={bookName}
-        selectedTitle={selectedTitle}
+        selectedTitle={selectedTitle as Title}
         titles={GenericBook.allTitles}
       />
     </Box>
