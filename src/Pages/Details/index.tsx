@@ -54,13 +54,6 @@ interface Commentary {
   hidden: boolean;
   audio: boolean;
 }
-const commentaryScriptOptions = [
-  { value: 'devanagari', label: 'Devanagari (Sanskrit)' },
-  { value: 'iast', label: 'English (IAST)' },
-  { value: 'kannada', label: 'Kannada' },
-  { value: 'tamil', label: 'Tamil' },
-  { value: 'telugu', label: 'Telugu' },
-];
 
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
@@ -106,6 +99,14 @@ const DetailPage = () => {
   const [commentariesLoading, setCommentariesLoading] = useState(true);
   // Track previous bookName to detect book changes
   const prevBookNameRef = useRef<string | undefined>();
+
+  const commentaryScriptOptions = [
+    { value: 'devanagari', label: 'Devanagari (Sanskrit)' },
+    { value: 'iast', label: 'English (IAST)' },
+    { value: 'kannada', label: 'Kannada' },
+    { value: 'tamil', label: 'Tamil' },
+    { value: 'telugu', label: 'Telugu' },
+  ];
   const [commentaryScript, setCommentaryScript] = useState('kannada');
 
   useEffect(() => {
@@ -337,6 +338,30 @@ const DetailPage = () => {
     setPlayAudio((prevState) => !prevState);
   };
 
+  // Compute summaryText for transliteration logic
+  const summaryObj = GenericBook.getSummary(selectedTitle?.i || "") || {};
+  let summaryText = "";
+  if ((commentaryScript === "kannada" || commentaryScript === "devanagari") && summaryObj.k) {
+    summaryText = summaryObj.k;
+  } else if (commentaryScript === "iast" && summaryObj.e) {
+    summaryText = summaryObj.e;
+  } else if (summaryObj.k) {
+    summaryText = Sanscript.t(summaryObj.k, "kannada", commentaryScript);
+  } else if (summaryObj.e) {
+    summaryText = Sanscript.t(summaryObj.e, "iast", commentaryScript);
+  } else {
+    summaryText = "";
+  }
+  // Label mapping for summary section
+  const summaryLabels: Record<string, string> = {
+    devanagari: 'संक्षेपार्थः',
+    kannada: 'ಸಂಕ್ಷಿಪ್ತ ಅರ್ಥ',
+    tamil: 'சுருக்கமான அர்த்தம்',
+    telugu: 'సంక్షిప್తార్థం',
+    iast: 'Summary',
+    e: 'Summary',
+  };
+
   return (
     <Box
       sx={{
@@ -447,7 +472,13 @@ const DetailPage = () => {
                 }}
               >
                 <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
-                  {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
+                  {Parser(
+                    Sanscript.t(
+                      Formatter.formatVyakhya(selectedTitle?.s || ""),
+                      'devanagari',
+                      commentaryScript
+                    )
+                  )}
                 </Typography>
               </Container>
 
@@ -476,21 +507,26 @@ const DetailPage = () => {
             sx={{ mt: 2, mb: 2 }}
           >
             <Typography fontSize="24px" fontWeight="400" color="#969696">
-              {
-                CachedData.data.books?.find(
-                  (b: any) => b.name == state.selectedBook?.name
-                )?.abbrev
-              }
-              {Formatter.toDevanagariNumeral(
+              {Sanscript.t(
                 `${
-                  selectedTitle?.a && selectedTitle?.a !== ""
-                    ? selectedTitle?.a + "."
-                    : ""
+                  CachedData.data.books?.find(
+                    (b: any) => b.name == state.selectedBook?.name
+                  )?.abbrev || ''
                 }${
-                  selectedTitle?.p && selectedTitle?.p !== ""
-                    ? selectedTitle?.p + "."
-                    : ""
-                }${selectedTitle?.n}`
+                  Formatter.toDevanagariNumeral(
+                    `${
+                      selectedTitle?.a && selectedTitle?.a !== ""
+                        ? selectedTitle?.a + "."
+                        : ""
+                    }${
+                      selectedTitle?.p && selectedTitle?.p !== ""
+                        ? selectedTitle?.p + "."
+                        : ""
+                    }${selectedTitle?.n}`
+                  )
+                }`,
+                'devanagari',
+                commentaryScript
               )}
             </Typography>
             <ReactHowler
@@ -531,7 +567,7 @@ const DetailPage = () => {
                 fontWeight="400"
                 color="#A74600"
               >
-                संक्षेपार्थः
+                {summaryLabels[commentaryScript] || summaryLabels.e || summaryLabels.devanagari}
               </Typography>
               <div
                 className={`d-flex ${
@@ -573,20 +609,6 @@ const DetailPage = () => {
                 ) : (
                   <></>
                 )}
-                <FormControl sx={{ minWidth: 120 }} size="small">
-                  <Select
-                    labelId="demo-select-small-label"
-                    id="demo-select-small"
-                    value={selectedLanguage}
-                    onChange={handleLanguageChange}
-                  >
-                    {availableLanguages.map((language) => (
-                      <MenuItem key={language.id} value={language.id}>
-                        {language.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
               </div>
             </Stack>
             <ContentEditable
@@ -596,7 +618,7 @@ const DetailPage = () => {
                 showFullSummary ? "editable_full_summary" : "editable_summary"
               }
               tagName="p"
-              html={!editedText ? "<html></html>" : editedText} // innerHTML of the editable div
+              html={!editedText ? "<html></html>" : summaryText} // innerHTML of the editable div
               disabled={!editable} // use true to disable edition
               onChange={handleChange} // handle innerHTML change
               //onBlur={sanitize}
