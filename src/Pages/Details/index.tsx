@@ -43,6 +43,7 @@ import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
 import { Prefetch } from "../../Services/Common/GlobalServices";
 import { ContentEditableEvent } from "react-contenteditable";
+import Sanscript from '@indic-transliteration/sanscript';
 
 interface Commentary {
   name: string;
@@ -53,6 +54,14 @@ interface Commentary {
   hidden: boolean;
   audio: boolean;
 }
+const commentaryScriptOptions = [
+  { value: 'devanagari', label: 'Devanagari (Sanskrit)' },
+  { value: 'iast', label: 'English (IAST)' },
+  { value: 'kannada', label: 'Kannada' },
+  { value: 'tamil', label: 'Tamil' },
+  { value: 'telugu', label: 'Telugu' },
+];
+
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
   const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
@@ -93,12 +102,20 @@ const DetailPage = () => {
     [key: string]: any;
   }>({});
   const [openDrawer, setOpenDrawer] = useState(false);
+  // Add state to track commentary loading
+  const [commentariesLoading, setCommentariesLoading] = useState(true);
+  // Track previous bookName to detect book changes
+  const prevBookNameRef = useRef<string | undefined>();
+  const [commentaryScript, setCommentaryScript] = useState('kannada');
 
   useEffect(() => {
     const loadBookData = async () => {
       if (!bookName) return;
 
       setIsLoading(true);
+      // Only reload commentaries if bookName changes
+      const isBookChanged = prevBookNameRef.current !== bookName;
+      if (isBookChanged) setCommentariesLoading(true);
 
       // Check if book data is already loaded
       const bookIndexKey = bookName + "index";
@@ -112,10 +129,13 @@ const DetailPage = () => {
         // Load book data lazily if not already loaded
         try {
           console.log(`Book data not found, loading from server...`);
-          await Prefetch.loadBookData(bookName, () => {
+          await Prefetch.loadBookData(bookName, async () => {
             CachedData.selectedBook = bookName;
             GenericBook.populateIndexList();
             GenericBook.populateCommenatries();
+            //add a delay of 2 seconds
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (isBookChanged) setCommentariesLoading(false); // Only set to false if book changed
             
             console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
             console.log(`Commentaries loaded: ${GenericBook.supportedCommentaries?.length}`);
@@ -135,6 +155,7 @@ const DetailPage = () => {
         } catch (error) {
           console.error("Error loading book data:", error);
           setIsLoading(false);
+          if (isBookChanged) setCommentariesLoading(false);
           // Handle error - could show an error message to user
         }
       } else {
@@ -142,7 +163,10 @@ const DetailPage = () => {
         console.log(`Book data already loaded for ${bookName}`);
         CachedData.selectedBook = bookName;
         GenericBook.populateIndexList();
-        GenericBook.populateCommenatries();
+        if (isBookChanged) {
+          GenericBook.populateCommenatries();
+          setCommentariesLoading(true); // Force spinner
+        }
         
         console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
         console.log(`Commentaries loaded: ${GenericBook.supportedCommentaries?.length}`);
@@ -158,7 +182,11 @@ const DetailPage = () => {
           console.warn(`Title ${titleNumber} not found in book ${bookName}`);
         }
         setIsLoading(false);
+        // Add a short delay before hiding spinner for UX, only if book changed
+        if (isBookChanged) setTimeout(() => setCommentariesLoading(false), 300);
       }
+      // Update previous bookName
+      prevBookNameRef.current = bookName;
     };
 
     loadBookData();
@@ -240,6 +268,15 @@ const DetailPage = () => {
         ? GenericBook.getSummary(selectedTitle?.i)[event.target.value]
         : ""
     );
+
+    // Re-check overflow after DOM update
+    setTimeout(() => {
+      if (summaryRef.current) {
+        const isOverflowing =
+          summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
+        setIsOverflowing(isOverflowing);
+      }
+    }, 1000);
   };
 
   const handleCommentaryChange = (key: string) => {
@@ -315,6 +352,22 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
+      {/* Commentary Language Selection Dropdown */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
+        <Typography sx={{ mr: 2, fontWeight: 500, fontSize: 16, color: '#A74600' }}>
+          Commentary Language:
+        </Typography>
+        <FormControl size="small" sx={{ minWidth: 140, background: '#FCF4CD', borderRadius: 1 }}>
+          <Select
+            value={commentaryScript}
+            onChange={e => setCommentaryScript(e.target.value)}
+          >
+            {commentaryScriptOptions.map(opt => (
+              <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       {showPlayer && (
         <AudioPlayer
           selectedTitle={selectedTitle as Title}
@@ -612,52 +665,63 @@ const DetailPage = () => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Stack
-              direction="row"
-              spacing={2}
-              divider={<Divider orientation="vertical" flexItem />}
-              role="tablist"
-            >
-              {GenericBook.supportedCommentaries?.map((commentary) => (
-                <Link
-                  // href={`#${commentary.key}`}
-                  key={commentary.key}
-                  onClick={() => handleCommentaryChange(commentary.key)}
-                  sx={{ textDecoration: "none" }}
-                >
+            {/* Commentary Tabs Section */}
+            {commentariesLoading ? (
+              <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 48 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : (
+              <Stack
+                direction="row"
+                spacing={2}
+                divider={<Divider orientation="vertical" flexItem />}
+                role="tablist"
+              >
+                {GenericBook.supportedCommentaries?.map((commentary: any) => (
                   <div
-                    key={commentary.name}
+                    key={commentary.key}
                     role="tab"
                     // aria-selected={selectedCommentary?.name === commentary.name}
                     className={`commentary-tab`}
                     tabIndex={0}
+                    onClick={() => handleCommentaryChange(commentary.key)}
                   >
-                    {commentary.name}
+                    <Link sx={{ textDecoration: "none", color: "inherit" }}>
+                      {commentary.name}
+                    </Link>
                   </div>
-                </Link>
-              ))}
-            </Stack>
+                ))}
+              </Stack>
+            )}
             {/* {!isMobile && (
           <div className="search-box-wrapper">
             <SearchBox onSearch={handleSearch} placeholder={""} />
           </div>
         )} */}
           </Stack>
-          {Array.isArray(GenericBook.supportedCommentaries) &&
-  GenericBook.supportedCommentaries.map((commentary: any) => (
-    <DetailsContent
-      selectedCommentary={commentary}
-      selectedTitle={selectedTitle as Title}
-      key={commentary.key}
-      defaultExpanded={
-        !commentary.hidden || selectedCommentary?.[commentary.key]
-      }
-      isMobile={isMobile}
-      setShowPlayer={() => setShowPlayer((val) => !val)}
-      titleBoxHeight={String(titleBoxHeight)}
-      editContent={() => {}}
-    />
-  ))}
+          {/* Commentary Content Section */}
+          {commentariesLoading ? (
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 80 }}>
+              <CircularProgress size={32} />
+            </Box>
+          ) : (
+            Array.isArray(GenericBook.supportedCommentaries) &&
+              GenericBook.supportedCommentaries.map((commentary: any) => (
+                <DetailsContent
+                  selectedCommentary={commentary}
+                  selectedTitle={selectedTitle as Title}
+                  key={commentary.key}
+                  defaultExpanded={
+                    !commentary.hidden || selectedCommentary?.[commentary.key]
+                  }
+                  isMobile={isMobile}
+                  setShowPlayer={() => setShowPlayer((val) => !val)}
+                  titleBoxHeight={String(titleBoxHeight)}
+                  editContent={() => {}}
+                  commentaryScript={commentaryScript}
+                />
+              ))
+          )}
         </>
       ) : (
         <Box

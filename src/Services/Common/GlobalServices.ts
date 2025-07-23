@@ -34,16 +34,16 @@ export class ApiEndpoints {
   })();
 
   static prefetchEndPoints: { [key: string]: string } = {
-    sutraani: "sutraani/index.txt",
+/*     sutraani: "sutraani/index.txt",
     bhashyam: "sutraani/bhashya.txt",
-    sutradipika: "sutraani/sutradipika.txt",
+    sutradipika: "sutraani/sutradipika.txt", */
     books: "books.txt",
-    sutraaniSummary: "sutraani/summary.txt",
+/*     sutraaniSummary: "sutraani/summary.txt",
     gitaIndex: "gita/index.txt",
     gbhashyam: "gita/bhashya.txt",
     gitaSummary: "gita/summary.txt",
     prameyadipika: "gita/prameyadipika.txt",
-    audio:"sutraani/audio.txt"
+    audio:"sutraani/audio.txt" */
   };
   static allEndPoints: { [key: string]: string } = {
     ...ApiEndpoints.prefetchEndPoints,
@@ -53,14 +53,14 @@ export class ApiEndpoints {
   // Dynamic endpoint protection
   static endpointVariations: { [key: string]: string[] } = {
     'books': ['books.txt'], // Only use the correct file name
-    'sutraaniindex': ['sutraani/index.txt'],
-    'sutraanisummary': ['sutraani/summary.txt'],
-    'bhashyam': ['sutraani/bhashya.txt'],
-    'sutradipika': ['sutraani/sutradipika.txt'],
-    'gitaIndex': ['gita/index.txt'],
-    'gitaSummary': ['gita/summary.txt'],
-    'gbhashyam': ['gita/bhashya.txt'],
-    'prameyadipika': ['gita/prameyadipika.txt']
+    // 'sutraaniindex': ['sutraani/index.txt'],
+    // 'sutraanisummary': ['sutraani/summary.txt'],
+    // 'bhashyam': ['sutraani/bhashya.txt'],
+    // 'sutradipika': ['sutraani/sutradipika.txt'],
+    // 'gitaIndex': ['gita/index.txt'],
+    // 'gitaSummary': ['gita/summary.txt'],
+    // 'gbhashyam': ['gita/bhashya.txt'],
+    // 'prameyadipika': ['gita/prameyadipika.txt']
   };
 
   // Get a random endpoint variation to make scraping harder
@@ -1435,6 +1435,8 @@ export class GenericBook {
     // Always repopulate
     try {
       GenericBook.supportedCommentaries = currentBook.commentaries;
+      //add a timeout of 2 seconds
+      new Promise(resolve => setTimeout(resolve, 2000));
       console.log(`Populated ${GenericBook.supportedCommentaries.length} commentaries for ${CachedData.selectedBook}`);
     } catch (error) {
       console.error("Error populating commentaries:", error);
@@ -1450,12 +1452,12 @@ export class GenericBook {
     const summaryKey = CachedData.selectedBook + "summary";
     const summaryData = CachedData.data[summaryKey];
     
-    if (!summaryData || !summaryData.data) {
+    if (!summaryData) {
       console.warn(`No summary data found for ${summaryKey}`);
       return null;
     }
     
-    return summaryData.data[i] || null;
+    return summaryData[i] || null;
   }
 
   static generateScore(t : any, e : any) {

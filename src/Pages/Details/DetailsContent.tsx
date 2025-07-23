@@ -21,6 +21,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import useToken from "../../Services/Auth/useToken";
 import { useAppData } from "../../Store/AppContext";
 import ContentEditable from "react-contenteditable";
+import Sanscript from "@indic-transliteration/sanscript"
 
 interface DetailsContentProps {
   selectedCommentary: {
@@ -38,7 +39,14 @@ interface DetailsContentProps {
   setShowPlayer: () => void;
   editContent: () => void;
   titleBoxHeight: string;
+  commentaryScript: string;
 }
+
+const scriptOptions = [
+  { value: 'kannada', label: 'Kannada' },
+  { value: 'tamil', label: 'Tamil' },
+  { value: 'iast', label: 'English (IAST)' },
+];
 
 const DetailsContent = ({
   selectedCommentary,
@@ -49,6 +57,7 @@ const DetailsContent = ({
   setShowPlayer,
   editContent,
   titleBoxHeight,
+  commentaryScript,
 }: DetailsContentProps) => {
   const [commentaries, setCommentaries] = useState<any[]>([]);
   const [expanded, setExpanded] = useState(defaultExpanded || false);
@@ -58,11 +67,11 @@ const DetailsContent = ({
   const [editedText, setEditedText] = React.useState("<html></html>");
   const { state } = useAppData();
 
-  const handleChange = (evt) => {
+  const handleChange = (evt: any) => {
     setEditedText(evt.target.value);
   };
 
-  const handleSave = (id) => {
+  const handleSave = (id: any) => {
     GenericBook?.updateContent(
       selectedCommentary.key,
       selectedTitle.i,
@@ -75,7 +84,7 @@ const DetailsContent = ({
     setEditable(!editable);
   };
 
-  const handleCancel = (id) => {
+  const handleCancel = (id: any) => {
     //TODO:
     //create json object with title number, commentary name
     //preprocess text
@@ -115,6 +124,7 @@ const DetailsContent = ({
       setExpanded(defaultExpanded.expanded);
     } else setExpanded(defaultExpanded || false);
   }, [defaultExpanded]);
+
 
   return (
     <Box
@@ -218,26 +228,18 @@ const DetailsContent = ({
         </div>
       </Stack>
       <Collapse in={Boolean(expanded)}>
-        <ContentEditable
-          id={selectedTitle.i + "_" + selectedCommentary.key}
-          className="editable"
-          tagName="pre"
-          html={!editedText?"<html></html>" : editedText} // innerHTML of the editable div
-          disabled={!editable} // use true to disable edition
-          onChange={handleChange} // handle innerHTML change
-          //onBlur={sanitize}
-        />
-        {/* <Typography
+
+        <Typography
           fontSize="22px"
           lineHeight="33px"
           marginTop="27px"
           whiteSpace="pre-line"
         >
           {Parser(
-            commentaries?.find((data) => data.key == selectedCommentary.key)
-              ?.text || ""
+            Sanscript.t(commentaries?.find((data) => data.key == selectedCommentary.key)
+            ?.text || "", 'devanagari', commentaryScript)            
           )}
-        </Typography> */}
+        </Typography>
       </Collapse>
     </Box>
   );
