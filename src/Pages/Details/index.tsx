@@ -102,12 +102,31 @@ const DetailPage = () => {
 
   const commentaryScriptOptions = [
     { value: 'devanagari', label: 'Devanagari (Sanskrit)' },
-    { value: 'iast', label: 'English (IAST)' },
+    { value: 'iast', label: 'English' },
     { value: 'kannada', label: 'Kannada' },
     { value: 'tamil', label: 'Tamil' },
     { value: 'telugu', label: 'Telugu' },
   ];
-  const [commentaryScript, setCommentaryScript] = useState('kannada');
+
+  // Utility functions for script preference
+  const getScriptPreference = () =>
+    typeof window !== 'undefined' && localStorage.getItem('scriptPreference') || 'devanagari';
+  const setScriptPreference = (script: string) =>
+    typeof window !== 'undefined' && localStorage.setItem('scriptPreference', script);
+
+  const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
+
+  // On navigation, reset commentaryScript to stored preference
+  useEffect(() => {
+    setCommentaryScript(getScriptPreference());
+  }, [titleNumber, bookName]);
+
+  // Ensure commentaryScript is always defined
+  useEffect(() => {
+    if (!commentaryScript) {
+      setCommentaryScript(getScriptPreference());
+    }
+  }, [commentaryScript]);
 
   useEffect(() => {
     const loadBookData = async () => {
@@ -135,7 +154,7 @@ const DetailPage = () => {
             GenericBook.populateIndexList();
             GenericBook.populateCommenatries();
             //add a delay of 2 seconds
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 3000));
             if (isBookChanged) setCommentariesLoading(false); // Only set to false if book changed
             
             console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
@@ -362,6 +381,37 @@ const DetailPage = () => {
     e: 'Summary',
   };
 
+  // Fetch index label from book metadata and transliterate
+  const bookMeta = CachedData.data.books?.find((b: any) => b.name === bookName);
+  const devLabel = bookMeta?.index || '';
+  const indexLabel = Sanscript.t(devLabel, 'devanagari', commentaryScript || 'devanagari');
+
+  // Utility to adjust font size for Indic scripts
+  function getScriptFontSize(script: string, base: number) {
+    if (script === 'kannada') {
+      return base * 0.85;
+    }
+    if (script === 'tamil' || script === 'telugu') {
+      return base * 0.75;
+    }
+    return base;
+  }
+
+  // Debug: log font size for each script
+  const titleFontSize = getScriptFontSize(commentaryScript, 34);
+  const numberFontSize = getScriptFontSize(commentaryScript, 24);
+  const summaryLabelFontSize = getScriptFontSize(commentaryScript, 24);
+  console.log('Font size for', commentaryScript, {
+    title: titleFontSize,
+    number: numberFontSize,
+    summaryLabel: summaryLabelFontSize
+  });
+
+  // Guard: do not render transliterated content until commentaryScript is defined
+  if (!commentaryScript) {
+    return null; // or a loading spinner if you prefer
+  }
+
   return (
     <Box
       sx={{
@@ -432,11 +482,7 @@ const DetailPage = () => {
                   marginLeft: "10px",
                 }}
               >
-                {
-                  CachedData.data.books?.find(
-                    (b: any) => b.name == state.selectedBook?.name
-                  )?.index
-                }
+                {indexLabel}
               </Typography>
             </div>
           </Box>
@@ -471,12 +517,12 @@ const DetailPage = () => {
                   whiteSpace: "pre-line",
                 }}
               >
-                <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
+                <Typography fontSize={titleFontSize} lineHeight="39.9px" color="#BC4501">
                   {Parser(
                     Sanscript.t(
                       Formatter.formatVyakhya(selectedTitle?.s || ""),
                       'devanagari',
-                      commentaryScript
+                      commentaryScript || 'devanagari'
                     )
                   )}
                 </Typography>
@@ -506,7 +552,7 @@ const DetailPage = () => {
             alignItems="center"
             sx={{ mt: 2, mb: 2 }}
           >
-            <Typography fontSize="24px" fontWeight="400" color="#969696">
+            <Typography fontSize={numberFontSize} fontWeight="400" color="#969696">
               {Sanscript.t(
                 `${
                   CachedData.data.books?.find(
@@ -526,7 +572,7 @@ const DetailPage = () => {
                   )
                 }`,
                 'devanagari',
-                commentaryScript
+                commentaryScript || 'devanagari'
               )}
             </Typography>
             <ReactHowler
@@ -563,11 +609,11 @@ const DetailPage = () => {
             >
               <Typography
                 fontFamily="Vesper Libre"
-                fontSize="24px"
+                fontSize={summaryLabelFontSize}
                 fontWeight="400"
                 color="#A74600"
               >
-                {summaryLabels[commentaryScript] || summaryLabels.e || summaryLabels.devanagari}
+                {summaryLabels[commentaryScript || 'devanagari'] || summaryLabels.e || summaryLabels.devanagari}
               </Typography>
               <div
                 className={`d-flex ${
@@ -703,13 +749,12 @@ const DetailPage = () => {
                   <div
                     key={commentary.key}
                     role="tab"
-                    // aria-selected={selectedCommentary?.name === commentary.name}
                     className={`commentary-tab`}
                     tabIndex={0}
                     onClick={() => handleCommentaryChange(commentary.key)}
                   >
                     <Link sx={{ textDecoration: "none", color: "inherit" }}>
-                      {commentary.name}
+                      {Sanscript.t(commentary.name, 'devanagari', commentaryScript || 'devanagari')}
                     </Link>
                   </div>
                 ))}
@@ -740,7 +785,7 @@ const DetailPage = () => {
                   setShowPlayer={() => setShowPlayer((val) => !val)}
                   titleBoxHeight={String(titleBoxHeight)}
                   editContent={() => {}}
-                  commentaryScript={commentaryScript}
+                  commentaryScript={commentaryScript || 'devanagari'}
                 />
               ))
           )}
@@ -768,6 +813,7 @@ const DetailPage = () => {
         bookName={bookName}
         selectedTitle={selectedTitle as Title}
         titles={GenericBook.allTitles}
+        commentaryScript={commentaryScript}
       />
     </Box>
   );

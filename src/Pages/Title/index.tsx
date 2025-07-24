@@ -15,6 +15,7 @@ import { useAppData } from "../../Store/AppContext";
 import AlphaBetView from "./AlphaBetView";
 import SearchView from "./SearchView";
 import Treeview from "./Treeview";
+import ScriptSelector, { getScriptPreference } from '../../Components/ScriptSelector';
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -27,6 +28,7 @@ const TitlePage = () => {
   const { state, dispatch } = useAppData();
   const [showPlayer, setShowPlayer] = useState(false);
   const [isLoadingBook, setIsLoadingBook] = useState(false);
+  const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
 
   const handleTitleClick = (selectedTitle: Title) => {
     navigate(`/${bookName}/${selectedTitle.i}`);
@@ -87,6 +89,10 @@ const TitlePage = () => {
     loadBookData();
   }, [bookName, dispatch]);
 
+  useEffect(() => {
+    setCommentaryScript(getScriptPreference());
+  }, [bookName]);
+
   const handleClearSearch = () => {
     setSearchResult(false);
     setSelectedView("list");
@@ -127,6 +133,7 @@ const TitlePage = () => {
       >
         {selectedBook && (
           <>
+            <ScriptSelector script={commentaryScript} setScript={setCommentaryScript} />
             <Stack
               direction="row"
               justifyContent="space-between"
@@ -159,12 +166,14 @@ const TitlePage = () => {
                 toc={selectedBook.chapters}
                 titles={GenericBook.allTitles}
                 isMobile={isMobile}
+                commentaryScript={commentaryScript || 'devanagari'}
               />
             )}
             {selectedView === "search" && (
               <SearchView
                 titles={searchResult as any[]}
                 handleTitleClick={handleTitleClick}
+                commentaryScript={commentaryScript || 'devanagari'}
               />
             )}
             {selectedView === "alphabet" && (
@@ -172,6 +181,7 @@ const TitlePage = () => {
                 handleTitleClick={handleTitleClick}
                 toc={selectedBook.chapters}
                 titles={GenericBook.getIndexList}
+                commentaryScript={commentaryScript || 'devanagari'}
               />
             )}
           </>

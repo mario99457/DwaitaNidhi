@@ -45,7 +45,7 @@ interface DetailsContentProps {
 const scriptOptions = [
   { value: 'kannada', label: 'Kannada' },
   { value: 'tamil', label: 'Tamil' },
-  { value: 'iast', label: 'English (IAST)' },
+  { value: 'iast', label: 'English' },
 ];
 
 const DetailsContent = ({
@@ -160,7 +160,7 @@ const DetailsContent = ({
             fontSize="30px"
             minWidth="90px"
           >
-            {selectedCommentary.name}
+            {Sanscript.t(selectedCommentary.name, 'devanagari', commentaryScript || 'devanagari')}
           </Typography>
           <Typography
             color="#616161"
@@ -169,7 +169,7 @@ const DetailsContent = ({
             marginLeft={{ lg: 5 }}
             marginBottom={1}
           >
-            {selectedCommentary.author}
+            {Sanscript.t(selectedCommentary.author, 'devanagari', commentaryScript || 'devanagari')}
           </Typography>
         </div>
         <div

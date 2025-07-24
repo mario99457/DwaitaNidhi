@@ -13,6 +13,9 @@ import {
   DialogActions,
   Switch,
   FormControlLabel,
+  FormControl,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { useState } from "react";
 import CachedData, { ApiEndpoints } from "../../Services/Common/GlobalServices";
@@ -21,6 +24,19 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import StorageIcon from "@mui/icons-material/Storage";
 import SpeedIcon from "@mui/icons-material/Speed";
 
+// Utility functions for script preference
+const getScriptPreference = () =>
+  typeof window !== 'undefined' && localStorage.getItem('scriptPreference') || 'devanagari';
+const setScriptPreference = (script: string) =>
+  typeof window !== 'undefined' && localStorage.setItem('scriptPreference', script);
+const commentaryScriptOptions = [
+  { value: 'devanagari', label: 'Devanagari (Sanskrit)' },
+  { value: 'iast', label: 'English' },
+  { value: 'kannada', label: 'Kannada' },
+  { value: 'tamil', label: 'Tamil' },
+  { value: 'telugu', label: 'Telugu' },
+];
+
 const SettingsPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -28,6 +44,7 @@ const SettingsPage = () => {
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [throttlingEnabled, setThrottlingEnabled] = useState(ApiEndpoints.ENABLE_THROTTLING);
+  const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
 
   const handleClearCache = async () => {
     setIsClearing(true);
@@ -108,6 +125,35 @@ const SettingsPage = () => {
         )}
 
         <Stack spacing={3}>
+          {/* Script/Language Preference */}
+          <Box
+            sx={{
+              p: 3,
+              border: "1px solid #e0e0e0",
+              borderRadius: 2,
+              backgroundColor: "#fff",
+            }}
+          >
+            <Typography variant="h6" color="primary" sx={{ mb: 2 }}>
+              Preferred Script/Language for Commentary
+            </Typography>
+            <FormControl size="small" sx={{ minWidth: 180 }}>
+              <Select
+                value={commentaryScript}
+                onChange={e => {
+                  setCommentaryScript(e.target.value);
+                  setScriptPreference(e.target.value);
+                }}
+              >
+                {commentaryScriptOptions.map(opt => (
+                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              This will be used as the default script/language for all pages.
+            </Typography>
+          </Box>
           {/* Cache Information */}
           <Box
             sx={{

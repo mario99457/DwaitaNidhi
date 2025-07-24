@@ -13,6 +13,7 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Title } from "../../types/GlobalType.type";
 import { Chapters } from "../../types/Context.type";
 import Formatter from "../../Services/Common/Formatter";
+import Sanscript from '@indic-transliteration/sanscript';
 
 interface ListViewProps {
   handleTitleClick: (selectedTitle: Title) => void;
@@ -21,6 +22,7 @@ interface ListViewProps {
   toc: Chapters[] | undefined;
   titles: Title[] | undefined;
   isMobile: boolean;
+  commentaryScript: string;
 }
 
 const TreeView: React.FC<ListViewProps> = ({
@@ -29,6 +31,7 @@ const TreeView: React.FC<ListViewProps> = ({
   titles,
   isMobile,
   selectedTitle,
+  commentaryScript,
 }) => {
   const [closedChapters, setClosedChapters] = useState<{
     [key: string]: boolean;
@@ -150,14 +153,13 @@ const TreeView: React.FC<ListViewProps> = ({
                     <span
                       style={{
                         color: "#787878",
-                        // fontFamily: "Vesper Libre",
                         flexShrink: "0",
                         fontSize: "22px",
                       }}
                     >
-                      {Formatter.toDevanagariNumeral(`${title?.n}`)} &nbsp;
+                      {Sanscript.t(Formatter.toDevanagariNumeral(`${title?.n}`), 'devanagari', commentaryScript || 'devanagari')} &nbsp;
                     </span>
-                    <span>{Formatter.toPlainText(title.s)}</span>
+                    <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
                   </ListItemText>
                 </ListItem>
               ))}
@@ -176,13 +178,13 @@ const TreeView: React.FC<ListViewProps> = ({
               className="treeview-list-item"
             >
               <ListItemText
-                primary={`${Formatter.toDevanagariNumeral(chapter.n)}. ${
-                  chapter.name
-                }`}
+                primary={
+                  `${Sanscript.t(Formatter.toDevanagariNumeral(chapter.n), 'devanagari', commentaryScript || 'devanagari')}. ` +
+                  Sanscript.t(chapter.name, 'devanagari', commentaryScript || 'devanagari')
+                }
                 primaryTypographyProps={{
-                  // fontFamily: "Vesper Libre",
                   fontSize: "30px",
-                  color: "#A74600",
+                  color: "A74600",
                 }}
               />
               <IconButton>
@@ -237,14 +239,13 @@ const TreeView: React.FC<ListViewProps> = ({
                               marginRight: "8px",
                               marginLeft: isMobile ? "4px" : "20px",
                               fontFamily: "24px",
-                              // fontFamily: "Vesper Libre",
                             }}
                           >
-                            {Formatter.toDevanagariNumeral(chapter.n)}.
-                            {Formatter.toDevanagariNumeral(subchapter.n)}
+                            {Sanscript.t(Formatter.toDevanagariNumeral(chapter.n), 'devanagari', commentaryScript || 'devanagari')}.
+                            {Sanscript.t(Formatter.toDevanagariNumeral(subchapter.n), 'devanagari', commentaryScript || 'devanagari')}
                           </span>
                           <span style={{ fontSize: "24px" }}>
-                            {subchapter.name}
+                            {Sanscript.t(subchapter.name, 'devanagari', commentaryScript || 'devanagari')}
                           </span>
                         </ListItemText>
                         <IconButton>
@@ -295,17 +296,18 @@ const TreeView: React.FC<ListViewProps> = ({
                                   <span
                                     style={{
                                       color: "#787878",
-                                      // fontFamily: "Vesper Libre",
                                       flexShrink: "0",
                                       fontSize: "22px",
                                     }}
                                   >
-                                    {Formatter.toDevanagariNumeral(
-                                      `${title?.a}.${title?.p}.${title?.n}`
-                                    )}{" "}
+                                    {Sanscript.t(
+                                      Formatter.toDevanagariNumeral(`${title?.a}.${title?.p}.${title?.n}`),
+                                      'devanagari',
+                                      commentaryScript || 'devanagari'
+                                    )}
                                     &nbsp;
                                   </span>
-                                  <span>{Formatter.toPlainText(title.s)}</span>
+                                  <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
                                 </ListItemText>
                               </ListItem>
                             )
@@ -355,19 +357,20 @@ const TreeView: React.FC<ListViewProps> = ({
                         <span
                           style={{
                             color: "#787878",
-                            // fontFamily: "Vesper Libre",
                             flexShrink: "0",
                             fontSize: "22px",
                           }}
                         >
-                          {Formatter.toDevanagariNumeral(
-                            `${title?.a}${title?.p ? `.${title?.p}` : ""}.${
-                              title?.n
-                            }`
+                          {Sanscript.t(
+                            Formatter.toDevanagariNumeral(
+                              `${title?.a}${title?.p ? `.${title?.p}` : ""}.${title?.n}`
+                            ),
+                            'devanagari',
+                            commentaryScript || 'devanagari'
                           )}
                           &nbsp;
                         </span>
-                        <span>{Formatter.toPlainText(title.s)}</span>
+                        <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
                       </ListItemText>
                     </ListItem>
                   ))}

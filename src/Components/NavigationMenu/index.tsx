@@ -82,7 +82,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      subMenu: CachedData.data.books?.map((book: Book) => {
+      subMenu: CachedData.data.books?.filter((book: Book) => book.type === 'sarvamoola').map((book: Book) => {
         return {
           name: book.name,
           key: book.name,
@@ -98,7 +98,14 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      //   subMenu: [],
+      subMenu: CachedData.data.books?.filter((book: Book) => book.type === 'others').map((book: Book) => {
+        return {
+          name: book.name,
+          key: book.name,
+          label: book.title,
+          path: `/${book.name}`,
+        };
+      }) || [],
     },
   ];
 
