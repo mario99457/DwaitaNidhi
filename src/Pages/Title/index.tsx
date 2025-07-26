@@ -16,6 +16,10 @@ import AlphaBetView from "./AlphaBetView";
 import SearchView from "./SearchView";
 import Treeview from "./Treeview";
 import ScriptSelector, { getScriptPreference } from '../../Components/ScriptSelector';
+import alphaIcon from '../../assets/alpha.svg';
+import alphaSelectedIcon from '../../assets/alpha_selected.svg';
+import DescriptionIcon from '@mui/icons-material/Description'; // Material UI document icon
+import ReaderView from './ReaderView';
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -38,6 +42,13 @@ const TitlePage = () => {
     const result = GenericBook.searchBook(searchTerm);
     setSearchResult(result);
     setSelectedView("search");
+  };
+
+  // Wrapper to handle SearchResult type for SearchView
+  const handleSearchResultClick = (selectedResult: any) => {
+    // SearchResult has titlenum and title, but we need to find the Title object
+    const found = GenericBook.allTitles.find((t: any) => t.i === selectedResult.titlenum);
+    if (found) handleTitleClick(found);
   };
 
   useEffect(() => {
@@ -150,14 +161,43 @@ const TitlePage = () => {
               >
                 {selectedBook.title}
               </Typography>
-              {selectedBook.audio && (
+              <Stack direction="row" spacing={2} alignItems="center">
                 <img
-                  src="/src/assets/PlayButton.svg"
-                  alt="play"
-                  style={{ cursor: "pointer" }}
-                  onClick={() => setShowPlayer(true)}
+                  src={selectedView === 'alphabet' ? alphaSelectedIcon : alphaIcon}
+                  alt="Sort by Alphabets"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    cursor: 'pointer',
+                    border: selectedView === 'alphabet' ? '2px solid #BC4501' : '2px solid transparent',
+                    borderRadius: 4,
+                    background: selectedView === 'alphabet' ? '#FCF4CD' : 'transparent',
+                    padding: 2,
+                  }}
+                  onClick={() => setSelectedView(selectedView === 'alphabet' ? 'list' : 'alphabet')}
                 />
-              )}
+                <DescriptionIcon
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    cursor: 'pointer',
+                    color: selectedView === 'reader' ? '#BC4501' : '#A0A0A0',
+                    background: selectedView === 'reader' ? '#FCF4CD' : 'transparent',
+                    borderRadius: 1,
+                    border: selectedView === 'reader' ? '2px solid #BC4501' : '2px solid transparent',
+                    p: 0.5,
+                  }}
+                  onClick={() => setSelectedView(selectedView === 'reader' ? 'list' : 'reader')}
+                />
+                {selectedBook.audio && (
+                  <img
+                    src="/src/assets/PlayButton.svg"
+                    alt="play"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => setShowPlayer(true)}
+                  />
+                )}
+              </Stack>
             </Stack>
 
             {selectedView === "list" && (
@@ -172,8 +212,7 @@ const TitlePage = () => {
             {selectedView === "search" && (
               <SearchView
                 titles={searchResult as any[]}
-                handleTitleClick={handleTitleClick}
-                commentaryScript={commentaryScript || 'devanagari'}
+                handleTitleClick={handleSearchResultClick}
               />
             )}
             {selectedView === "alphabet" && (
@@ -181,7 +220,14 @@ const TitlePage = () => {
                 handleTitleClick={handleTitleClick}
                 toc={selectedBook.chapters}
                 titles={GenericBook.getIndexList}
+                allTitles={GenericBook.allTitles}
+              />
+            )}
+            {selectedView === "reader" && (
+              <ReaderView
+                titles={GenericBook.allTitles}
                 commentaryScript={commentaryScript || 'devanagari'}
+                toc={selectedBook.chapters}
               />
             )}
           </>

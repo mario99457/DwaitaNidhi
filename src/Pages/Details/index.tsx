@@ -44,6 +44,7 @@ import { useAppData } from "../../Store/AppContext";
 import { Prefetch } from "../../Services/Common/GlobalServices";
 import { ContentEditableEvent } from "react-contenteditable";
 import Sanscript from '@indic-transliteration/sanscript';
+import Tooltip from '@mui/material/Tooltip';
 
 interface Commentary {
   name: string;
@@ -115,11 +116,6 @@ const DetailPage = () => {
     typeof window !== 'undefined' && localStorage.setItem('scriptPreference', script);
 
   const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
-
-  // On navigation, reset commentaryScript to stored preference
-  useEffect(() => {
-    setCommentaryScript(getScriptPreference());
-  }, [titleNumber, bookName]);
 
   // Ensure commentaryScript is always defined
   useEffect(() => {
@@ -517,7 +513,24 @@ const DetailPage = () => {
                   whiteSpace: "pre-line",
                 }}
               >
-                <Typography fontSize={titleFontSize} lineHeight="39.9px" color="#BC4501">
+                <Typography
+                  sx={{
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'normal',
+                    textAlign: 'center',
+                    fontSize: { xs: '1.2rem', md: `${titleFontSize}px` },
+                    lineHeight: 1.2,
+                    maxWidth: '90vw',
+                    margin: '0 auto',
+                    cursor: 'pointer',
+                    color: '#BC4501',
+                  }}
+                  component="div"
+                >
                   {Parser(
                     Sanscript.t(
                       Formatter.formatVyakhya(selectedTitle?.s || ""),

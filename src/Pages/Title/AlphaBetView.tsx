@@ -8,15 +8,20 @@ interface ListViewProps {
   handleTitleClick: (selectedTitle: Title) => void;
   toc: Chapters[] | undefined;
   titles: ((t?: any) => any) | undefined;
+  allTitles?: Title[];
 }
 
 const AlphaBetView: React.FC<ListViewProps> = ({
   handleTitleClick,
   titles,
+  allTitles,
 }) => {
+  const titleList = titles && titles("z")?.titles && titles("z")?.titles.length > 0
+    ? titles("z")?.titles
+    : allTitles || [];
   return (
     <List>
-      {titles("z")?.titles.map((data: Title) => (
+      {titleList.map((data: Title) => (
         <ListItem
           sx={{
             borderTop: (theme) => `1px solid ${theme.palette.divider}`,
@@ -41,9 +46,10 @@ const AlphaBetView: React.FC<ListViewProps> = ({
                 flexShrink: "0",
               }}
             >
-              {Formatter.toDevanagariNumeral(
-                `${data?.a}${data?.p ? `.${data?.p}` : ""}.${data?.n}`
-              )}{" "}
+              {data?.a && data?.n
+                ? Formatter.toDevanagariNumeral(`${data?.a}${data?.p ? `.${data?.p}` : ""}.${data?.n}`)
+                : Formatter.toDevanagariNumeral(data.n)
+              }{" "}
               &nbsp;
             </span>
             <span
