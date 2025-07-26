@@ -17,10 +17,43 @@ interface ReaderViewProps {
 const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }) => {
   // Helper to get titles for a chapter/subchapter
   const getTitles = (a: string, p: string) =>
-    titles.filter((t) => t.a === a && t.p === p);
+    titles.filter((t) => {
+      if (p) {
+        return t.a === a && t.p === p;
+      } else {
+        return t.a === a && (t.p === undefined || t.p === "");
+      }
+    });
+
+  // Check if any titles match the chapter structure
+  const hasMatchingTitles = () => {
+    if (!toc || toc.length === 0) return false;
+    
+    for (const chapter of toc) {
+      if (chapter.sub && chapter.sub.length > 0) {
+        for (const sub of chapter.sub) {
+          if (getTitles(chapter.n, sub.n).length > 0) {
+            return true;
+          }
+        }
+      } else {
+        if (getTitles(chapter.n, '').length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
 
   // Collapsible state: only one chapter open at a time
-  const [openChapter, setOpenChapter] = useState<string | null>(toc[0]?.n || null);
+  const [openChapter, setOpenChapter] = useState<string | null>(null);
+
+  // Initialize openChapter after checking if toc exists and has chapters
+  useEffect(() => {
+    if (toc && toc.length > 0) {
+      setOpenChapter(toc[0]?.n || null);
+    }
+  }, [toc]);
 
   // Scroll to chapter after openChapter changes
   useEffect(() => {
@@ -35,8 +68,8 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
     setOpenChapter((prev) => (prev === chapterNum ? null : chapterNum));
   };
 
-  if (!toc || toc.length === 0) {
-    // Render all titles as a single block if there are no chapters
+  if (!toc || toc.length === 0 || !hasMatchingTitles()) {
+    // Render all titles as a single block if there are no chapters or no titles match chapter structure
     return (
       <Box sx={{
         background: '#FFF9F2',
@@ -46,32 +79,30 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
         margin: '0 auto',
         boxShadow: 1,
       }}>
-        {titles.map((title) => (
-          <Typography
-            key={title.i}
-            component="div"
-            sx={{
-              fontSize: { xs: '1.35rem', md: '1.6rem' },
-              lineHeight: 1.85,
-              marginBottom: 3,
-              color: '#3A2C1A',
-              textAlign: 'justify',
-              background: '#FFF',
-              borderRadius: 1,
-              padding: { xs: 1.5, md: 3 },
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-            }}
-          >
-            <span style={{ color: '#BC4501', fontWeight: 600, marginRight: 12 }}>
-              {Formatter.toDevanagariNumeral(title.n)}
-            </span>
-            {Sanscript.t(Formatter.formatVyakhya(title.s), 'devanagari', commentaryScript || 'devanagari')
-              .split('\n')
-              .map((line, idx) => (
-                <div key={idx} style={{ whiteSpace: 'pre-line' }}>{line}</div>
-              ))}
-          </Typography>
-        ))}
+        <Typography
+          component="div"
+          sx={{
+            fontSize: { xs: '1.35rem', md: '1.6rem' },
+            lineHeight: 1.85,
+            color: '#3A2C1A',
+            textAlign: 'justify',
+            background: '#FFF',
+            borderRadius: 1,
+            padding: { xs: 1.5, md: 3 },
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+          }}
+        >
+          {titles.map((title, index) => (
+            <React.Fragment key={title.i}>
+              {Sanscript.t(Formatter.formatVyakhya(title.s), 'devanagari', commentaryScript || 'devanagari')
+                .split('\n')
+                .map((line, idx) => (
+                  <span key={idx} style={{ whiteSpace: 'pre-line' }}>{line}</span>
+                ))}
+              {index < titles.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </Typography>
       </Box>
     );
   }

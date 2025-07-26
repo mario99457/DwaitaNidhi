@@ -18,6 +18,8 @@ import Treeview from "./Treeview";
 import ScriptSelector, { getScriptPreference } from '../../Components/ScriptSelector';
 import alphaIcon from '../../assets/alpha.svg';
 import alphaSelectedIcon from '../../assets/alpha_selected.svg';
+import listIcon from '../../assets/list.svg';
+import listSelectedIcon from '../../assets/list_selected.svg';
 import DescriptionIcon from '@mui/icons-material/Description'; // Material UI document icon
 import ReaderView from './ReaderView';
 
@@ -62,6 +64,13 @@ const TitlePage = () => {
       if (book) {
         setSlectedBook(book);
         
+        // Debug: Log chapters and titles for Mundaka
+        if (book.name.toLowerCase().includes('mundaka')) {
+          console.log('MUNDAKA DEBUG: selectedBook.chapters:', JSON.stringify(book.chapters, null, 2));
+          setTimeout(() => {
+            console.log('MUNDAKA DEBUG: GenericBook.allTitles:', JSON.stringify(GenericBook.allTitles, null, 2));
+          }, 2000); // Wait for titles to load
+        }
         // Check if book data is already loaded
         const bookIndexKey = bookName + "index";
         const bookSummaryKey = bookName + "summary";
@@ -163,6 +172,20 @@ const TitlePage = () => {
               </Typography>
               <Stack direction="row" spacing={2} alignItems="center">
                 <img
+                  src={selectedView === 'list' ? listSelectedIcon : listIcon}
+                  alt="Index View"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    cursor: 'pointer',
+                    border: selectedView === 'list' ? '2px solid #BC4501' : '2px solid transparent',
+                    borderRadius: 4,
+                    background: selectedView === 'list' ? '#FCF4CD' : 'transparent',
+                    padding: 2,
+                  }}
+                  onClick={() => setSelectedView('list')}
+                />
+                <img
                   src={selectedView === 'alphabet' ? alphaSelectedIcon : alphaIcon}
                   alt="Sort by Alphabets"
                   style={{
@@ -174,7 +197,7 @@ const TitlePage = () => {
                     background: selectedView === 'alphabet' ? '#FCF4CD' : 'transparent',
                     padding: 2,
                   }}
-                  onClick={() => setSelectedView(selectedView === 'alphabet' ? 'list' : 'alphabet')}
+                  onClick={() => setSelectedView('alphabet')}
                 />
                 <DescriptionIcon
                   sx={{

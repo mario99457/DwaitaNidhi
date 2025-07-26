@@ -54,7 +54,27 @@ const TreeView: React.FC<ListViewProps> = ({
       setLoader(false);
     }, 1000);
 
-    if (tocData?.length == 0) {
+    // Check if there are no chapters OR if chapters exist but no titles match
+    const hasMatchingTitles = () => {
+      if (!tocData || tocData.length === 0) return false;
+      
+      for (const chapter of tocData) {
+        if (chapter.sub && chapter.sub.length > 0) {
+          for (const sub of chapter.sub) {
+            if (getTitle(chapter.n, sub.n).length > 0) {
+              return true;
+            }
+          }
+        } else {
+          if (getTitle(chapter.n, "").length > 0) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    if (tocData?.length == 0 || !hasMatchingTitles()) {
       titleObject = {
         noTree: true,
         titles: titles,
@@ -102,12 +122,43 @@ const TreeView: React.FC<ListViewProps> = ({
 
   const getTitle = (chapterId: string, subchapterId: string) => {
     const filteredTitle = titles?.filter((data: Title) => {
-      if (data.a == chapterId && data.p == subchapterId) {
-        return data;
+      if (subchapterId) {
+        return data.a == chapterId && data.p == subchapterId;
+      } else {
+        return data.a == chapterId && (data.p === undefined || data.p === "");
       }
     });
     return filteredTitle || [];
   };
+
+  // Check if any titles match the chapter structure
+  const hasMatchingTitles = () => {
+    if (!tocData || tocData.length === 0) return false;
+    
+    for (const chapter of tocData) {
+      if (chapter.sub && chapter.sub.length > 0) {
+        for (const sub of chapter.sub) {
+          if (getTitle(chapter.n, sub.n).length > 0) {
+            return true;
+          }
+        }
+      } else {
+        if (getTitle(chapter.n, "").length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Debug logging
+  console.log('Treeview Debug:', {
+    tocDataLength: tocData?.length,
+    hasMatchingTitles: hasMatchingTitles(),
+    cacheTitleNoTree: cacheTitle.noTree,
+    titlesLength: titles?.length,
+    shouldShowFlatList: (tocData?.length == 0) || (tocData && tocData.length > 0 && !hasMatchingTitles())
+  });
 
   return (
     <>
@@ -118,11 +169,9 @@ const TreeView: React.FC<ListViewProps> = ({
         <CircularProgress color="inherit" />
       </Backdrop>
       <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
-        {tocData?.length == 0 && (
+        {((!tocData) || tocData.length === 0 || (tocData.length > 0 && !hasMatchingTitles())) && (
           <List component="div" disablePadding>
-            {cacheTitle.noTree &&
-              cacheTitle?.titles &&
-              cacheTitle?.titles.map((title) => (
+            {titles && titles.map((title) => (
                 <ListItem
                   sx={{
                     cursor: "pointer",
@@ -148,8 +197,6 @@ const TreeView: React.FC<ListViewProps> = ({
                       alignItems: "center",
                     }}
                   >
-                    <div className="circle-bullet"></div>
-                    &nbsp;
                     <span
                       style={{
                         color: "#787878",
