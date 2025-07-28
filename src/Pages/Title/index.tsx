@@ -38,12 +38,29 @@ const TitlePage = () => {
 
   const handleTitleClick = (selectedTitle: Title) => {
     // Save current state before navigating
+    const currentScrollY = Math.max(0, window.scrollY);
+    const documentHeight = Math.max(
+      document.body.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.clientHeight,
+      document.documentElement.scrollHeight,
+      document.documentElement.offsetHeight
+    );
+    
     const currentState = {
       view: selectedView,
       bookName: bookName,
-      scrollY: window.scrollY,
+      scrollY: currentScrollY,
+      documentHeight: documentHeight,
+      viewportHeight: window.innerHeight,
       timestamp: Date.now()
     };
+    console.log('Saving state:', {
+      scrollY: currentState.scrollY,
+      documentHeight: currentState.documentHeight,
+      viewportHeight: currentState.viewportHeight,
+      view: currentState.view
+    });
     localStorage.setItem('titleIndexState', JSON.stringify(currentState));
     
     navigate(`/${bookName}/${selectedTitle.i}`);
@@ -118,7 +135,7 @@ const TitlePage = () => {
     loadBookData();
   }, [bookName, dispatch]);
 
-  // Restore saved state when returning to title index
+  // Restore saved view state when returning to title index
   useEffect(() => {
     const savedState = localStorage.getItem('titleIndexState');
     if (savedState) {
@@ -127,19 +144,86 @@ const TitlePage = () => {
         // Only restore if it's for the same book and not too old (within 1 hour)
         if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000) {
           setSelectedView(state.view);
-          
-          // Restore scroll position after content loads
-          setTimeout(() => {
-            if (state.scrollY) {
-              window.scrollTo(0, state.scrollY);
-            }
-          }, 1000);
         }
       } catch (error) {
         console.log('Error restoring title index state:', error);
       }
     }
   }, [bookName]);
+
+  // Separate effect for scroll restoration after view is set
+  useEffect(() => {
+    const savedState = localStorage.getItem('titleIndexState');
+    if (savedState && selectedView) {
+      try {
+        const state = JSON.parse(savedState);
+        if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000) {
+         // Robust scroll restoration with multiple strategies
+         const restoreScrollPosition = () => {
+           if (!state.scrollY || state.scrollY <= 0) return;
+           
+           console.log('Attempting to restore scroll to:', state.scrollY);
+           
+           // Strategy 1: Direct scroll
+           window.scrollTo(0, state.scrollY);
+           
+           // Strategy 2: After a delay, check and retry if needed
+           setTimeout(() => {
+             const currentScroll = window.scrollY;
+             console.log('Current scroll:', currentScroll, 'Target:', state.scrollY);
+             
+             if (Math.abs(currentScroll - state.scrollY) > 20) {
+               console.log('Retrying scroll restoration...');
+               // Strategy 3: Force scroll with different method
+               document.documentElement.scrollTop = state.scrollY;
+               document.body.scrollTop = state.scrollY;
+               window.scrollTo(0, state.scrollY);
+             }
+           }, 300);
+           
+           // Strategy 4: Final attempt after content is definitely loaded
+           setTimeout(() => {
+             const currentScroll = window.scrollY;
+             if (Math.abs(currentScroll - state.scrollY) > 20) {
+               console.log('Final scroll restoration attempt...');
+               window.scrollTo({ top: state.scrollY, behavior: 'auto' });
+             }
+           }, 1000);
+         };
+         
+         // Wait for content to be ready, then restore scroll
+         const waitForContentAndRestore = () => {
+           // Check multiple indicators that content is loaded
+           const contentIndicators = [
+             document.querySelector('[data-title-id]'),
+             document.querySelector('.MuiTypography-root'),
+             document.querySelector('.MuiBox-root'),
+             document.body.scrollHeight > 200,
+             document.readyState === 'complete'
+           ];
+           
+           const hasContent = contentIndicators.some(indicator => indicator);
+           
+           if (hasContent) {
+             console.log('Content detected, restoring scroll...');
+             restoreScrollPosition();
+           } else {
+             console.log('Content not ready, waiting...');
+             setTimeout(waitForContentAndRestore, 200);
+           }
+         };
+         
+         // Start the process with multiple attempts
+         setTimeout(waitForContentAndRestore, 100);
+         setTimeout(waitForContentAndRestore, 500);
+         setTimeout(waitForContentAndRestore, 1000);
+         setTimeout(waitForContentAndRestore, 2000);
+        }
+      } catch (error) {
+        console.log('Error restoring scroll position:', error);
+      }
+    }
+  }, [selectedView, bookName]);
 
   useEffect(() => {
     setCommentaryScript(getScriptPreference());
