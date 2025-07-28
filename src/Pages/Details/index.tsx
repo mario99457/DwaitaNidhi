@@ -12,7 +12,9 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  IconButton,
 } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import pencilEdit from "../../assets/pencil_edit.svg";
@@ -89,6 +91,23 @@ const DetailPage = () => {
     },
   ];
   const navigate = useNavigate();
+ 
+  const handleBackToIndex = () => {
+    navigate(`/${bookName}`);
+  };
+ 
+  // Add keyboard shortcut for back navigation
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleBackToIndex();
+      }
+    };
+ 
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, []);
+ 
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
@@ -456,7 +475,34 @@ const DetailPage = () => {
               borderBottom: "1px solid #BDBDBD",
             }}
           >
-            <div></div>
+            <Box
+              onClick={handleBackToIndex}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                color: '#BC4501',
+                '&:hover': {
+                  backgroundColor: '#F5F5F5',
+                  borderRadius: 1,
+                },
+                px: 2,
+                py: 1,
+              }}
+              role="button"
+              aria-label="Back to index"
+            >
+              <ArrowBackIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontSize: "16px",
+                  fontWeight: "500",
+                }}
+              >
+                Back to Index
+              </Typography>
+            </Box>
             {/* <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
               {breadcrumbs}
             </Breadcrumbs> */}
@@ -504,59 +550,59 @@ const DetailPage = () => {
                 onClick={() => handleNavigateTitle("prev")}
               />
 
-              <Container
-                sx={{
-                  minHeight: "60px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  whiteSpace: "pre-line",
-                }}
-              >
-                <Typography
+                <Container
                   sx={{
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'normal',
-                    textAlign: 'center',
-                    fontSize: { xs: '1.2rem', md: `${titleFontSize}px` },
-                    lineHeight: 1.2,
-                    maxWidth: '90vw',
-                    margin: '0 auto',
-                    cursor: 'pointer',
-                    color: '#BC4501',
+                    minHeight: "60px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    whiteSpace: "pre-line",
                   }}
-                  component="div"
                 >
-                  {Parser(
-                    Sanscript.t(
-                      Formatter.formatVyakhya(selectedTitle?.s || ""),
-                      'devanagari',
-                      commentaryScript || 'devanagari'
-                    )
-                  )}
-                </Typography>
-              </Container>
+                  <Typography
+                    sx={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'normal',
+                      textAlign: 'center',
+                      fontSize: { xs: '1.2rem', md: `${titleFontSize}px` },
+                      lineHeight: 1.2,
+                      maxWidth: '90vw',
+                      margin: '0 auto',
+                      cursor: 'pointer',
+                      color: '#BC4501',
+                    }}
+                    component="div"
+                  >
+                    {Parser(
+                      Sanscript.t(
+                        Formatter.formatVyakhya(selectedTitle?.s || ""),
+                        'devanagari',
+                        commentaryScript || 'devanagari'
+                      )
+                    )}
+                  </Typography>
+                </Container>
 
-              <img
-                src={nextButton}
-                alt="next"
-                style={{
-                  cursor: "pointer",
-                  visibility:
-                    GenericBook.allTitles &&
-                    selectedTitle &&
-                    typeof selectedTitle.srno !== 'undefined' &&
-                    selectedTitle.srno <= GenericBook.allTitles.length
-                      ? "visible"
-                      : "hidden",
-                }}
-                onClick={() => handleNavigateTitle("next")}
-              />
-            </Box>
+                <img
+                  src={nextButton}
+                  alt="next"
+                  style={{
+                    cursor: "pointer",
+                    visibility:
+                      GenericBook.allTitles &&
+                      selectedTitle &&
+                      typeof selectedTitle.srno !== 'undefined' &&
+                      selectedTitle.srno < GenericBook.allTitles.length
+                        ? "visible"
+                        : "hidden",
+                  }}
+                  onClick={() => handleNavigateTitle("next")}
+                />
+              </Box>
           </Box>
 
           <Stack

@@ -37,6 +37,15 @@ const TitlePage = () => {
   const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
 
   const handleTitleClick = (selectedTitle: Title) => {
+    // Save current state before navigating
+    const currentState = {
+      view: selectedView,
+      bookName: bookName,
+      scrollY: window.scrollY,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('titleIndexState', JSON.stringify(currentState));
+    
     navigate(`/${bookName}/${selectedTitle.i}`);
   };
 
@@ -108,6 +117,29 @@ const TitlePage = () => {
 
     loadBookData();
   }, [bookName, dispatch]);
+
+  // Restore saved state when returning to title index
+  useEffect(() => {
+    const savedState = localStorage.getItem('titleIndexState');
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        // Only restore if it's for the same book and not too old (within 1 hour)
+        if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000) {
+          setSelectedView(state.view);
+          
+          // Restore scroll position after content loads
+          setTimeout(() => {
+            if (state.scrollY) {
+              window.scrollTo(0, state.scrollY);
+            }
+          }, 1000);
+        }
+      } catch (error) {
+        console.log('Error restoring title index state:', error);
+      }
+    }
+  }, [bookName]);
 
   useEffect(() => {
     setCommentaryScript(getScriptPreference());

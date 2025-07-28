@@ -11,6 +11,7 @@ import {
   Menu,
   MenuItem,
   Typography,
+  IconButton,
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
@@ -21,6 +22,8 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import SettingsIcon from "@mui/icons-material/Settings";
 import EmailOutlinedIcon from "@mui/icons-material/EmailOutlined";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { useAppData } from "../../Store/AppContext";
 
 interface NavigationMenuProps {
@@ -54,12 +57,19 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {}
   );
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [expandSideBar, setExpandSideBar] = useState(expandNavigationMenu);
-  const hoverTimeout = useRef<any>(null);
+  const [expandSideBar, setExpandSideBar] = useState(true); // Always expanded by default
   const { dispatch } = useAppData();
 
+  // Toggle sidebar visibility
+  const handleToggleSidebar = () => {
+    setExpandSideBar(!expandSideBar);
+  };
+
   useEffect(() => {
-    setExpandSideBar(expandNavigationMenu);
+    // Always keep books menu expanded when there's a selected book
+    if (selectedBook) {
+      setExpandedMenu(prev => ({ ...prev, books: true, otherBooks: true }));
+    }
   }, [expandNavigationMenu]);
 
   const open = Boolean(anchorEl);
@@ -82,7 +92,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      subMenu: CachedData.data.books?.filter((book: Book) => book.type === 'sarvamoola').map((book: Book) => {
+      subMenu: CachedData.data.books?.map((book: Book) => {
         return {
           name: book.name,
           key: book.name,
@@ -98,7 +108,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      subMenu: CachedData.data.books?.filter((book: Book) => book.type === 'others').map((book: Book) => {
+      subMenu: CachedData.data.books?.map((book: Book) => {
         return {
           name: book.name,
           key: book.name,
@@ -176,19 +186,6 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     }
   };
 
-  const handleMouseEnter = () => {
-    hoverTimeout.current = setTimeout(() => {
-      setExpandSideBar(true);
-    }, 300);
-  };
-
-  const handleMouseLeaveMenu = () => {
-    if (!expandNavigationMenu) {
-      clearTimeout(hoverTimeout.current);
-      setExpandSideBar(false);
-    }
-  };
-
   return (
     <Box
       sx={{
@@ -203,6 +200,28 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
         height: "100%",
       }}
     >
+      {/* Toggle Button */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "flex-end",
+          p: 1,
+          borderBottom: "1px solid #E0E0E0",
+        }}
+      >
+        <IconButton
+          onClick={handleToggleSidebar}
+          sx={{
+            color: "#616161",
+            "&:hover": {
+              backgroundColor: "#E0E0E0",
+            },
+          }}
+        >
+          {expandSideBar ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+        </IconButton>
+      </Box>
+
       <Box
         sx={{
           display: "flex",
@@ -215,8 +234,6 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       >
         <List
           disablePadding
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeaveMenu}
         >
           {navigation.map((item) => (
             <React.Fragment key={item.key}>

@@ -108,13 +108,18 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
   }
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      alignItems: 'flex-start',
+      flexDirection: { xs: 'column', md: 'row' },
+      gap: { xs: 2, md: 3 }
+    }}>
       {/* Sidebar */}
       <Box
         sx={{
-          minWidth: 220,
-          maxWidth: 260,
-          mr: 3,
+          minWidth: { xs: '100%', md: 220 },
+          maxWidth: { xs: '100%', md: 260 },
+          mr: { xs: 0, md: 3 },
           position: 'sticky',
           top: 24,
           alignSelf: 'flex-start',
@@ -123,6 +128,7 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
           boxShadow: 1,
           p: 2,
           height: 'fit-content',
+          display: { xs: 'none', md: 'block' }, // Hide sidebar on mobile
         }}
       >
         <Typography variant="h6" sx={{ mb: 2, color: '#BC4501', fontWeight: 700, fontSize: '1.1rem' }}>
@@ -199,7 +205,8 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
         background: '#FFF9F2',
         borderRadius: 2,
         padding: { xs: 2, md: 4 },
-        maxWidth: '900px',
+        width: '100%',
+        flex: 1,
         margin: '0 auto',
         boxShadow: 1,
         // fontFamily removed, use default
