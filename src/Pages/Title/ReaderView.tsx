@@ -12,9 +12,10 @@ interface ReaderViewProps {
   titles: Title[];
   commentaryScript: string;
   toc: Chapters[];
+  handleTitleClick: (selectedTitle: Title) => void;
 }
 
-const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }) => {
+const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc, handleTitleClick }) => {
   // Helper to get titles for a chapter/subchapter
   const getTitles = (a: string, p: string) =>
     titles.filter((t) => {
@@ -94,11 +95,29 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
         >
           {titles.map((title, index) => (
             <React.Fragment key={title.i}>
-              {Sanscript.t(Formatter.formatVyakhya(title.s), 'devanagari', commentaryScript || 'devanagari')
-                .split('\n')
-                .map((line, idx) => (
-                  <span key={idx} style={{ whiteSpace: 'pre-line' }}>{line}</span>
-                ))}
+              <div
+                style={{
+                  cursor: 'pointer',
+                  padding: '8px 0',
+                  borderRadius: '4px',
+                  '&:hover': {
+                    backgroundColor: '#F5F5F5',
+                  },
+                }}
+                onClick={() => handleTitleClick(title)}
+                data-title-id={title.i}
+              >
+                {title?.a && title?.n && (
+                  <span style={{ color: '#BC4501', fontWeight: 600, marginRight: 12 }}>
+                    {Formatter.toDevanagariNumeral(`${title?.a}${title?.p ? `.${title?.p}` : ''}.${title?.n}`)}
+                  </span>
+                )}
+                {Sanscript.t(Formatter.formatVyakhya(title.s), 'devanagari', commentaryScript || 'devanagari')
+                  .split('\n')
+                  .map((line, idx) => (
+                    <span key={idx} style={{ whiteSpace: 'pre-line' }}>{line}</span>
+                  ))}
+              </div>
               {index < titles.length - 1 && <br />}
             </React.Fragment>
           ))}
@@ -276,8 +295,14 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
                             borderRadius: 1,
                             padding: { xs: 1.5, md: 3 },
                             boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                            cursor: 'pointer',
+                            '&:hover': {
+                              backgroundColor: '#F5F5F5',
+                            },
                             // fontFamily removed, use default
                           }}
+                          onClick={() => handleTitleClick(title)}
+                          data-title-id={title.i}
                         >
                           <span style={{ color: '#BC4501', fontWeight: 600, marginRight: 12 }}>
                             {Formatter.toDevanagariNumeral(`${title?.a}${title?.p ? `.${title?.p}` : ''}.${title?.n}`)}
@@ -306,8 +331,14 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc }
                         borderRadius: 1,
                         padding: { xs: 1.5, md: 3 },
                         boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: '#F5F5F5',
+                        },
                         // fontFamily removed, use default
                       }}
+                      onClick={() => handleTitleClick(title)}
+                      data-title-id={title.i}
                     >
                       <span style={{ color: '#BC4501', fontWeight: 600, marginRight: 12 }}>
                         {Formatter.toDevanagariNumeral(`${title?.a}${title?.p ? `.${title?.p}` : ''}.${title?.n}`)}

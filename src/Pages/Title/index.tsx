@@ -283,6 +283,7 @@ const TitlePage = () => {
                 titles={GenericBook.allTitles}
                 commentaryScript={commentaryScript || 'devanagari'}
                 toc={selectedBook.chapters}
+                handleTitleClick={handleTitleClick}
               />
             )}
           </>
