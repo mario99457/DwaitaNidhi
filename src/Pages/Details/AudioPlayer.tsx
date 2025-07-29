@@ -111,8 +111,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       width="100%"
       sx={{
         position: "absolute",
-        top: "5px",
+        top: { xs: "80px", md: "5px" },
         left: "10px",
+        zIndex: 10,
       }}
     >
       <CloseIcon

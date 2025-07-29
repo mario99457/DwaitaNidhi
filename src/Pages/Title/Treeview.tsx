@@ -151,14 +151,6 @@ const TreeView: React.FC<ListViewProps> = ({
     return false;
   };
 
-  // Debug logging
-  console.log('Treeview Debug:', {
-    tocDataLength: tocData?.length,
-    hasMatchingTitles: hasMatchingTitles(),
-    cacheTitleNoTree: cacheTitle.noTree,
-    titlesLength: titles?.length,
-    shouldShowFlatList: (tocData?.length == 0) || (tocData && tocData.length > 0 && !hasMatchingTitles())
-  });
 
   return (
     <>

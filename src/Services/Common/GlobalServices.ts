@@ -396,6 +396,10 @@ export class ApiEndpoints {
     errorCallback: (t: any) => void = () => {}
   ): Promise<void> {
     const o = Utils.getTime();
+    const maxRetries = 3;
+    const isAudioRequest = endpoint.includes('audio');
+    const timeoutMs = isAudioRequest ? 30000 : ApiEndpoints.FetchTimeoutMs; // 30 seconds for audio, 4 seconds for others
+    
     try {
       console.log(`Attempting to fetch endpoint: ${endpoint}`);
       
@@ -425,53 +429,96 @@ export class ApiEndpoints {
       const headers = ApiEndpoints.getAuthHeaders();
       console.log(`Using headers:`, headers);
       
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: headers,
-        signal: AbortSignal.timeout(ApiEndpoints.FetchTimeoutMs)
-      });
-
-      console.log(`Response status: ${response.status} ${response.statusText}`);
-
-      if (!response.ok) {
-        console.error(`HTTP error: ${response.status} ${response.statusText}`);
-        errorCallback(`HTTP ${response.status}: ${response.statusText}`);
-        return;
-      }
-
-      let data;
-      if (ApiEndpoints.USE_AUTHENTICATION) {
-        // GitHub API returns base64 encoded content
-        const jsonResponse = await response.json();
-        if (jsonResponse.content && jsonResponse.encoding === 'base64') {
-          data = JSON.parse(Buffer.from(jsonResponse.content, 'base64').toString());
-        } else {
-          data = jsonResponse;
-        }
-      } else {
-        // Raw content from raw.githubusercontent.com
-        const text = await response.text();
-        console.log(`Raw response text length: ${text.length}`);
+      // Retry logic for failed requests
+      let lastError: any = null;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
         try {
-          data = JSON.parse(text);
-        } catch (parseError) {
-          console.error(`JSON parse error:`, parseError);
-          console.error(`Response text:`, text.substring(0, 200));
-          errorCallback(`JSON parse error: ${parseError}`);
-          return;
+          console.log(`Attempt ${attempt}/${maxRetries} for ${endpoint}`);
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: headers,
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          console.log(`Response status: ${response.status} ${response.statusText}`);
+
+          if (!response.ok) {
+            console.error(`HTTP error: ${response.status} ${response.statusText}`);
+            lastError = `HTTP ${response.status}: ${response.statusText}`;
+            if (attempt < maxRetries) {
+              console.log(`Retrying in 2 seconds...`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              continue;
+            }
+            errorCallback(lastError);
+            return;
+          }
+
+          let data;
+          if (ApiEndpoints.USE_AUTHENTICATION) {
+            // GitHub API returns base64 encoded content
+            const jsonResponse = await response.json();
+            if (jsonResponse.content && jsonResponse.encoding === 'base64') {
+              data = JSON.parse(Buffer.from(jsonResponse.content, 'base64').toString());
+            } else {
+              data = jsonResponse;
+            }
+          } else {
+            // Raw content from raw.githubusercontent.com
+            const text = await response.text();
+            console.log(`Raw response text length: ${text.length}`);
+            try {
+              data = JSON.parse(text);
+            } catch (parseError) {
+              console.error(`JSON parse error:`, parseError);
+              console.error(`Response text:`, text.substring(0, 200));
+              lastError = `JSON parse error: ${parseError}`;
+              if (attempt < maxRetries) {
+                console.log(`Retrying in 2 seconds...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                continue;
+              }
+              errorCallback(lastError);
+              return;
+            }
+          }
+
+          console.log(`Successfully parsed data for ${endpoint}:`, data);
+          console.log(`Data type:`, typeof data);
+          console.log(`Is array:`, Array.isArray(data));
+          console.log(`Data length:`, Array.isArray(data) ? data.length : 'N/A');
+          
+          const e = (Utils.getTime() - o) / 1000;
+          const a = Utils.getStorageOfObjectMB(data);
+          console.log(`Server Success: ${endpoint} : ${a} MB : ${e} sec`);
+          
+          successCallback(data);
+          return; // Success, exit retry loop
+          
+        } catch (error: any) {
+          lastError = error;
+          console.error(`Attempt ${attempt} failed for ${endpoint}:`, error);
+          
+          if (error.name === 'AbortError') {
+            console.error(`Request timed out after ${timeoutMs}ms`);
+          }
+          
+          if (attempt < maxRetries) {
+            console.log(`Retrying in 2 seconds...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } else {
+            const e = Utils.getTime();
+            console.error(`Server Failed: ${endpoint} : ${(e - o) / 1000} sec`);
+            console.error(`Error details:`, error);
+            errorCallback(error);
+          }
         }
       }
-
-      console.log(`Successfully parsed data for ${endpoint}:`, data);
-      console.log(`Data type:`, typeof data);
-      console.log(`Is array:`, Array.isArray(data));
-      console.log(`Data length:`, Array.isArray(data) ? data.length : 'N/A');
-      
-      const e = (Utils.getTime() - o) / 1000;
-      const a = Utils.getStorageOfObjectMB(data);
-      console.log(`Server Success: ${endpoint} : ${a} MB : ${e} sec`);
-      
-      successCallback(data);
     } catch (error) {
       const e = Utils.getTime();
       console.error(`Server Failed: ${endpoint} : ${(e - o) / 1000} sec`);

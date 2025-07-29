@@ -22,6 +22,8 @@ import listIcon from '../../assets/list.svg';
 import listSelectedIcon from '../../assets/list_selected.svg';
 import DescriptionIcon from '@mui/icons-material/Description'; // Material UI document icon
 import ReaderView from './ReaderView';
+import AudioPlayer from "../Details/AudioPlayer";
+import SearchBox from "../../Components/SearchBox";
 
 const TitlePage = () => {
   const { bookName } = useParams();
@@ -74,9 +76,28 @@ const TitlePage = () => {
 
   // Wrapper to handle SearchResult type for SearchView
   const handleSearchResultClick = (selectedResult: any) => {
-    // SearchResult has titlenum and title, but we need to find the Title object
-    const found = GenericBook.allTitles.find((t: any) => t.i === selectedResult.titlenum);
-    if (found) handleTitleClick(found);
+    console.log('Search result clicked:', selectedResult);
+    console.log('Available titles:', GenericBook.allTitles?.length);
+    
+    // SearchResult has i property which is the title ID
+    const found = GenericBook.allTitles?.find((t: any) => {
+      console.log('Comparing:', t.i, 'with', selectedResult.i, 'Type:', typeof t.i, typeof selectedResult.i);
+      return t.i === selectedResult.i;
+    });
+    
+    console.log('Found title:', found);
+    
+    if (found) {
+      console.log('Navigating to title:', found.i);
+      handleTitleClick(found);
+    } else {
+      console.error('Title not found for search result:', selectedResult);
+      // Fallback: try to navigate directly with the titlenum
+      if (selectedResult.i) {
+        console.log('Attempting direct navigation with title ID:', selectedResult.i);
+        navigate(`/${bookName}/${selectedResult.i}`);
+      }
+    }
   };
 
   useEffect(() => {
@@ -267,6 +288,12 @@ const TitlePage = () => {
           padding: { lg: "16px 38px", xs: "16px" },
         }}
       >
+        {showPlayer && (
+          <AudioPlayer
+            selectedTitle={CachedData.selectedBook}
+            handleClosePlayer={() => setShowPlayer(false)}
+          />
+        )}
         {selectedBook && (
           <>
             <ScriptSelector script={commentaryScript} setScript={setCommentaryScript} />
@@ -286,7 +313,27 @@ const TitlePage = () => {
               >
                 {selectedBook.title}
               </Typography>
-              <Stack direction="row" spacing={2} alignItems="center">
+              <Stack 
+                direction="row" 
+                spacing={{ xs: 1, md: 2 }} 
+                alignItems="center"
+                sx={{
+                  flexWrap: 'nowrap',
+                  minWidth: 'fit-content'
+                }}
+              >
+                {/* Audio button with proper spacing */}
+                {selectedBook.audio && (
+                  <img
+                    src="/src/assets/Play_no_track.svg"
+                    alt="play"
+                    style={{ 
+                      cursor: "pointer",
+                      marginLeft: "8px",
+                    }}
+                    onClick={() => setShowPlayer(true)}
+                  />
+                )}
                 <img
                   src={selectedView === 'list' ? listSelectedIcon : listIcon}
                   alt="Index View"
@@ -317,8 +364,8 @@ const TitlePage = () => {
                 />
                 <DescriptionIcon
                   sx={{
-                    width: 32,
-                    height: 32,
+                    width: isMobile ? 28 : 32,
+                    height: isMobile ? 28 : 32,
                     cursor: 'pointer',
                     color: selectedView === 'reader' ? '#BC4501' : '#A0A0A0',
                     background: selectedView === 'reader' ? '#FCF4CD' : 'transparent',
@@ -326,18 +373,42 @@ const TitlePage = () => {
                     border: selectedView === 'reader' ? '2px solid #BC4501' : '2px solid transparent',
                     p: 0.5,
                   }}
-                  onClick={() => setSelectedView(selectedView === 'reader' ? 'list' : 'reader')}
+                  onClick={() => setSelectedView('reader')}
                 />
-                {selectedBook.audio && (
-                  <img
-                    src="/src/assets/PlayButton.svg"
-                    alt="play"
-                    style={{ cursor: "pointer" }}
-                    onClick={() => setShowPlayer(true)}
-                  />
-                )}
               </Stack>
             </Stack>
+
+            {/* Search box - new row on mobile, inline on desktop */}
+            <Box sx={{ 
+              mb: 2,
+              width: '100%',
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              {isMobile ? (
+                <SearchBox
+                  onSearch={handleSearch}
+                  placeholder={"Type in English or Devanagari"}
+                  onClear={handleClearSearch}
+                  isMobile={true}
+                  textFieldStyle={{
+                    width: '100%',
+                    maxWidth: '100%'
+                  }}
+                />
+              ) : (
+                <SearchBox
+                  onSearch={handleSearch}
+                  placeholder={"Type in English or Devanagari"}
+                  onClear={handleClearSearch}
+                  isMobile={false}
+                  textFieldStyle={{
+                    width: '100%',
+                    maxWidth: '100%'
+                  }}
+                />
+              )}
+            </Box>
 
             {selectedView === "list" && (
               <Treeview
