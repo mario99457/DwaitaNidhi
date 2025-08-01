@@ -16,7 +16,7 @@
     width: 10%;
     /* Adjust the width for the gradient */
     pointer-events: none;
-    /* Make sure it doesn’t block interactions */
+    /* Make sure it doesn't block interactions */
     z-index: 1;
 }
 
@@ -41,4 +41,116 @@
 
 
     // background: linear-gradient(to left, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0));
+}
+
+// Dashboard specific styles
+.featured-swiper {
+    width: 100%;
+    height: 300px;
+    
+    .swiper-slide {
+        height: 280px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        
+        &:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+    }
+    
+    .swiper-pagination {
+        bottom: 10px;
+        
+        .swiper-pagination-bullet {
+            background: #1976d2;
+            opacity: 0.5;
+            
+            &.swiper-pagination-bullet-active {
+                opacity: 1;
+                background: #1976d2;
+            }
+        }
+    }
+}
+
+// Dashboard card hover effects
+.dashboard-card {
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+}
+
+// Statistics cards
+.statistics-card {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(76, 175, 80, 0.05));
+    border: 1px solid rgba(76, 175, 80, 0.3);
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.2);
+    }
+}
+
+// Trending shloka cards
+.trending-shloka {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &:hover {
+        background-color: #f8f9fa;
+        border-color: #1976d2;
+    }
+}
+
+// Activity feed
+.activity-item {
+    transition: all 0.2s ease;
+    
+    &:hover {
+        background-color: #f5f5f5;
+        border-radius: 8px;
+    }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .featured-swiper {
+        height: 250px;
+        
+        .swiper-slide {
+            height: 230px;
+        }
+    }
+    
+    .dashboard-card {
+        margin-bottom: 16px;
+    }
+}
+
+// Custom scrollbar for dashboard
+.dashboard-container {
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+        
+        &:hover {
+            background: #a8a8a8;
+        }
+    }
 }

@@ -14,6 +14,9 @@ import { Title } from "../../types/GlobalType.type";
 import { Chapters } from "../../types/Context.type";
 import Formatter from "../../Services/Common/Formatter";
 import Sanscript from '@indic-transliteration/sanscript';
+import { useAppData } from "../../Store/AppContext";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { AudioHighlightingService } from "../../Services/Common/GlobalServices";
 
 interface ListViewProps {
   handleTitleClick: (selectedTitle: Title) => void;
@@ -39,6 +42,27 @@ const TreeView: React.FC<ListViewProps> = ({
   const [cacheTitle, setCacheTitle] = useState<{ [key: string]: any[] }>({});
   const [loader, setLoader] = useState(false);
   const titleRef = useRef<any>({});
+  const { state } = useAppData();
+
+  // Check if a title is currently playing using generic service
+  const isCurrentlyPlaying = (title: Title) => {
+    return state.currentlyPlayingTitle && state.currentlyPlayingTitle.i === title.i;
+  };
+
+  // Scroll to currently playing title when it changes
+  useEffect(() => {
+    if (state.currentlyPlayingTitle) {
+      const titleElement = titleRef.current[state.currentlyPlayingTitle.i];
+      if (titleElement) {
+        // Ensure the title is visible by scrolling to it
+        titleElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [state.currentlyPlayingTitle]);
 
   const handleChapterClick = (chapterId: string) => {
     setClosedChapters((prevState) => ({
@@ -174,7 +198,12 @@ const TreeView: React.FC<ListViewProps> = ({
                     },
                     py: 0.5,
                     backgroundColor:
-                      title.i == selectedTitle?.i ? "#DDDDDD" : "",
+                      title.i == selectedTitle?.i
+                        ? "#DDDDDD"
+                        : isCurrentlyPlaying(title)
+                        ? "#FFF3CD"
+                        : "",
+                    borderLeft: isCurrentlyPlaying(title) ? "4px solid #BC4501" : "none",
                   }}
                   key={title.i}
                   onClick={() => handleTitleClick(title)}
@@ -315,7 +344,10 @@ const TreeView: React.FC<ListViewProps> = ({
                                   backgroundColor:
                                     title.i == selectedTitle?.i
                                       ? "#DDDDDD"
+                                      : isCurrentlyPlaying(title)
+                                      ? "#FFF3CD"
                                       : "",
+                                  borderLeft: isCurrentlyPlaying(title) ? "4px solid #BC4501" : "none",
                                 }}
                                 key={title.i}
                                 onClick={() => handleTitleClick(title)}
@@ -332,6 +364,15 @@ const TreeView: React.FC<ListViewProps> = ({
                                 >
                                   <div className="circle-bullet"></div>
                                   &nbsp;
+                                  {isCurrentlyPlaying(title) && (
+                                    <PlayArrowIcon 
+                                      sx={{ 
+                                        color: '#BC4501', 
+                                        fontSize: '20px', 
+                                        mr: 1 
+                                      }} 
+                                    />
+                                  )}
                                   <span
                                     style={{
                                       color: "#787878",
@@ -377,7 +418,12 @@ const TreeView: React.FC<ListViewProps> = ({
                         },
                         py: 0.5,
                         backgroundColor:
-                          title.i == selectedTitle?.i ? "#DDDDDD" : "",
+                          title.i == selectedTitle?.i
+                            ? "#DDDDDD"
+                            : isCurrentlyPlaying(title)
+                            ? "#FFF3CD"
+                            : "",
+                        borderLeft: isCurrentlyPlaying(title) ? "4px solid #BC4501" : "none",
                       }}
                       key={title.i}
                       onClick={() => handleTitleClick(title)}
@@ -393,6 +439,15 @@ const TreeView: React.FC<ListViewProps> = ({
                       >
                         <div className="circle-bullet"></div>
                         &nbsp;
+                        {isCurrentlyPlaying(title) && (
+                          <PlayArrowIcon 
+                            sx={{ 
+                              color: '#BC4501', 
+                              fontSize: '20px', 
+                              mr: 1 
+                            }} 
+                          />
+                        )}
                         <span
                           style={{
                             color: "#787878",

@@ -76,7 +76,7 @@ const DetailPage = () => {
   const [editable, setEditable] = React.useState(false);
   const [editedText, setEditedText] = React.useState("");
   const [hideSummary, setHideSummary] = React.useState(false);
-  const { state } = useAppData();
+  const { state, dispatch } = useAppData();
   const titleBoxRef = useRef<HTMLDivElement>(null);
   const [titleBoxHeight, setTitleBoxHeight] = useState(0);
 
@@ -93,7 +93,28 @@ const DetailPage = () => {
   const navigate = useNavigate();
  
   const handleBackToIndex = () => {
-    navigate(`/${bookName}`);
+    // Get the current view from localStorage to preserve it
+    const savedState = localStorage.getItem('titleIndexState');
+    let view = 'list'; // default view
+
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        view = state.view || 'list';
+      } catch (error) {
+        console.log('Error parsing saved state:', error);
+      }
+    }
+
+    // Navigate back with state to preserve the view and indicate we're coming from details
+    navigate(`/${bookName}`, {
+      state: {
+        preserveScroll: true,
+        fromDetails: true,
+        view: view,
+        timestamp: Date.now()
+      }
+    });
   };
  
   // Add keyboard shortcut for back navigation
@@ -461,7 +482,11 @@ const DetailPage = () => {
       {showPlayer && (
         <AudioPlayer
           selectedTitle={selectedTitle as Title}
-          handleClosePlayer={() => setShowPlayer(false)}
+          handleClosePlayer={() => {
+            setShowPlayer(false);
+            // Clear the currently playing title when closing the player
+            dispatch({ type: "setCurrentlyPlayingTitle", title: null });
+          }}
         />
       )}
       {selectedTitle ? (

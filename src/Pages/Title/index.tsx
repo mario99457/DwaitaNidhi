@@ -7,7 +7,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import CachedData, { GenericBook, Prefetch } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import { Title } from "../../types/GlobalType.type";
@@ -29,6 +29,7 @@ const TitlePage = () => {
   const { bookName } = useParams();
   const [selectedView, setSelectedView] = useState("list");
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedBook, setSlectedBook] = useState<Book | null>(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -37,10 +38,36 @@ const TitlePage = () => {
   const [showPlayer, setShowPlayer] = useState(false);
   const [isLoadingBook, setIsLoadingBook] = useState(false);
   const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
+  const [currentScrollY, setCurrentScrollY] = useState(0);
+  const [isScrollRestored, setIsScrollRestored] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
+  const [hasRestoredScroll, setHasRestoredScroll] = useState(false);
 
   const handleTitleClick = (selectedTitle: Title) => {
-    // Save current state before navigating
-    const currentScrollY = Math.max(0, window.scrollY);
+    // Save current state before navigating with proper scroll detection
+    const getScrollPosition = () => {
+      // Find the main scrollable container (MuiBox)
+      const scrollableContainers = document.querySelectorAll('div[class*="MuiBox-root"]');
+      let mainScrollContainer: Element | null = null;
+      let maxScrollTop = 0;
+      
+      scrollableContainers.forEach(container => {
+        const style = window.getComputedStyle(container);
+        if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+          if (container.scrollTop > maxScrollTop) {
+            maxScrollTop = container.scrollTop;
+            mainScrollContainer = container;
+          }
+        }
+      });
+      
+      // Return the scroll position from the main container
+      return maxScrollTop;
+    };
+    
+    // Get scroll position from the main container
+    const scrollY = getScrollPosition();
+    
     const documentHeight = Math.max(
       document.body.scrollHeight,
       document.body.offsetHeight,
@@ -52,17 +79,11 @@ const TitlePage = () => {
     const currentState = {
       view: selectedView,
       bookName: bookName,
-      scrollY: currentScrollY,
+      scrollY: scrollY,
       documentHeight: documentHeight,
       viewportHeight: window.innerHeight,
       timestamp: Date.now()
     };
-    console.log('Saving state:', {
-      scrollY: currentState.scrollY,
-      documentHeight: currentState.documentHeight,
-      viewportHeight: currentState.viewportHeight,
-      view: currentState.view
-    });
     localStorage.setItem('titleIndexState', JSON.stringify(currentState));
     
     navigate(`/${bookName}/${selectedTitle.i}`);
@@ -165,90 +186,261 @@ const TitlePage = () => {
         // Only restore if it's for the same book and not too old (within 1 hour)
         if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000) {
           setSelectedView(state.view);
+        } else {
+          // If navigating to a different book, explicitly scroll to top
+          const scrollToTop = () => {
+            // Find the main scrollable container (MuiBox)
+            const scrollableContainers = document.querySelectorAll('div[class*="MuiBox-root"]');
+            let mainScrollContainer: Element | null = null;
+            
+            scrollableContainers.forEach(container => {
+              const style = window.getComputedStyle(container);
+              if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                if (container.scrollHeight > container.clientHeight) {
+                  mainScrollContainer = container;
+                }
+              }
+            });
+
+            if (mainScrollContainer) {
+              (mainScrollContainer as HTMLElement).scrollTop = 0;
+            } else {
+              // Fallback to window scroll
+              window.scrollTo(0, 0);
+            }
+          };
+
+          // Try immediate scroll to top
+          scrollToTop();
+          
+          // Also try with delays to ensure DOM is ready
+          setTimeout(scrollToTop, 10);
+          setTimeout(scrollToTop, 50);
+          setTimeout(scrollToTop, 100);
         }
       } catch (error) {
         console.log('Error restoring title index state:', error);
       }
+    } else {
+      // No saved state, ensure we're at the top
+      const scrollToTop = () => {
+        // Find the main scrollable container (MuiBox)
+        const scrollableContainers = document.querySelectorAll('div[class*="MuiBox-root"]');
+        let mainScrollContainer: Element | null = null;
+        
+        scrollableContainers.forEach(container => {
+          const style = window.getComputedStyle(container);
+          if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+            if (container.scrollHeight > container.clientHeight) {
+              mainScrollContainer = container;
+            }
+          }
+        });
+
+        if (mainScrollContainer) {
+          (mainScrollContainer as HTMLElement).scrollTop = 0;
+        } else {
+          // Fallback to window scroll
+          window.scrollTo(0, 0);
+        }
+      };
+
+      // Try immediate scroll to top
+      scrollToTop();
+      
+      // Also try with delays to ensure DOM is ready
+      setTimeout(scrollToTop, 10);
+      setTimeout(scrollToTop, 50);
+      setTimeout(scrollToTop, 100);
     }
   }, [bookName]);
 
-  // Separate effect for scroll restoration after view is set
+  // Handle navigation state from Details page
   useEffect(() => {
+    if (location.state && typeof location.state === 'object') {
+      const { view, fromDetails } = location.state as { view?: string; fromDetails?: boolean };
+
+      if (fromDetails && view) {
+        // Set the view that was passed from Details page
+        setSelectedView(view);
+
+        // Clear the state to prevent it from being used again
+        navigate(location.pathname, { replace: true, state: {} });
+      }
+    }
+  }, [location.state, navigate, location.pathname]);
+
+  // Immediate scroll restoration to prevent flash to top - ONLY when coming from details
+  useEffect(() => {
+    // Only restore scroll if we're coming from details page
+    const isComingFromDetails = location.state && typeof location.state === 'object' && 
+      (location.state as any).fromDetails === true;
+    
+    if (!isComingFromDetails) {
+      // For non-details navigation, show content immediately
+      setIsScrollRestored(true);
+      return;
+    }
+
     const savedState = localStorage.getItem('titleIndexState');
-    if (savedState && selectedView) {
+    if (savedState) {
       try {
         const state = JSON.parse(savedState);
-        if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000) {
-         // Robust scroll restoration with multiple strategies
-         const restoreScrollPosition = () => {
-           if (!state.scrollY || state.scrollY <= 0) return;
-           
-           console.log('Attempting to restore scroll to:', state.scrollY);
-           
-           // Strategy 1: Direct scroll
-           window.scrollTo(0, state.scrollY);
-           
-           // Strategy 2: After a delay, check and retry if needed
-           setTimeout(() => {
-             const currentScroll = window.scrollY;
-             console.log('Current scroll:', currentScroll, 'Target:', state.scrollY);
-             
-             if (Math.abs(currentScroll - state.scrollY) > 20) {
-               console.log('Retrying scroll restoration...');
-               // Strategy 3: Force scroll with different method
-               document.documentElement.scrollTop = state.scrollY;
-               document.body.scrollTop = state.scrollY;
-               window.scrollTo(0, state.scrollY);
-             }
-           }, 300);
-           
-           // Strategy 4: Final attempt after content is definitely loaded
-           setTimeout(() => {
-             const currentScroll = window.scrollY;
-             if (Math.abs(currentScroll - state.scrollY) > 20) {
-               console.log('Final scroll restoration attempt...');
-               window.scrollTo({ top: state.scrollY, behavior: 'auto' });
-             }
-           }, 1000);
-         };
-         
-         // Wait for content to be ready, then restore scroll
-         const waitForContentAndRestore = () => {
-           // Check multiple indicators that content is loaded
-           const contentIndicators = [
-             document.querySelector('[data-title-id]'),
-             document.querySelector('.MuiTypography-root'),
-             document.querySelector('.MuiBox-root'),
-             document.body.scrollHeight > 200,
-             document.readyState === 'complete'
-           ];
-           
-           const hasContent = contentIndicators.some(indicator => indicator);
-           
-           if (hasContent) {
-             console.log('Content detected, restoring scroll...');
-             restoreScrollPosition();
-           } else {
-             console.log('Content not ready, waiting...');
-             setTimeout(waitForContentAndRestore, 200);
-           }
-         };
-         
-         // Start the process with multiple attempts
-         setTimeout(waitForContentAndRestore, 100);
-         setTimeout(waitForContentAndRestore, 500);
-         setTimeout(waitForContentAndRestore, 1000);
-         setTimeout(waitForContentAndRestore, 2000);
+        if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000 && state.scrollY > 0) {
+          // Simple scroll restoration with minimal delays
+          const restoreScroll = () => {
+            const scrollableContainers = document.querySelectorAll('div[class*="MuiBox-root"]');
+            let mainScrollContainer: Element | null = null;
+            
+            scrollableContainers.forEach(container => {
+              const style = window.getComputedStyle(container);
+              if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                if (container.scrollHeight > container.clientHeight) {
+                  mainScrollContainer = container;
+                }
+              }
+            });
+
+            if (mainScrollContainer) {
+              (mainScrollContainer as HTMLElement).scrollTop = state.scrollY;
+            } else {
+              // Fallback to window scroll
+              window.scrollTo(0, state.scrollY);
+            }
+          };
+
+          // Try restoration with minimal delays
+          restoreScroll();
+          setTimeout(restoreScroll, 50);
+          
+          // Show content after scroll restoration
+          setTimeout(() => {
+            setIsScrollRestored(true);
+          }, 100);
+        } else {
+          setIsScrollRestored(true);
         }
       } catch (error) {
         console.log('Error restoring scroll position:', error);
+        setIsScrollRestored(true);
+      }
+    } else {
+      setIsScrollRestored(true);
+    }
+  }, [bookName, location.state]);
+
+  // Separate effect for scroll restoration after view is set - ONLY when coming from details
+  useEffect(() => {
+    // Only restore scroll if we're coming from details page
+    const isComingFromDetails = location.state && typeof location.state === 'object' && 
+      (location.state as any).fromDetails === true;
+    
+    if (!isComingFromDetails) {
+      return;
+    }
+
+    const savedState = localStorage.getItem('titleIndexState');
+    if (savedState && selectedView && !hasRestoredScroll) {
+      try {
+        const state = JSON.parse(savedState);
+        if (state.bookName === bookName && (Date.now() - state.timestamp) < 3600000) {
+          // Simple scroll restoration
+          const restoreScrollPosition = () => {
+            if (!state.scrollY || state.scrollY <= 0 || isUserScrolling) {
+              return;
+            }
+            
+            // Find the main scrollable container (MuiBox)
+            const scrollableContainers = document.querySelectorAll('div[class*="MuiBox-root"]');
+            let mainScrollContainer: Element | null = null;
+
+            scrollableContainers.forEach(container => {
+              const style = window.getComputedStyle(container);
+              if (style.overflow === 'auto' || style.overflow === 'scroll' || style.overflowY === 'auto' || style.overflowY === 'scroll') {
+                if (container.scrollHeight > container.clientHeight) {
+                  mainScrollContainer = container;
+                }
+              }
+            });
+
+            if (mainScrollContainer) {
+              (mainScrollContainer as HTMLElement).scrollTop = state.scrollY;
+              setHasRestoredScroll(true);
+            } else {
+              // Fallback to window scroll
+              window.scrollTo(0, state.scrollY);
+              setHasRestoredScroll(true);
+            }
+          };
+
+          // Try restoration with minimal delays
+          setTimeout(restoreScrollPosition, 200);
+          setTimeout(restoreScrollPosition, 500);
+        }
+      } catch (error) {
+        console.log('Error in robust scroll restoration:', error);
       }
     }
-  }, [selectedView, bookName]);
+  }, [selectedView, bookName, hasRestoredScroll, isUserScrolling, location.state]);
+
+
 
   useEffect(() => {
     setCommentaryScript(getScriptPreference());
+    // Reset scroll restoration flags when book changes
+    setHasRestoredScroll(false);
+    setIsUserScrolling(false);
+    // Don't reset isScrollRestored here to prevent flash
   }, [bookName]);
+
+  // Track scroll position continuously
+  useEffect(() => {
+    let scrollTimeout: ReturnType<typeof setTimeout>;
+    
+    const handleScroll = () => {
+      // Try to get scroll from main container first
+      const mainContainer = document.querySelector('main') || document.querySelector('.MuiContainer-root') || document.body;
+      const scrollY = mainContainer.scrollTop || 
+                     window.pageYOffset || 
+                     document.documentElement.scrollTop || 
+                     document.body.scrollTop || 
+                     window.scrollY || 
+                     0;
+      setCurrentScrollY(scrollY);
+      
+      // Mark user as scrolling
+      setIsUserScrolling(true);
+      
+      // If user is scrolling and we haven't restored yet, mark as restored to prevent interference
+      if (!hasRestoredScroll) {
+        setHasRestoredScroll(true);
+      }
+      
+      // Clear previous timeout
+      clearTimeout(scrollTimeout);
+      
+      // Set timeout to mark user as not scrolling after 150ms of no scroll events
+      scrollTimeout = setTimeout(() => {
+        setIsUserScrolling(false);
+      }, 150);
+    };
+
+    // Set initial scroll position
+    handleScroll();
+    
+    // Add scroll event listener to both window and main container
+    const mainContainer = document.querySelector('main') || document.querySelector('.MuiContainer-root') || document.body;
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    mainContainer.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      mainContainer.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [hasRestoredScroll]);
+
+
 
   const handleClearSearch = () => {
     setSearchResult(false);
@@ -286,12 +478,18 @@ const TitlePage = () => {
           margin: "auto",
           minHeight: "100%",
           padding: { lg: "16px 38px", xs: "16px" },
+          opacity: isScrollRestored ? 1 : 0,
+          transition: 'opacity 0.1s ease-in-out',
         }}
       >
         {showPlayer && (
           <AudioPlayer
-            selectedTitle={CachedData.selectedBook}
-            handleClosePlayer={() => setShowPlayer(false)}
+            selectedTitle={selectedBook as any}
+            handleClosePlayer={() => {
+              setShowPlayer(false);
+              // Clear the currently playing title when closing the player
+              dispatch({ type: "setCurrentlyPlayingTitle", title: null });
+            }}
           />
         )}
         {selectedBook && (

@@ -50,8 +50,20 @@ function appsReducer(state: AppState, action: AppAction): AppState {
         showLoader: action.showLoader,
       };
     }
+    case "setCurrentlyPlayingTitle": {
+      return {
+        ...state,
+        currentlyPlayingTitle: action.title,
+      };
+    }
+    case "setAudioCurrentTime": {
+      return {
+        ...state,
+        audioCurrentTime: action.time,
+      };
+    }
     default: {
-      throw Error("Unknown action: ");
+      throw Error("Unknown action: " + action.type);
     }
   }
 }
@@ -59,4 +71,6 @@ function appsReducer(state: AppState, action: AppAction): AppState {
 const initialState: AppState = {
   selectedBook: null,
   showLoader: false,
+  currentlyPlayingTitle: null,
+  audioCurrentTime: 0,
 };

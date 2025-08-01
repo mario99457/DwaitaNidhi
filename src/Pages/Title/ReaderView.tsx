@@ -147,10 +147,28 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc, 
           boxShadow: 1,
           p: 2,
           height: 'fit-content',
+          maxHeight: 'calc(100vh - 120px)', // Ensure it doesn't exceed viewport height
+          overflowY: 'auto', // Enable vertical scrolling
+          overflowX: 'hidden', // Hide horizontal overflow
+
           display: { xs: 'none', md: 'block' }, // Hide sidebar on mobile
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-track': {
+            background: '#f1f1f1',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            background: '#c1c1c1',
+            borderRadius: '3px',
+            '&:hover': {
+              background: '#a8a8a8',
+            },
+          },
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2, color: '#BC4501', fontWeight: 700, fontSize: '1.1rem' }}>
+        <Typography variant="h6" sx={{ mb: 2, color: '#BC4501', fontWeight: 700, fontSize: { xs: '1.3rem', md: '1.5rem' } }}>
           {'अध्यायः'}
         </Typography>
         <nav>
@@ -165,11 +183,19 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc, 
                   textDecoration: 'none',
                   marginBottom: 2,
                   fontSize: '1rem',
-                  padding: '2px 0',
+                  padding: '4px 8px',
                   cursor: 'pointer',
                   wordBreak: 'break-word',
                   whiteSpace: 'normal',
                   maxWidth: '100%',
+                  borderRadius: '4px',
+                  transition: 'background-color 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#F0F0F0';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
                 }}
                 onClick={e => {
                   e.preventDefault();
@@ -194,11 +220,19 @@ const ReaderView: React.FC<ReaderViewProps> = ({ titles, commentaryScript, toc, 
                         textDecoration: 'none',
                         fontSize: '0.97rem',
                         marginBottom: 1,
-                        padding: '2px 0',
+                        padding: '3px 8px',
                         cursor: 'pointer',
                         wordBreak: 'break-word',
                         whiteSpace: 'normal',
                         maxWidth: '100%',
+                        borderRadius: '4px',
+                        transition: 'background-color 0.2s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#F0F0F0';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
                       }}
                       onClick={e => {
                         e.preventDefault();

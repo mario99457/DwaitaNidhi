@@ -1602,6 +1602,82 @@ export class GenericBook {
     }
 }
 
+// Generic audio highlighting service that works for any book
+export class AudioHighlightingService {
+  // Generic method to get currently playing title based on audio timestamp
+  static getCurrentlyPlayingTitle(currentTime: number, bookName?: string): any {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      console.warn(`No valid data found for ${bookIndexKey}`);
+      return null;
+    }
+
+    // Find the title that encompasses the current time
+    const currentTitle = bookData.data.find((title: any) => {
+      const startTime = title.startTime || 0;
+      const endTime = title.endTime || 0;
+      return currentTime >= startTime && currentTime <= endTime;
+    });
+
+    return currentTitle || null;
+  }
+
+  // Generic method to get next title based on audio timestamp
+  static getNextTitle(currentTime: number, bookName?: string): string {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      console.warn(`No valid data found for ${bookIndexKey}`);
+      return null;
+    }
+
+    // Find the next title whose start time is greater than current time
+    const nextTitle = bookData.data.find((title: any) => {
+      const startTime = title.startTime || 0;
+      return currentTime < startTime;
+    });
+
+    return nextTitle || null;
+  }
+
+  // Generic method to check if a title has timestamp data
+  static hasTimestampData(bookName?: string): boolean {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      return false;
+    }
+
+    // Check if any title has startTime and endTime properties
+    return bookData.data.some((title: any) => 
+      title.startTime !== undefined && title.endTime !== undefined
+    );
+  }
+
+  // Generic method to get all titles with timestamps for a book
+  static getTitlesWithTimestamps(bookName?: string): any[] {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      return [];
+    }
+
+    // Return only titles that have timestamp data
+    return bookData.data.filter((title: any) => 
+      title.startTime !== undefined && title.endTime !== undefined
+    );
+  }
+}
+
 export class ArrayExtension extends Array {
   constructor(){
     super()
