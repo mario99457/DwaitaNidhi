@@ -3,6 +3,7 @@ import React from "react";
 import { SearchResultData } from "./index";
 import Parser from "html-react-parser";
 import { useNavigate } from "react-router-dom";
+import navigationHistory from "../../Services/Common/NavigationHistory";
 
 interface SearchCardProps extends SearchResultData {
   isMobile: boolean;
@@ -21,7 +22,14 @@ const SearchCard: React.FC<SearchCardProps> = ({
 
   const handleSearchResultClick = () => {
     sessionStorage.setItem("search", searchParam);
+    // Ensure search page is in history before navigating
+    navigationHistory.push('/search', 'Search');
+    // Then navigate to details page
     navigate(datanav);
+    // Push details page to history after navigation
+    setTimeout(() => {
+      navigationHistory.push(datanav, title);
+    }, 0);
   };
 
   return (

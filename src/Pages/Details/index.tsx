@@ -47,6 +47,7 @@ import { Prefetch } from "../../Services/Common/GlobalServices";
 import { ContentEditableEvent } from "react-contenteditable";
 import Sanscript from '@indic-transliteration/sanscript';
 import Tooltip from '@mui/material/Tooltip';
+import navigationHistory from "../../Services/Common/NavigationHistory";
 
 interface Commentary {
   name: string;
@@ -93,30 +94,52 @@ const DetailPage = () => {
   const navigate = useNavigate();
  
   const handleBackToIndex = () => {
-    // Get the current view from localStorage to preserve it
-    const savedState = localStorage.getItem('titleIndexState');
-    let view = 'list'; // default view
+    // Get smart back destination
+    const backDestination = navigationHistory.getSmartBackDestination(window.location.pathname);
+    
+    if (backDestination === '/search') {
+      // Going back to search page
+      navigate('/search');
+    } else if (backDestination !== '/' && backDestination.split('/').filter(part => part.length > 0).length === 1) {
+      // Going back to title/index page
+      const savedState = localStorage.getItem('titleIndexState');
+      let view = 'list'; // default view
 
-    if (savedState) {
-      try {
-        const state = JSON.parse(savedState);
-        view = state.view || 'list';
-      } catch (error) {
-        console.log('Error parsing saved state:', error);
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState);
+          view = state.view || 'list';
+        } catch (error) {
+          console.log('Error parsing saved state:', error);
+        }
       }
+
+      navigate(backDestination, {
+        state: {
+          preserveScroll: true,
+          fromDetails: true,
+          view: view,
+          timestamp: Date.now()
+        }
+      });
+    } else {
+      // Default fallback to title page
+      navigate(`/${bookName}`, {
+        state: {
+          preserveScroll: true,
+          fromDetails: true,
+          view: 'list',
+          timestamp: Date.now()
+        }
+      });
     }
-
-    // Navigate back with state to preserve the view and indicate we're coming from details
-    navigate(`/${bookName}`, {
-      state: {
-        preserveScroll: true,
-        fromDetails: true,
-        view: view,
-        timestamp: Date.now()
-      }
-    });
   };
  
+  // Track navigation history
+  useEffect(() => {
+    navigationHistory.push(window.location.pathname, selectedTitle?.s || 'Details');
+  }, [selectedTitle]);
+
   // Add keyboard shortcut for back navigation
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -525,7 +548,16 @@ const DetailPage = () => {
                   fontWeight: "500",
                 }}
               >
-                Back to Index
+                {(() => {
+                  const backDestination = navigationHistory.getSmartBackDestination(window.location.pathname);
+                  if (backDestination === '/search') {
+                    return 'Back to Search';
+                  } else if (backDestination !== '/' && backDestination.split('/').filter(part => part.length > 0).length === 1) {
+                    return 'Back to Index';
+                  } else {
+                    return 'Back';
+                  }
+                })()}
               </Typography>
             </Box>
             {/* <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>

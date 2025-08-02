@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import CachedData, { GenericBook, Prefetch } from "../../Services/Common/GlobalServices";
+import navigationHistory from "../../Services/Common/NavigationHistory";
 import { Book } from "../../types/Context.type";
 import { Title } from "../../types/GlobalType.type";
 import { useAppData } from "../../Store/AppContext";
@@ -42,6 +43,11 @@ const TitlePage = () => {
   const [isScrollRestored, setIsScrollRestored] = useState(false);
   const [isUserScrolling, setIsUserScrolling] = useState(false);
   const [hasRestoredScroll, setHasRestoredScroll] = useState(false);
+
+  // Track navigation history
+  useEffect(() => {
+    navigationHistory.push(window.location.pathname, selectedBook?.title || 'Title Index');
+  }, [selectedBook]);
 
   const handleTitleClick = (selectedTitle: Title) => {
     // Save current state before navigating with proper scroll detection
@@ -86,7 +92,10 @@ const TitlePage = () => {
     };
     localStorage.setItem('titleIndexState', JSON.stringify(currentState));
     
-    navigate(`/${bookName}/${selectedTitle.i}`);
+    // Track navigation to details page
+    const detailsPath = `/${bookName}/${selectedTitle.i}`;
+    navigationHistory.push(detailsPath, selectedTitle.s || 'Details');
+    navigate(detailsPath);
   };
 
   const handleSearch = (searchTerm: string) => {
