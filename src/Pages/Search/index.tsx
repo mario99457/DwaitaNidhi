@@ -15,7 +15,9 @@ import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
 import { Book } from "../../types/Context.type";
 import CloseIcon from "@mui/icons-material/Close";
 import SearchCard from "./SearchCard";
-import { useLocation, useNavigationType } from "react-router-dom";
+import { useLocation, useNavigationType, useNavigate } from "react-router-dom";
+import { Prefetch } from "../../Services/Common/GlobalServices";
+import navigationHistory from "../../Services/Common/NavigationHistory";
 
 export interface SearchResultData {
   title: string;
@@ -38,8 +40,8 @@ export const StyledChip = styled(Chip)<{ selected: boolean }>(
 const SearchPage = () => {
   const [selectedOption, setSelectedOption] = useState("all");
   const [searchParam, setSearchParam] = useState("");
-  const availableBooks = CachedData.data.books
-          .filter((book: Book) => book.searchable)
+  const availableBooks = CachedData.data?.books?.filter(
+    (book: Book) => book.searchable)
           .map((book: Book) => {
             return {
               name: book.name,
@@ -49,11 +51,12 @@ const SearchPage = () => {
   const [searchResult, setSearchResult] = useState<
     SearchResultData[] | undefined
   >([]);
-  const searchEnabledBooks = CachedData.data.books.filter((book: Book) => book.searchable).map(b => b.name);
+  const searchEnabledBooks = CachedData.data?.books?.filter((book: Book) => book.searchable).map(b => b.name);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
   const navigationType = useNavigationType();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedSearch = sessionStorage.getItem("search");
@@ -71,35 +74,79 @@ const SearchPage = () => {
     }
   }, []);
 
+  // Track navigation history
+  useEffect(() => {
+    // Only push to history if we're actually on the search page
+    if (window.location.pathname === '/search') {
+      navigationHistory.push('/search', 'Search');
+    }
+  }, [location.pathname]);
+
   // var searchResults = getBookClass().
 
   const handleSearch = (searchTerm = searchParam) => {
-    const result = GenericBook.searchBooks(
-      searchTerm,
-      selectedOption
-    );
-    const searchData = result?.map((item: any) => {
-      const data = {} as SearchResultData;
-      data.title = item.name;
-      data.author = item.commentaries[0]?.author;
-      data.content = item.commentaries[0]?.fragment;
-      data.bookName = item.commentaries[0]?.name;
-      data.datanav = item.commentaries[0]?.datanav;
-      return data;
-    });
-    setSearchResult(searchData);
+    // Load all searchable books if not already loaded
+    const loadSearchableBooks = async () => {
+      const searchableBooks = CachedData.data.books?.filter((book: Book) => book.searchable);
+      
+      for (const book of searchableBooks || []) {
+        const bookIndexKey = book.name + "index";
+        const bookSummaryKey = book.name + "summary";
+        
+        if (!CachedData.data[bookIndexKey] || !CachedData.data[bookSummaryKey]) {
+          await Prefetch.loadBookData(book.name);
+        }
+      }
+      
+      // Now perform the search
+      const result = GenericBook.searchBooks(
+        searchTerm,
+        selectedOption
+      );
+      const searchData = result?.map((item: any) => {
+        const data = {} as SearchResultData;
+        data.title = item.name;
+        data.author = item.commentaries[0]?.author;
+        data.content = item.commentaries[0]?.fragment;
+        data.bookName = item.commentaries[0]?.name;
+        data.datanav = item.commentaries[0]?.datanav;
+        return data;
+      });
+      setSearchResult(searchData);
+    };
+
+    loadSearchableBooks();
   };
 
   return (
     <Box sx={{ padding: { lg: "22px 20%", xs: "22px 5%" } }}>
-      <Typography
-        fontFamily="Poppins"
-        fontSize="26px"
-        fontWeight={600}
-        color="#BC4501"
-      >
-        Search
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography
+          fontFamily="Poppins"
+          fontSize="26px"
+          fontWeight={600}
+          color="#BC4501"
+        >
+          Search
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button 
+            onClick={() => navigationHistory.debugHistory()}
+            variant="outlined"
+            size="small"
+          >
+            Debug History
+          </Button>
+          <Button 
+            onClick={() => navigationHistory.clearHistory()}
+            variant="outlined"
+            size="small"
+            color="error"
+          >
+            Clear History
+          </Button>
+        </Box>
+      </Box>
       <Stack direction="row" mt={3} spacing={2}>
         <TextField
           id="outlined-basic"
@@ -145,7 +192,14 @@ const SearchPage = () => {
           GO
         </Button>
       </Stack>
-      <Stack direction="row" mt={3} spacing={2}>
+      <Box 
+        sx={{ 
+          mt: 3,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2
+        }}
+      >
         <StyledChip
             sx={{ fontSize:"1.1em" }}
             label={`All ${
@@ -169,7 +223,7 @@ const SearchPage = () => {
             key={item.name}
           />
         ))}
-      </Stack>
+      </Box>
       <Stack direction="column" mt={3} spacing={2}>
         {searchResult?.map((item: SearchResultData, index: number) => (
           <SearchCard

@@ -1,11 +1,10 @@
 import localforage from "localforage";
 import Utils from "./Utils";
 import Formatter, { D, E, F, TH } from "./Formatter";
-import GlobalSearch, { CommentarySearch } from "./Search";
-import { json } from "react-router-dom";
+import GlobalSearch from "./Search";
 import { Buffer } from "buffer";
 
-class ApiEndpoints {
+export class ApiEndpoints {
 
   static FetchTimeoutMs: number = 4e3;
   static gitHubServer: string = "";
@@ -18,6 +17,15 @@ class ApiEndpoints {
     ApiEndpoints.availableGithubServerUrls.githubusercontent,
   ];
   static gitHubServerUrls: string[] = ApiEndpoints.gitHubServerDefaultUrls;
+  
+  // GitHub authentication
+  static GITHUB_TOKEN: string = ""; // Will be set from environment or user input
+  static USE_AUTHENTICATION: boolean = false;
+  
+  // Chunked data loading
+  static CHUNK_SIZE: number = 50; // Number of items per chunk
+  static loadedChunks: { [key: string]: Set<number> } = {};
+  
   static audioEndPoints: { [key: string]: string } = (() => {
     let t: { [key: string]: string } = {
           audio: "/sutraani/audio.txt"
@@ -26,22 +34,315 @@ class ApiEndpoints {
   })();
 
   static prefetchEndPoints: { [key: string]: string } = {
-    sutraani: "sutraani/index.txt",
+/*     sutraani: "sutraani/index.txt",
     bhashyam: "sutraani/bhashya.txt",
-    sutradipika: "sutraani/sutradipika.txt",
+    sutradipika: "sutraani/sutradipika.txt", */
     books: "books.txt",
-    sutraaniSummary: "sutraani/summary.txt",
+/*     sutraaniSummary: "sutraani/summary.txt",
     gitaIndex: "gita/index.txt",
     gbhashyam: "gita/bhashya.txt",
     gitaSummary: "gita/summary.txt",
     prameyadipika: "gita/prameyadipika.txt",
-    audio:"sutraani/audio.txt"
+    audio:"sutraani/audio.txt" */
   };
   static allEndPoints: { [key: string]: string } = {
     ...ApiEndpoints.prefetchEndPoints,
     ...ApiEndpoints.audioEndPoints,
   };
-  static setAvailableServerList(): void {
+
+  // Dynamic endpoint protection
+  static endpointVariations: { [key: string]: string[] } = {
+    'books': ['books.txt'], // Only use the correct file name
+    // 'sutraaniindex': ['sutraani/index.txt'],
+    // 'sutraanisummary': ['sutraani/summary.txt'],
+    // 'bhashyam': ['sutraani/bhashya.txt'],
+    // 'sutradipika': ['sutraani/sutradipika.txt'],
+    // 'gitaIndex': ['gita/index.txt'],
+    // 'gitaSummary': ['gita/summary.txt'],
+    // 'gbhashyam': ['gita/bhashya.txt'],
+    // 'prameyadipika': ['gita/prameyadipika.txt']
+  };
+
+  // Get a random endpoint variation to make scraping harder
+  static getRandomEndpoint(endpoint: string): string {
+    const variations = ApiEndpoints.endpointVariations[endpoint];
+    if (variations && variations.length > 0) {
+      // Since we only have one file per endpoint now, always return the first one
+      return variations[0];
+    }
+    return ApiEndpoints.allEndPoints[endpoint] || `${endpoint}.txt`;
+  }
+
+  // Method to set GitHub token
+  static setGitHubToken(token: string): void {
+    ApiEndpoints.GITHUB_TOKEN = token;
+    ApiEndpoints.USE_AUTHENTICATION = !!token;
+    console.log("GitHub authentication enabled");
+  }
+
+  // Method to clear GitHub token
+  static clearGitHubToken(): void {
+    ApiEndpoints.GITHUB_TOKEN = "";
+    ApiEndpoints.USE_AUTHENTICATION = false;
+    console.log("GitHub authentication disabled");
+  }
+
+  // Get authentication headers
+  static getAuthHeaders(): HeadersInit {
+    if (ApiEndpoints.USE_AUTHENTICATION && ApiEndpoints.GITHUB_TOKEN) {
+      return {
+        'Authorization': `token ${ApiEndpoints.GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3.raw',
+        'User-Agent': 'DwaitaNidhi-App'
+      };
+    }
+    return {};
+  }
+
+  // Additional protection strategies
+  static requestCount: { [key: string]: number } = {};
+  static lastRequestTime: { [key: string]: number } = {};
+  static MAX_REQUESTS_PER_MINUTE = 100; // Increased from 30
+  static REQUEST_THROTTLE_MS = 500; // Reduced from 2000ms to 500ms
+  static ENABLE_THROTTLING = false; // Temporarily disabled for debugging
+
+  // Throttle requests to prevent rapid data extraction
+  static async throttleRequest(endpoint: string): Promise<boolean> {
+    // Skip throttling if disabled
+    if (!ApiEndpoints.ENABLE_THROTTLING) {
+      return true;
+    }
+
+    const now = Date.now();
+    const lastRequest = ApiEndpoints.lastRequestTime[endpoint] || 0;
+    const requestCount = ApiEndpoints.requestCount[endpoint] || 0;
+
+    // Reset counter if more than 1 minute has passed
+    if (now - lastRequest > 60000) {
+      ApiEndpoints.requestCount[endpoint] = 0;
+    }
+
+    // Check if too many requests
+    if (requestCount >= ApiEndpoints.MAX_REQUESTS_PER_MINUTE) {
+      console.warn(`Rate limit exceeded for ${endpoint}`);
+      return false;
+    }
+
+    // Check throttle - only apply to rapid successive requests
+    if (now - lastRequest < ApiEndpoints.REQUEST_THROTTLE_MS && requestCount > 5) {
+      console.warn(`Request throttled for ${endpoint} - too many rapid requests`);
+      return false;
+    }
+
+    // Update counters
+    ApiEndpoints.requestCount[endpoint] = requestCount + 1;
+    ApiEndpoints.lastRequestTime[endpoint] = now;
+    return true;
+  }
+
+  // Method to disable throttling (for development)
+  static disableThrottling(): void {
+    ApiEndpoints.ENABLE_THROTTLING = false;
+    console.log("Request throttling disabled for development");
+  }
+
+  // Method to enable throttling
+  static enableThrottling(): void {
+    ApiEndpoints.ENABLE_THROTTLING = true;
+    console.log("Request throttling enabled");
+  }
+
+  // Obfuscate data to make it harder to understand
+  static obfuscateData(data: any): any {
+    if (Array.isArray(data)) {
+      return data.map(item => ApiEndpoints.obfuscateData(item));
+    } else if (data && typeof data === 'object') {
+      const obfuscated = {};
+      Object.keys(data).forEach(key => {
+        // Use non-obvious key names
+        const obfuscatedKey = btoa(key).slice(0, 8);
+        obfuscated[obfuscatedKey] = ApiEndpoints.obfuscateData(data[key]);
+      });
+      return obfuscated;
+    }
+    return data;
+  }
+
+  // Deobfuscate data for use in the app
+  static deobfuscateData(data: any): any {
+    if (Array.isArray(data)) {
+      return data.map(item => ApiEndpoints.deobfuscateData(item));
+    } else if (data && typeof data === 'object') {
+      const deobfuscated = {};
+      Object.keys(data).forEach(obfuscatedKey => {
+        // Try to find the original key
+        const originalKey = this.findOriginalKey(obfuscatedKey);
+        if (originalKey) {
+          deobfuscated[originalKey] = ApiEndpoints.deobfuscateData(data[obfuscatedKey]);
+        }
+      });
+      return deobfuscated;
+    }
+    return data;
+  }
+
+  // Map of obfuscated keys to original keys
+  static keyMap: { [key: string]: string } = {};
+
+  static findOriginalKey(obfuscatedKey: string): string {
+    // This is a simplified version - in practice you'd have a proper mapping
+    const commonKeys = ['i', 's', 'a', 'p', 'n', 'e', 'pc', 'name', 'title', 'author', 'key'];
+    for (const key of commonKeys) {
+      if (btoa(key).slice(0, 8) === obfuscatedKey) {
+        return key;
+      }
+    }
+    return obfuscatedKey; // Fallback
+  }
+
+  // Enhanced loadDataChunk with all protections
+  static async loadDataChunk(endpoint: string, chunkIndex: number): Promise<any> {
+    // Check throttling
+    if (!(await ApiEndpoints.throttleRequest(endpoint))) {
+      throw new Error('Request rate limited');
+    }
+
+    const chunkKey = `${endpoint}_chunk_${chunkIndex}`;
+    
+    // Check if chunk is already loaded
+    if (CachedData.data[chunkKey]) {
+      return CachedData.data[chunkKey];
+    }
+
+    try {
+      let url: string;
+      
+      // Use random endpoint variation
+      const filePath = ApiEndpoints.getRandomEndpoint(endpoint);
+      
+      if (ApiEndpoints.USE_AUTHENTICATION && ApiEndpoints.GITHUB_TOKEN) {
+        // Use GitHub API with authentication
+        url = `https://api.github.com/repos/mario99457/dwaitanidhi_data/contents/${filePath}`;
+      } else {
+        // Use raw.githubusercontent.com (public access)
+        url = `${ApiEndpoints.availableGithubServerUrls.githubusercontent}${filePath}`;
+      }
+
+      const headers = ApiEndpoints.getAuthHeaders();
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: headers,
+        signal: AbortSignal.timeout(ApiEndpoints.FetchTimeoutMs)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      let fullData;
+      if (ApiEndpoints.USE_AUTHENTICATION) {
+        // GitHub API returns base64 encoded content
+        const jsonResponse = await response.json();
+        if (jsonResponse.content && jsonResponse.encoding === 'base64') {
+          fullData = JSON.parse(atob(jsonResponse.content));
+        } else {
+          throw new Error('Invalid response format from GitHub API');
+        }
+      } else {
+        // Raw content from raw.githubusercontent.com
+        fullData = await response.json();
+      }
+
+      // Obfuscate the data before storing
+      const obfuscatedData = ApiEndpoints.obfuscateData(fullData);
+
+      // Split data into chunks
+      const chunks = ApiEndpoints.splitDataIntoChunks(obfuscatedData, ApiEndpoints.CHUNK_SIZE);
+      
+      // Store all chunks in cache (obfuscated)
+      chunks.forEach((chunk, index) => {
+        const chunkKey = `${endpoint}_chunk_${index}`;
+        CachedData.data[chunkKey] = chunk;
+      });
+
+      // Track loaded chunks
+      if (!ApiEndpoints.loadedChunks[endpoint]) {
+        ApiEndpoints.loadedChunks[endpoint] = new Set();
+      }
+      ApiEndpoints.loadedChunks[endpoint].add(chunkIndex);
+
+      // Return deobfuscated chunk for use
+      return ApiEndpoints.deobfuscateData(chunks[chunkIndex] || null);
+    } catch (error) {
+      console.error(`Error loading chunk ${chunkIndex} for ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  // Split large data into smaller chunks
+  static splitDataIntoChunks(data: any, chunkSize: number): any[] {
+    if (Array.isArray(data)) {
+      const chunks = [];
+      for (let i = 0; i < data.length; i += chunkSize) {
+        chunks.push(data.slice(i, i + chunkSize));
+      }
+      return chunks;
+    } else if (data && typeof data === 'object') {
+      const keys = Object.keys(data);
+      const chunks = [];
+      for (let i = 0; i < keys.length; i += chunkSize) {
+        const chunkKeys = keys.slice(i, i + chunkSize);
+        const chunk = {};
+        chunkKeys.forEach(key => {
+          chunk[key] = data[key];
+        });
+        chunks.push(chunk);
+      }
+      return chunks;
+    }
+    return [data];
+  }
+
+  // Get specific data by ID without loading entire file
+  static async getDataById(endpoint: string, id: string): Promise<any> {
+    // Calculate which chunk contains this ID
+    const chunkIndex = Math.floor(parseInt(id) / ApiEndpoints.CHUNK_SIZE);
+    
+    try {
+      const chunk = await ApiEndpoints.loadDataChunk(endpoint, chunkIndex);
+      return chunk?.find(item => item.i === id) || null;
+    } catch (error) {
+      console.error(`Error getting data by ID ${id} from ${endpoint}:`, error);
+      return null;
+    }
+  }
+
+  // Get range of data without loading entire file
+  static async getDataRange(endpoint: string, startId: string, endId: string): Promise<any[]> {
+    const startChunk = Math.floor(parseInt(startId) / ApiEndpoints.CHUNK_SIZE);
+    const endChunk = Math.floor(parseInt(endId) / ApiEndpoints.CHUNK_SIZE);
+    
+    const results = [];
+    
+    for (let chunkIndex = startChunk; chunkIndex <= endChunk; chunkIndex++) {
+      try {
+        const chunk = await ApiEndpoints.loadDataChunk(endpoint, chunkIndex);
+        if (chunk) {
+          const filtered = chunk.filter(item => 
+            parseInt(item.i) >= parseInt(startId) && parseInt(item.i) <= parseInt(endId)
+          );
+          results.push(...filtered);
+        }
+      } catch (error) {
+        console.error(`Error loading chunk ${chunkIndex} for range query:`, error);
+      }
+    }
+    
+    return results;
+  }
+
+  static async setAvailableServerList(): Promise<void> {
     let t: string | "" = localStorage.userSelectedDataSource;
     if (ApiEndpoints.availableGithubServerUrls[t]) {
       ApiEndpoints.gitHubServerUrls = [
@@ -56,8 +357,8 @@ class ApiEndpoints {
       console.log("Github Server set to ALL.");
     }
   }
-  static chooseGitHubServer(e: () => void = () => {}, a: number = 0): void {
-    let t: string | null, i: string;
+
+  static async chooseGitHubServer(e: () => void = () => {}, a: number = 0): Promise<void> {
     ApiEndpoints.gitHubServer = "";
     if (navigator.onLine) {
       if (a >= ApiEndpoints.gitHubServerUrls.length) {
@@ -66,173 +367,200 @@ class ApiEndpoints {
         );
         e();
       } else {
-        t = localStorage.userSelectedDataSource;
-        if (t && "auto" !== t) {
-          console.log(
-            "Reminder: Github Server restricted by the user to: ",
-            ApiEndpoints.availableGithubServerUrls[t]
-          );
-        }
-        i = ApiEndpoints.gitHubServerUrls[a];
+        const i = ApiEndpoints.gitHubServerUrls[a];
         console.log("Attempting to reach github server: ", i + "README.md");
-        fetch(i + "README.md")
-          .then((t : any) => {
-            if (t && 200 == t.status) {
-              ApiEndpoints.gitHubServer = i;
-              console.log("Successfully contacted GitHub URL: ", i);
-              e();
-            } else {
-              console.log("Unable to contact Github URL: ", i);
-              ApiEndpoints.chooseGitHubServer(e, a + 1);
-            }
-          })
-          .catch((t : any) => {
-            console.log("Unable to contact GitHub URL: ", t);
-            ApiEndpoints.chooseGitHubServer(e, a + 1);
-          });
+        try {
+          const t = await fetch(i + "README.md");
+          if (t && t.status === 200) {
+            ApiEndpoints.gitHubServer = i;
+            console.log("Successfully contacted GitHub URL: ", i);
+            e();
+          } else {
+            console.log("Unable to contact Github URL: ", i);
+            await ApiEndpoints.chooseGitHubServer(e, a + 1);
+          }
+        } catch (t) {
+          console.log("Unable to contact GitHub URL: ", t);
+          await ApiEndpoints.chooseGitHubServer(e, a + 1);
+        }
       }
     } else {
       console.log("Device is offline. Github url remains empty.");
       e();
     }
   }
-  static sendRequestToGitHubServer(
-    e: string,
-    a: (t: any) => void = () => {},
-    i: (t: any) => void = () => {}
-  ): void {
-    let n: string;
-    if (ApiEndpoints.allEndPoints[e]) {
-      if (ApiEndpoints.gitHubServer) {
-        n = ApiEndpoints.gitHubServer + ApiEndpoints.allEndPoints[e];
-        fetch(n)
-          .then((t) => (e.endsWith(".wasm") ? t.arrayBuffer() : t.text()))
-            .then((t) => {
-              e.endsWith(".tsv") || e.endsWith(".wasm") || (t = JSON.parse(t)),
-                a(t);
-            })
-          .catch((t) => {
-            console.log(`Error: Server returned error for ${n}:`, t);
-            i(t);
-          });
-      } else {  
-        console.log("Error: No github servers are reachable.");
-        i("SERVERS_UNAVAILABLE");
+
+  static async sendRequestToGitHubServer(
+    endpoint: string,
+    successCallback: (t: any) => void = () => {},
+    errorCallback: (t: any) => void = () => {}
+  ): Promise<void> {
+    const o = Utils.getTime();
+    const maxRetries = 3;
+    const isAudioRequest = endpoint.includes('audio');
+    const timeoutMs = isAudioRequest ? 30000 : ApiEndpoints.FetchTimeoutMs; // 30 seconds for audio, 4 seconds for others
+    
+    try {
+      console.log(`Attempting to fetch endpoint: ${endpoint}`);
+      
+      // Check throttling
+      if (!(await ApiEndpoints.throttleRequest(endpoint))) {
+        console.warn(`Request throttled for ${endpoint}`);
+        errorCallback(`Request throttled for ${endpoint}`);
+        return;
       }
-    } else {
-      console.log(`Error: The endpoint ${e} is unknown.`);
-      i("UNKNOWN_ENDPOINT");
+
+      let url: string;
+      
+      // Use random endpoint variation
+      const filePath = ApiEndpoints.getRandomEndpoint(endpoint);
+      console.log(`Using file path: ${filePath}`);
+      
+      if (ApiEndpoints.USE_AUTHENTICATION && ApiEndpoints.GITHUB_TOKEN) {
+        // Use GitHub API with authentication
+        url = `https://api.github.com/repos/mario99457/dwaitanidhi_data/contents/${filePath}`;
+      } else {
+        // Use raw.githubusercontent.com (public access)
+        url = `${ApiEndpoints.availableGithubServerUrls.githubusercontent}${filePath}`;
+      }
+      
+      console.log(`Making request to: ${url}`);
+
+      const headers = ApiEndpoints.getAuthHeaders();
+      console.log(`Using headers:`, headers);
+      
+      // Retry logic for failed requests
+      let lastError: any = null;
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`Attempt ${attempt}/${maxRetries} for ${endpoint}`);
+          
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+          
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: headers,
+            signal: controller.signal
+          });
+          
+          clearTimeout(timeoutId);
+          console.log(`Response status: ${response.status} ${response.statusText}`);
+
+          if (!response.ok) {
+            console.error(`HTTP error: ${response.status} ${response.statusText}`);
+            lastError = `HTTP ${response.status}: ${response.statusText}`;
+            if (attempt < maxRetries) {
+              console.log(`Retrying in 2 seconds...`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              continue;
+            }
+            errorCallback(lastError);
+            return;
+          }
+
+          let data;
+          if (ApiEndpoints.USE_AUTHENTICATION) {
+            // GitHub API returns base64 encoded content
+            const jsonResponse = await response.json();
+            if (jsonResponse.content && jsonResponse.encoding === 'base64') {
+              data = JSON.parse(Buffer.from(jsonResponse.content, 'base64').toString());
+            } else {
+              data = jsonResponse;
+            }
+          } else {
+            // Raw content from raw.githubusercontent.com
+            const text = await response.text();
+            console.log(`Raw response text length: ${text.length}`);
+            try {
+              data = JSON.parse(text);
+            } catch (parseError) {
+              console.error(`JSON parse error:`, parseError);
+              console.error(`Response text:`, text.substring(0, 200));
+              lastError = `JSON parse error: ${parseError}`;
+              if (attempt < maxRetries) {
+                console.log(`Retrying in 2 seconds...`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                continue;
+              }
+              errorCallback(lastError);
+              return;
+            }
+          }
+
+          console.log(`Successfully parsed data for ${endpoint}:`, data);
+          console.log(`Data type:`, typeof data);
+          console.log(`Is array:`, Array.isArray(data));
+          console.log(`Data length:`, Array.isArray(data) ? data.length : 'N/A');
+          
+          const e = (Utils.getTime() - o) / 1000;
+          const a = Utils.getStorageOfObjectMB(data);
+          console.log(`Server Success: ${endpoint} : ${a} MB : ${e} sec`);
+          
+          successCallback(data);
+          return; // Success, exit retry loop
+          
+        } catch (error: any) {
+          lastError = error;
+          console.error(`Attempt ${attempt} failed for ${endpoint}:`, error);
+          
+          if (error.name === 'AbortError') {
+            console.error(`Request timed out after ${timeoutMs}ms`);
+          }
+          
+          if (attempt < maxRetries) {
+            console.log(`Retrying in 2 seconds...`);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          } else {
+            const e = Utils.getTime();
+            console.error(`Server Failed: ${endpoint} : ${(e - o) / 1000} sec`);
+            console.error(`Error details:`, error);
+            errorCallback(error);
+          }
+        }
+      }
+    } catch (error) {
+      const e = Utils.getTime();
+      console.error(`Server Failed: ${endpoint} : ${(e - o) / 1000} sec`);
+      console.error(`Error details:`, error);
+      errorCallback(error);
     }
   }
-  static pushToGitHubServer(
-    e: string,
-    c: string
-  ): void {
-    let n: string;
-    // if (ApiEndpoints.allEndPoints[e]) {
-      if (ApiEndpoints.availableGithubServerUrls.githubapi) {
-        n = ApiEndpoints.availableGithubServerUrls.githubapi + ApiEndpoints.allEndPoints[e];
-        let o: number;
-        o = Utils.getTime();
 
-        let request = {
-          n, e, c, s:""
+  static async pushToGitHubServer(e: string, c: string): Promise<void> {
+    if (ApiEndpoints.availableGithubServerUrls.githubapi) {
+      const n = ApiEndpoints.availableGithubServerUrls.githubapi + ApiEndpoints.allEndPoints[e];
+      const request = { n, e, c, s: "" };
+      const options = { method: 'GET' };
+
+      try {
+        const data = await fetch('https://dwaitanidhiapi.netlify.app/api/git/fetch?resource=' + n, options);
+        if (data.ok) {
+          const response = await data.json();
+          request["s"] = response.sha;
+
+          const updateResponse = await fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+          });
+
+          if (updateResponse.ok) {
+            await localforage.removeItem(e);
+            console.log(`Removed stale key ${e} from Localforage.`);
+          } else {
+            console.log(await updateResponse.json());
+          }
+        } else {
+          console.log(await data.json());
         }
-
-        let options = {
-          method: 'GET'
-        };
-
-        fetch('https://dwaitanidhiapi.netlify.app/api/git/fetch?resource=' + n, options)
-          .then(async data => {
-            if(data.ok)
-            {
-              let response = await data.json();
-              request["s"] = response.sha;
-
-              fetch('https://dwaitanidhiapi.netlify.app/api/git/update', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(request)
-              })
-                .then(async data => {
-                  if(data.ok)
-                  {
-                    response = await data.json();
-                    localforage.removeItem(e, () => {
-                      console.log(`Removed stale key ${e} from Localforage.`);
-                    });
-                  }
-                  else{
-                    data.json()
-                  }
-                })
-                .catch(e => { return e })
-            }
-            else{
-              data.json()
-            }
-          })
-          .catch(e => { return e })
-       }        
-       else {  
-        console.log("Error: No github servers are reachable.");
+      } catch (e) {
+        console.log(e);
       }
-    // } else {
-    //   console.log(`Error: The endpoint ${e} is unknown.`);
-    //   i("UNKNOWN_ENDPOINT");
-    // }
-  }  
-  // static fetchContentFromGit(n, r, i){
-  //   const customHeaders = new Headers();
-  //   customHeaders.append("Accept", "application/vnd.github+json");
-  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
-  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
-  //   customHeaders.append("Content-Type", "application/json");
-
-  //   fetch(n, {  method: "GET", 
-  //               headers: customHeaders,
-  //               redirect: "follow"
-  //            })
-  //           .then((response) => r(response))
-  //           .then((result) => console.log(result))
-  //           .catch((t) => {
-  //             console.log(`Error: Server returned error for ${n}:`, t);
-  //             i(t);
-  //           });
-  // }
-
-  // static updateContentToGit(n, e, f, s, i){
-  //   const raw = JSON.stringify({
-  //     "message": "Updated content of " + e,
-  //     "committer": {
-  //       "name": "Pramod H B",
-  //       "email": "pramod.hb86@gmail.com"
-  //     },
-  //     "content": f,
-  //     "sha": s
-  //   });
-
-  //   const customHeaders = new Headers();
-  //   customHeaders.append("Accept", "application/vnd.github+json");
-  //   customHeaders.append("Authorization", "Bearer " + ApiEndpoints.gitKey);
-  //   customHeaders.append("X-GitHub-Api-Version", "2022-11-28");
-  //   customHeaders.append("Content-Type", "application/json");
-
-  //   fetch(n, {  method: "PUT", 
-  //               headers: customHeaders,
-  //               body: raw,
-  //               redirect: "follow"
-  //            })
-  //           .then((response) => response.text())
-  //           .then((result) => console.log(result))
-  //           .catch((t) => {
-  //             console.log(`Error: Server returned error for ${n}:`, t);
-  //             i(t);
-  //           });
-  // }
+    } else {
+      console.log("Error: No github servers are reachable.");
+    }
+  }
 }
 
 export default class CachedData {
@@ -248,30 +576,27 @@ export default class CachedData {
     data: [],
   };
   static fetchDone: { [key: string]: boolean } = {};
-  static initializeLocalForage(e: () => void): void {
-    localforage.getItem(CachedData.CACHE_VERSION_KEY).then(function (t : any) {
+
+  static async initializeLocalForage(e: () => void): Promise<void> {
+    try {
+      const t = await localforage.getItem(CachedData.CACHE_VERSION_KEY);
       if (t != CachedData.CACHE_VERSION_VALUE) {
         console.log("New User. Welcome !");
         console.log("Localforage is cleared.");
-        localforage.clear().then(() => {
-          localforage
-            .setItem(
-              CachedData.CACHE_VERSION_KEY,
-              CachedData.CACHE_VERSION_VALUE
-            )
-            .then(function (t : any) {
-              console.log("Localforage is initialized." + t);
-              e();
-            })
-            .catch(function () {});
-        });
+        await localforage.clear();
+        await localforage.setItem(CachedData.CACHE_VERSION_KEY, CachedData.CACHE_VERSION_VALUE);
+        console.log("Localforage is initialized.");
+        e();
       } else {
         console.log("Existing User. Welcome back !");
         console.log("Valid localforage found.");
         e();
       }
-    });
+    } catch (error) {
+      console.error("Error initializing localforage:", error);
+    }
   }
+
   static defaultDataToEmpty(t: string[]): void {
     t.forEach((t) => {
       if (!CachedData.data[t] || !CachedData.data[t].data) {
@@ -282,12 +607,15 @@ export default class CachedData {
       }
     });
   }
-  static fetchDataForKeys(
+
+  static async fetchDataForKeys(
     t: string[],
     n: () => void = () => {},
     s: (t: string) => void = () => {},
-    a: {} = {}
-  ): void {
+    a: {} = {},
+    c: () => void = () => {},
+    storeImmediately: boolean = false
+  ): Promise<void> {
     let r: string[], o: number;
     r = [];
     o = t.length;
@@ -306,7 +634,7 @@ export default class CachedData {
     });
     if (0 < r.length) {
       o = Utils.getTime();
-      CachedData._fetchFromLocalforage(r, n, (t, e) => {
+      await CachedData._fetchFromLocalforage(r, n, async (t, e) => {
         let a: number;
         a = Utils.getTime();
         if (0 < t.length) {
@@ -316,9 +644,9 @@ export default class CachedData {
         if (0 < e.length) {
           console.log("Cache Miss for: ", e);
           a = e.length;
-          ApiEndpoints.chooseGitHubServer(() => {
-            e.forEach((t) =>
-              CachedData._fetchFromServer(
+          await ApiEndpoints.chooseGitHubServer(async () => {
+            for (const t of e) {
+              await CachedData._fetchFromServer(
                 t,
                 () => {
                   CachedData.fetchDone[t] = !0;
@@ -338,110 +666,134 @@ export default class CachedData {
                     --a <= 0 && CachedData._refreshStaleData();
                   }
                 },
-                !0
-              )
-            );
+                storeImmediately
+              );
+            }
           });
         } else if (0 < CachedData.staleKeys.length) {
           console.log("Stale Keys = ", CachedData.staleKeys);
           console.log("Refreshing stale keys from Github server");
-          ApiEndpoints.chooseGitHubServer(() => CachedData._refreshStaleData());
+          await ApiEndpoints.chooseGitHubServer(() => CachedData._refreshStaleData());
         }
       });
     }
   }
-  static _fetchFromLocalforage(
+
+  static async _fetchFromLocalforage(
     t: string[],
     a: () => void,
     i: (t: string[], e: string[]) => void
-  ): void {
-    let n: string[], s: string[], r: number;
-    n = [];
-    s = [];
-    r = t.length;
-    t.forEach((e) => {
-      localforage.getItem(e).then(function (t : any) {
-        if (null === t || CachedData.isFetchedDataExpired(e, t)) {
+  ): Promise<void> {
+    const n: string[] = [];
+    const s: string[] = [];
+    let r = t.length;
+
+    for (const e of t) {
+      try {
+        const data = await localforage.getItem(e);
+        if (data === null || CachedData.isFetchedDataExpired(e, data)) {
           s.push(e);
         } else {
+          CachedData.data[e] = data.data;
           a();
-          CachedData.data[e] = t.data;
           n.push(e);
-          if (CachedData.isFetchedDataStale(e, t)) {
+          if (CachedData.isFetchedDataStale(e, data)) {
             CachedData.staleKeys.push(e);
           }
         }
-        --r <= 0 && i(n, s);
-      });
-    });
+      } catch (error) {
+        console.error(`Error fetching from localforage for key ${e}:`, error);
+      } finally {
+        r--;
+        if (r <= 0) {
+          i(n, s);
+        }
+      }
+    }
   }
-  static _refreshStaleData(): void {
-    if (0 < CachedData.staleKeys.length) {
+
+  static async _refreshStaleData(): Promise<void> {
+    if (CachedData.staleKeys.length > 0) {
       console.log("Refreshing stale data: ", CachedData.staleKeys);
-      CachedData.staleKeys.forEach((t) => CachedData._fetchFromServer(t));
+      for (const key of CachedData.staleKeys) {
+        await CachedData._fetchFromServer(key);
+      }
       CachedData.staleKeys = [];
     }
   }
-  static _fetchFromServer(
+
+  static async _fetchFromServer(
     i: string,
     n: () => void = () => {},
     s: (t: any, e: any) => void = () => {},
-    r: boolean = !1
-  ): void {
-    let o: number;
-    o = Utils.getTime();
-    ApiEndpoints.sendRequestToGitHubServer(
-      i,
-      (t) => {
-        let e: number, a: number;
-        e = (Utils.getTime() - o) / 1e3;
-        a = Utils.getStorageOfObjectMB(t);
-        console.log(`Server Success: ${i} : ${a} MB : ${e} sec`);
-        CachedData.setValueInLocalForage(i, t, s);
-        if (r) {
-          CachedData.data[i] = t;
+    r: boolean = false
+  ): Promise<void> {
+    const o = Utils.getTime();
+    try {
+      const t = await ApiEndpoints.sendRequestToGitHubServer(
+        i,
+        async (data) => {
+          const e = (Utils.getTime() - o) / 1000;
+          const a = Utils.getStorageOfObjectMB(data);
+          console.log(`Server Success: ${i} : ${a} MB : ${e} sec`);
+          await CachedData.setValueInLocalForage(i, data, s);
+          if (r) {
+            CachedData.data[i] = data;
+          }
+          n();
+        },
+        (error) => {
+          const e = Utils.getTime();
+          console.log(`Server Failed: ${i}  : ${(e - o) / 1000} sec`);
+          if (!i) {
+            console.log("Error, key is not available");
+          }
+          s(error, i);
         }
-        n();
-      },
-      (t) => {
-        let e: number;
-        e = Utils.getTime();
-        console.log(`Server Failed: ${i}  : ${(e - o) / 1e3} sec`);
-        if (!i) {
-          console.log("Error, key is not available");
-        }
-        s(t, i);
-      }
-    );
+      );
+    } catch (error) {
+      console.error(`Error fetching from server for key ${i}:`, error);
+    }
   }
-  static setValueInLocalForage(
+
+  static async setValueInLocalForage(
     t: string,
     e: any,
     a: (t: any, e: any) => void = () => {}
-  ): void {
-    e = {
-      data: e,
-      time: Utils.getTime(),
-    };
-    localforage.setItem(t, e).catch((t) => a(t, e));
+  ): Promise<void> {
+    try {
+      const data = {
+        data: e,
+        time: Utils.getTime(),
+      };
+      await localforage.setItem(t, data);
+    } catch (error) {
+      a(error, e);
+    }
   }
-  static getValueFromLocalForage(t: string, e: (t: any) => void): void {
-    localforage.getItem(t).then((t) => {
-      e(t);
-    });
+
+  static async getValueFromLocalForage(t: string): Promise<any> {
+    try {
+      return await localforage.getItem(t);
+    } catch (error) {
+      console.error(`Error getting value from localforage for key ${t}:`, error);
+      return null;
+    }
   }
+
   static isFetchedDataExpired(t: any, e: any): boolean {
     return (
       !t.startsWith("audio") &&
       ((t = e.time || 0), Utils.getTime() - t > CachedData.expireThresholdInMs)
     );
   }
+
   static isFetchedDataStale(t: any, e: any): boolean {
     return (
       !t.startsWith("audio") &&
       ((t = e.time || 0), Utils.getTime() - t > CachedData.staleThresholdInMs)
     );
-  }  
+  }
 
   static getBookClass(name: any) {
     if (name == "sutraani") {
@@ -452,6 +804,35 @@ export default class CachedData {
     }
     return null;
   }
+
+  static async clearAllCache(): Promise<void> {
+    try {
+      console.log("Clearing all cached data...");
+      
+      // Clear all cached data
+      await localforage.clear();
+      
+      // Reset CachedData state
+      CachedData.data = {};
+      CachedData.fetchDone = {};
+      CachedData.staleKeys = [];
+      
+      // Reinitialize localforage
+      await localforage.setItem(CachedData.CACHE_VERSION_KEY, CachedData.CACHE_VERSION_VALUE);
+      
+      console.log("All cached data cleared successfully");
+      
+      // Immediately reload books.txt so navigation works without refresh
+      console.log("Reloading books.txt after cache clear...");
+      await Prefetch.loadInitialData(() => {
+        console.log("Books data reloaded successfully after cache clear");
+      });
+      
+    } catch (error) {
+      console.error("Error clearing cache:", error);
+      throw error;
+    }
+  }
 }
 export class Prefetch {
   static startTime: number = 0;
@@ -459,113 +840,199 @@ export class Prefetch {
   static callback: any;
   static keysToPrefetch: string[] = [];
   static pendingResolve: number = 0;
-  static showPrefetchDialog(t: () => void): void {
+
+  static async showPrefetchDialog(t: () => void): Promise<void> {
     t();
-    //TODO: Show progress bar
+    // TODO: Show progress bar
   }
-  static hidePrefetchDialog(): void {
-    //TODO: Hide progress bar
+
+  static async hidePrefetchDialog(): Promise<void> {
+    // TODO: Hide progress bar
   }
-  static prefetchRequiredServerData(
+
+  static async prefetchRequiredServerData(
     t: string[],
     e: () => void
   ): Promise<string> {
     t = (t || []).filter((t) => !0 !== CachedData.fetchDone[t]);
-    if (0 == t.length) {
+    if (t.length === 0) {
       e();
-    } else {
-      Prefetch.showPrefetchDialog(() => {
-        Prefetch.keysToPrefetch = t;
-        Prefetch.callback = e;
-        Prefetch.pendingResolve = Prefetch.keysToPrefetch.length;
-        Prefetch.startTime = Utils.getTime();
-        console.log("Attempting to prefetch: ", Prefetch.keysToPrefetch);
-        CachedData.fetchDataForKeys(
-          Prefetch.keysToPrefetch,
-          Prefetch.prefetchProgressHandler,
-          Prefetch.prefetchProgressHandler
-        );
-      });
+      return "No data to prefetch";
     }
-    return new Promise((res) => {
-      res("Data fetched");
+
+    await Prefetch.showPrefetchDialog(async () => {
+      Prefetch.keysToPrefetch = t;
+      Prefetch.callback = e;
+      Prefetch.pendingResolve = Prefetch.keysToPrefetch.length;
+      Prefetch.startTime = Utils.getTime();
+      console.log("Attempting to prefetch: ", Prefetch.keysToPrefetch);
+
+      await CachedData.fetchDataForKeys(
+        Prefetch.keysToPrefetch,
+        Prefetch.prefetchProgressHandler,
+        Prefetch.prefetchErrorHandler
+      );
     });
+
+    return "Data fetched";
   }
-  static prefetchProgressHandler(): void {
-    //TODO: Progress bar % based on number of files to be fetched
+
+  // New method: Load only books.json initially
+  static async loadInitialData(e: () => void): Promise<void> {
+    try {
+      const startTime = Utils.getTime();
+      console.log("Loading initial books.json...");
+      console.log("Available endpoints:", ApiEndpoints.allEndPoints);
+      
+      await CachedData.fetchDataForKeys(
+        ["books"],
+        async () => {
+          const loadTime = (Utils.getTime() - startTime) / 1000;
+          console.log(`books.json loaded successfully in ${loadTime} seconds.`);
+          console.log("Books data:", CachedData.data.books);
+          console.log("Books data type:", typeof CachedData.data.books);
+          console.log("Books is array:", Array.isArray(CachedData.data.books));
+          console.log("Books length:", CachedData.data.books?.length);
+          console.log("App ready for navigation - much faster startup!");
+          e();
+        },
+        (errorKey) => {
+          console.error(`Error loading books.json: ${errorKey}`);
+          console.error("Full error details:", errorKey);
+          e(); // Still call callback to prevent app from hanging
+        },
+        {}, // endpoints
+        () => {}, // progress callback
+        true // store immediately
+      );
+    } catch (error) {
+      console.error("Error during loadInitialData:", error);
+      e(); // Still call callback to prevent app from hanging
+    }
   }
-  static prefetchErrorHandler(): void {
+
+  // New method: Load specific book data when accessed
+  static async loadBookData(bookName: string, callback: () => void = () => {}): Promise<void> {
+    try {
+      const startTime = Utils.getTime();
+      const book = CachedData.data.books?.find((book: any) => book.name === bookName);
+      if (!book) {
+        console.error(`Book ${bookName} not found in books.json`);
+        callback();
+        return;
+      }
+
+      const keysToLoad: string[] = [];
+      const endpointsToAdd: { [key: string]: string } = {};
+
+      // Add index and summary
+      endpointsToAdd[bookName + "index"] = bookName + "/index.txt";
+      endpointsToAdd[bookName + "summary"] = bookName + "/summary.txt";
+      keysToLoad.push(bookName + "index");
+      keysToLoad.push(bookName + "summary");
+
+      // Add audio if available
+      if (book.audio) {
+        endpointsToAdd[bookName + "audio"] = bookName + "/audio.txt";
+        keysToLoad.push(bookName + "audio");
+      }
+
+      // Add commentaries
+      book?.commentaries?.forEach((c: any) => {
+        endpointsToAdd[c.key] = c.data;
+        keysToLoad.push(c.key);
+      });
+
+      console.log(`Loading data for book ${bookName}:`, keysToLoad);
+
+      await CachedData.fetchDataForKeys(
+        keysToLoad,
+        () => {
+          const loadTime = (Utils.getTime() - startTime) / 1000;
+          console.log(`Book ${bookName} data loaded successfully in ${loadTime} seconds`);
+          callback();
+        },
+        (errorKey) => {
+          console.error(`Error loading book ${bookName} data: ${errorKey}`);
+          callback();
+        },
+        endpointsToAdd,
+        () => {}, // progress callback
+        true // store immediately
+      );
+    } catch (error) {
+      console.error(`Error loading book ${bookName} data:`, error);
+      callback();
+    }
+  }
+
+  // Keep the old method for backward compatibility but make it optional
+  static async prefetchBooksAndDependencies(e: () => void): Promise<void> {
+    try {
+      // Fetch the `books` JSON file
+      console.log("Fetching books.json...");
+      await CachedData.fetchDataForKeys(
+        ["books"],
+        async () => {
+          console.log("books.json fetched successfully.");
+          const books = CachedData.data.books;
+
+          const keysToPrefetch: string[] = [];
+          // Extract keys of additional JSON files to fetch
+          books.map((book: any) => {
+            ApiEndpoints.allEndPoints[book.name + "index"] = book.name + "/index.txt";
+            ApiEndpoints.allEndPoints[book.name + "summary"] = book.name + "/summary.txt";
+
+            keysToPrefetch.push(book.name + "index");
+            keysToPrefetch.push(book.name + "summary");
+                        
+            if (book.audio) {
+              ApiEndpoints.allEndPoints[book.name + "audio"] = book.name + "/audio.txt";
+              keysToPrefetch.push(book.name + "audio");
+            }
+
+            // Add additional keys for commentaries
+            book?.commentaries?.map((c) => {
+              ApiEndpoints.allEndPoints[c.key] = c.data;
+              keysToPrefetch.push(c.key);
+            });
+          });
+          
+          console.log("Additional keys to prefetch:", keysToPrefetch);
+
+          // Prefetch additional JSON files
+          await Prefetch.prefetchRequiredServerData(keysToPrefetch, e);
+        },
+        (errorKey) => {
+          console.error(`Error fetching books.json or dependencies: ${errorKey}`);
+        }
+      );
+    } catch (error) {
+      console.error("Error during prefetchBooksAndDependencies:", error);
+    }
+  }
+
+  static async prefetchProgressHandler(): Promise<void> {
+    // TODO: Update progress bar % based on the number of files fetched
+    Prefetch.pendingResolve--;
+    if (Prefetch.pendingResolve <= 0) {
+      Prefetch.endTime = Utils.getTime();
+      console.log(
+        `Prefetch completed in ${(Prefetch.endTime - Prefetch.startTime) / 1000} seconds`
+      );
+      await Prefetch.hidePrefetchDialog();
+      if (Prefetch.callback) {
+        Prefetch.callback();
+      }
+    }
+  }
+
+  static async prefetchErrorHandler(): Promise<void> {
     console.log("Prefetch failed. Showing error page");
-    Prefetch.hidePrefetchDialog();
+    await Prefetch.hidePrefetchDialog();
   }
 }
 
-// class Settings {
-//   static startTime: number = 0;
-//   static endTime: number = 0;
-//   static pendingResolve: number = 0;
-//   static totalKeyCount: number = 0;
-//   static errorsRecorded: any[] = [];
-//   static wakeLock: any = null;
-//   static enableOfflineMode(): string {
-//     Settings.startTime = Utils.getTime();
-//     console.log("Enabling offline mode");
-//     Settings.errorsRecorded = [];
-//     let t: string[] = Object.keys(ApiEndpoints.allEndPoints);
-//     Settings.pendingResolve = t.length;
-//     Settings.totalKeyCount = t.length;
-//     CachedData.fetchDataForKeys(
-//       t,
-//       () => {},
-//       (t) => {
-//         Settings.errorsRecorded.push(t);
-//       }
-//     );
-//     return "";
-//   }
-//   static errorHandler(): void {}
-//   static closeDialog(): void {}
-//   static clearCache(): void {
-//     console.log("clearing the cache.");
-
-//     caches.keys().then((t) => {
-//       t.forEach((t) => {
-//         caches.delete(t);
-//       });
-//     });
-//     localStorage.clear();
-//   }
-//   static resetApp(): void {
-//     console.log("Resetting the app.");
-
-//     caches.keys().then((t) => {
-//       t.forEach((t) => {
-//         caches.delete(t);
-//       });
-//     });
-//     localforage.clear();
-//     localStorage.clear();
-//   }
-//   static enableWakelock(): void {
-//     if (!("wakeLock" in navigator)) {
-//       console.log("Wakelock is not available.");
-//     } else {
-//       Settings.wakeLock = navigator.wakeLock
-//         .request("screen")
-//         .then(() => {
-//           console.log("Screen Wakelock is activated");
-//         })
-//         .catch((t) => {
-//           console.log(`Screen Wakelock NOT activated` + t);
-//         });
-//     }
-//   }
-//   static reEnableWakeLock(): void {
-//     if (Settings.wakeLock && "visible" === document.visibilityState) {
-//       Settings.enableWakelock();
-//     }
-//   }
-// }
 export class Sutraani {
   static allTitles = [];
 
@@ -645,7 +1112,7 @@ export class Sutraani {
 
   static populateCommenatries(){
     0 == Sutraani.supportedCommentaries?.length &&
-    (Sutraani.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+    (Sutraani.supportedCommentaries = CachedData.data.books?.find((book: Book) => 
           book.name == CachedData.selectedBook).commentaries);
   }
 
@@ -789,7 +1256,7 @@ export class Gita {
           t.number && 0 < e[t.number]
             ? Formatter.toDevanagariNumeral(e[t.number])
             : "",
-        text: Formatter.formatVyakhya(CachedData.data[t.key][e.i]),
+        text: Formatter.formatVyakhya(CachedData.data[t.key]?.[e.i] || ""),
       };
     });
   }
@@ -825,7 +1292,7 @@ export class Gita {
 
   static populateCommenatries(){
     0 == Gita.supportedCommentaries?.length &&
-    (Gita.supportedCommentaries = CachedData.data.books.find((book: Book) => 
+    (Gita.supportedCommentaries = CachedData.data.books?.find((book: Book) => 
           book.name == CachedData.selectedBook).commentaries);
   }
 
@@ -907,29 +1374,36 @@ export class Gita {
 
 export class GenericBook {
   static allTitles = [];
-  static summary = CachedData.data[CachedData.selectedBook + "summary"];
+  static summary = null;
   static supportedCommentaries = [];
 
   static init() {
-    CachedData.defaultDataToEmpty([CachedData.selectedBook]);
+    // Initialize with empty data
+    GenericBook.allTitles = [];
+    GenericBook.summary = null;
+    GenericBook.supportedCommentaries = [];
   }
-  
+
   static getCommentaries(e : any) {
+    if (!GenericBook.supportedCommentaries || GenericBook.supportedCommentaries.length === 0) {
+      console.warn("No commentaries available for current book");
+      return [];
+    }
+    
     return GenericBook.supportedCommentaries.map((t : any) => {
       return {
         key: t.key,
         commname: t.name,
         author: t.author,
         hidden: t.hidden,
-        editHref: "", //Sutraani.getEditCommentaryTag(t.key, e),
+        editHref: "",
         show: true,
         lang: t.lang,
-        //extLink: Sutraani.getExternalPageForCommentary(e, t),
         number:
           t.number && 0 < e[t.number]
             ? Formatter.toDevanagariNumeral(e[t.number])
             : "",
-        text: Formatter.formatVyakhya(CachedData.data[t.key][e.i]),
+        text: Formatter.formatVyakhya(CachedData.data[t.key]?.[e.i] || ""),
       };
     });
   }
@@ -957,18 +1431,80 @@ export class GenericBook {
   }
 
   static populateIndexList() {
-    GenericBook.allTitles = CachedData.data[CachedData.selectedBook + "index"].data
-        .sort((t : any, e : any) => t.i - e.i)
-        .map((e : any, t : any) => ((e.srno = t + 1), e))
+    // Check if data exists and is in the correct format
+    const bookIndexKey = CachedData.selectedBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      console.warn(`No valid data found for ${bookIndexKey}`);
+      GenericBook.allTitles = [];
+      return;
+    }
+
+    // Always repopulate
+    try {
+      GenericBook.allTitles = bookData.data
+        .filter((item: any) => item && item.i)
+        .sort((a: any, b: any) => {
+          const aNum = parseInt(a.i) || 0;
+          const bNum = parseInt(b.i) || 0;
+          return aNum - bNum;
+        })
+        .map((item: any, index: number) => {
+          return { ...item, srno: index + 1 };
+        });
+      console.log(`Populated ${GenericBook.allTitles.length} titles for ${CachedData.selectedBook}`);
+    } catch (error) {
+      console.error("Error populating index list:", error);
+      GenericBook.allTitles = [];
+    }
   }
 
   static populateCommenatries(){
-    GenericBook.supportedCommentaries = CachedData.data.books.find((book: Book) => 
-          book.name == CachedData.selectedBook).commentaries;
+    // Check if books data exists
+    if (!CachedData.data.books || !Array.isArray(CachedData.data.books)) {
+      console.warn("No books data available for populating commentaries");
+      GenericBook.supportedCommentaries = [];
+      return;
+    }
+
+    // Find the current book
+    const currentBook = CachedData.data.books.find((book: any) => 
+      book.name === CachedData.selectedBook
+    );
+
+    if (!currentBook || !currentBook.commentaries) {
+      console.warn(`No commentaries found for book ${CachedData.selectedBook}`);
+      GenericBook.supportedCommentaries = [];
+      return;
+    }
+
+    // Always repopulate
+    try {
+      GenericBook.supportedCommentaries = currentBook.commentaries;
+      //add a timeout of 2 seconds
+      new Promise(resolve => setTimeout(resolve, 2000));
+      console.log(`Populated ${GenericBook.supportedCommentaries.length} commentaries for ${CachedData.selectedBook}`);
+    } catch (error) {
+      console.error("Error populating commentaries:", error);
+      GenericBook.supportedCommentaries = [];
+    }
   }
 
   static getSummary(i: string) {
-    return CachedData.data[CachedData.selectedBook + "summary"][i];
+    if (!i || !CachedData.selectedBook) {
+      return null;
+    }
+    
+    const summaryKey = CachedData.selectedBook + "summary";
+    const summaryData = CachedData.data[summaryKey];
+    
+    if (!summaryData) {
+      console.warn(`No summary data found for ${summaryKey}`);
+      return null;
+    }
+    
+    return summaryData[i] || null;
   }
 
   static generateScore(t : any, e : any) {
@@ -1064,6 +1600,82 @@ export class GenericBook {
       let encodedData = Buffer.from(updatedContent).toString('base64');
       ApiEndpoints.pushToGitHubServer(key, encodedData);
     }
+}
+
+// Generic audio highlighting service that works for any book
+export class AudioHighlightingService {
+  // Generic method to get currently playing title based on audio timestamp
+  static getCurrentlyPlayingTitle(currentTime: number, bookName?: string): any {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      console.warn(`No valid data found for ${bookIndexKey}`);
+      return null;
+    }
+
+    // Find the title that encompasses the current time
+    const currentTitle = bookData.data.find((title: any) => {
+      const startTime = title.startTime || 0;
+      const endTime = title.endTime || 0;
+      return currentTime >= startTime && currentTime <= endTime;
+    });
+
+    return currentTitle || null;
+  }
+
+  // Generic method to get next title based on audio timestamp
+  static getNextTitle(currentTime: number, bookName?: string): string {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      console.warn(`No valid data found for ${bookIndexKey}`);
+      return null;
+    }
+
+    // Find the next title whose start time is greater than current time
+    const nextTitle = bookData.data.find((title: any) => {
+      const startTime = title.startTime || 0;
+      return currentTime < startTime;
+    });
+
+    return nextTitle || null;
+  }
+
+  // Generic method to check if a title has timestamp data
+  static hasTimestampData(bookName?: string): boolean {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      return false;
+    }
+
+    // Check if any title has startTime and endTime properties
+    return bookData.data.some((title: any) => 
+      title.startTime !== undefined && title.endTime !== undefined
+    );
+  }
+
+  // Generic method to get all titles with timestamps for a book
+  static getTitlesWithTimestamps(bookName?: string): any[] {
+    const targetBook = bookName || CachedData.selectedBook;
+    const bookIndexKey = targetBook + "index";
+    const bookData = CachedData.data[bookIndexKey];
+    
+    if (!bookData || !bookData.data || !Array.isArray(bookData.data)) {
+      return [];
+    }
+
+    // Return only titles that have timestamp data
+    return bookData.data.filter((title: any) => 
+      title.startTime !== undefined && title.endTime !== undefined
+    );
+  }
 }
 
 export class ArrayExtension extends Array {

@@ -5,10 +5,12 @@ import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import SkipPreviousIcon from "@mui/icons-material/SkipPrevious";
 import CloseIcon from "@mui/icons-material/Close";
 import SkipNextIcon from "@mui/icons-material/SkipNext";
-import audioSample from "../../assets/audio/sutra_audio_complete.ogg";
+import audioSample from "../../assets/audio/bsb_full.mp3";
 import { Box, Slider, Stack, Typography } from "@mui/material";
 import raf from "raf";
 import { Title } from "../../types/GlobalType.type";
+import { useAppData } from "../../Store/AppContext";
+import { AudioHighlightingService } from "../../Services/Common/GlobalServices";
 
 interface AudioPlayerProps {
   selectedTitle: Title;
@@ -19,6 +21,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   selectedTitle,
   handleClosePlayer,
 }) => {
+  const { dispatch } = useAppData();
   const [playing, setIsPlaying] = useState(false);
   const [paused, setPaused] = React.useState(false);
   const [duration, setDuration] = useState<number | null>(null);
@@ -45,8 +48,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
   useEffect(() => {
     return () => {
       clearRAF();
+      // Clear highlighting when component unmounts
+      dispatch({ type: "setCurrentlyPlayingTitle", title: null });
     };
-  }, []);
+  }, [dispatch]);
 
   // useEffect(() => {
   //   let url = "https://github.com/mario99457/dwaitanidhi_data/raw/refs/heads/main/sutraani/sutra_audio_complete.ogg";
@@ -85,14 +90,14 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     renderSeekPos();
   };
 
-  // const renderSeekPos = () => {
-  //   if (!seekingRef.current) {
-  //     setSeek(playerRef.current.seek());
-  //   }
-  //   if (playingRef.current) {
-  //     rafRef.current = raf(renderSeekPos);
-  //   }
-  // };
+  const renderSeekPos = () => {
+    if (!seekingRef.current) {
+      setSeek(playerRef.current.seek());
+    }
+    if (playingRef.current) {
+      rafRef.current = raf(renderSeekPos);
+    }
+  };
 
   const clearRAF = () => {
     if (rafRef.current) {
@@ -104,6 +109,15 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     setSeek(parseFloat(e.target.value / 10));
   };
 
+  // Update currently playing title based on current time using generic service
+  useEffect(() => {
+    if (playing && seek > 0) {
+      const currentTitle = AudioHighlightingService.getCurrentlyPlayingTitle(seek);
+      dispatch({ type: "setCurrentlyPlayingTitle", title: currentTitle });
+      dispatch({ type: "setAudioCurrentTime", time: seek });
+    }
+  }, [seek, playing, dispatch]);
+
   return (
     <Box
       justifyContent="center"
@@ -111,8 +125,9 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
       width="100%"
       sx={{
         position: "absolute",
-        top: "5px",
+        top: { xs: "80px", md: "5px" },
         left: "10px",
+        zIndex: 10,
       }}
     >
       <CloseIcon
@@ -232,11 +247,13 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
       <ReactHowler
         src={audioSample}
+        html5={true}
         playing={playing}
-        // html5={true}
         onEnd={() => {
           playingRef.current = false;
           setIsPlaying(false);
+          // Clear highlighting when audio ends
+          dispatch({ type: "setCurrentlyPlayingTitle", title: null });
         }}
         ref={playerRef}
         onLoad={handleOnLoad}

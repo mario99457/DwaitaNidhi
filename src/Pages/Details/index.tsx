@@ -12,7 +12,9 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  IconButton,
 } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import pencilEdit from "../../assets/pencil_edit.svg";
@@ -27,7 +29,10 @@ import Divider from "@mui/material/Divider";
 // import SearchBox from "../../Components/SearchBox";
 import DetailsContent from "./DetailsContent";
 import DrawerMenu from "./DrawerMenu";
-import CachedData, { GenericBook } from "../../Services/Common/GlobalServices";
+import CachedData, {
+  ApiEndpoints,
+  GenericBook,
+} from "../../Services/Common/GlobalServices";
 import { Title } from "../../types/GlobalType.type";
 import Formatter from "../../Services/Common/Formatter";
 import Parser from "html-react-parser";
@@ -35,9 +40,14 @@ import Parser from "html-react-parser";
 import ReactHowler from "react-howler";
 import AudioPlayer from "./AudioPlayer";
 import useToken from "../../Services/Auth/useToken";
-import React from "react";
+import React, { lazy } from "react";
 import ContentEditable from "react-contenteditable";
 import { useAppData } from "../../Store/AppContext";
+import { Prefetch } from "../../Services/Common/GlobalServices";
+import { ContentEditableEvent } from "react-contenteditable";
+import Sanscript from '@indic-transliteration/sanscript';
+import Tooltip from '@mui/material/Tooltip';
+import navigationHistory from "../../Services/Common/NavigationHistory";
 
 interface Commentary {
   name: string;
@@ -48,10 +58,12 @@ interface Commentary {
   hidden: boolean;
   audio: boolean;
 }
+
 const DetailPage = () => {
   const { titleNumber, bookName, commentary } = useParams();
   const [selectedTitle, setSelectedTitle] = useState<Title | null>(null);
   const [selectedAudio, setSelectedAudio] = useState<Title | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const selectedKey = useRef("");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -65,7 +77,9 @@ const DetailPage = () => {
   const [editable, setEditable] = React.useState(false);
   const [editedText, setEditedText] = React.useState("");
   const [hideSummary, setHideSummary] = React.useState(false);
-  const { state } = useAppData();
+  const { state, dispatch } = useAppData();
+  const titleBoxRef = useRef<HTMLDivElement>(null);
+  const [titleBoxHeight, setTitleBoxHeight] = useState(0);
 
   const availableLanguages = [
     {
@@ -78,6 +92,66 @@ const DetailPage = () => {
     },
   ];
   const navigate = useNavigate();
+ 
+  const handleBackToIndex = () => {
+    // Get smart back destination
+    const backDestination = navigationHistory.getSmartBackDestination(window.location.pathname);
+    
+    if (backDestination === '/search') {
+      // Going back to search page
+      navigate('/search');
+    } else if (backDestination !== '/' && backDestination.split('/').filter(part => part.length > 0).length === 1) {
+      // Going back to title/index page
+      const savedState = localStorage.getItem('titleIndexState');
+      let view = 'list'; // default view
+
+      if (savedState) {
+        try {
+          const state = JSON.parse(savedState);
+          view = state.view || 'list';
+        } catch (error) {
+          console.log('Error parsing saved state:', error);
+        }
+      }
+
+      navigate(backDestination, {
+        state: {
+          preserveScroll: true,
+          fromDetails: true,
+          view: view,
+          timestamp: Date.now()
+        }
+      });
+    } else {
+      // Default fallback to title page
+      navigate(`/${bookName}`, {
+        state: {
+          preserveScroll: true,
+          fromDetails: true,
+          view: 'list',
+          timestamp: Date.now()
+        }
+      });
+    }
+  };
+ 
+  // Track navigation history
+  useEffect(() => {
+    navigationHistory.push(window.location.pathname, selectedTitle?.s || 'Details');
+  }, [selectedTitle]);
+
+  // Add keyboard shortcut for back navigation
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        handleBackToIndex();
+      }
+    };
+ 
+    document.addEventListener('keydown', handleKeyPress);
+    return () => document.removeEventListener('keydown', handleKeyPress);
+  }, []);
+ 
   const [selectedLanguage, setSelectedLanguage] = useState(
     availableLanguages[0].id
   );
@@ -85,25 +159,140 @@ const DetailPage = () => {
     [key: string]: any;
   }>({});
   const [openDrawer, setOpenDrawer] = useState(false);
+  // Add state to track commentary loading
+  const [commentariesLoading, setCommentariesLoading] = useState(true);
+  // Track previous bookName to detect book changes
+  const prevBookNameRef = useRef<string | undefined>();
+
+  const commentaryScriptOptions = [
+    { value: 'devanagari', label: 'Devanagari (Sanskrit)' },
+    { value: 'iast', label: 'English' },
+    { value: 'kannada', label: 'Kannada' },
+    { value: 'tamil', label: 'Tamil' },
+    { value: 'telugu', label: 'Telugu' },
+  ];
+
+  // Utility functions for script preference
+  const getScriptPreference = () =>
+    typeof window !== 'undefined' && localStorage.getItem('scriptPreference') || 'devanagari';
+  const setScriptPreference = (script: string) =>
+    typeof window !== 'undefined' && localStorage.setItem('scriptPreference', script);
+
+  const [commentaryScript, setCommentaryScript] = useState<string>(() => getScriptPreference());
+
+  // Ensure commentaryScript is always defined
+  useEffect(() => {
+    if (!commentaryScript) {
+      setCommentaryScript(getScriptPreference());
+    }
+  }, [commentaryScript]);
 
   useEffect(() => {
-    const title = GenericBook.allTitles?.find(
-      (title: Title) => title.i == titleNumber
-    );
-    if (title) {
-      setSelectedTitle(title);
-    }
+    const loadBookData = async () => {
+      if (!bookName) return;
 
-    const audio = CachedData.data.sutraaniaudio[titleNumber];
-    if (audio) {
-      setSelectedAudio(audio);
-    } else {
-      setSelectedAudio(null); //TODO: Add a file with "No audio available"
+      setIsLoading(true);
+      // Only reload commentaries if bookName changes
+      const isBookChanged = prevBookNameRef.current !== bookName;
+      if (isBookChanged) setCommentariesLoading(true);
+
+      // Check if book data is already loaded
+      const bookIndexKey = bookName + "index";
+      const bookSummaryKey = bookName + "summary";
+      
+      console.log(`Loading book data for ${bookName}`);
+      console.log(`Index key: ${bookIndexKey}, exists: ${!!CachedData.data[bookIndexKey]}`);
+      console.log(`Summary key: ${bookSummaryKey}, exists: ${!!CachedData.data[bookSummaryKey]}`);
+      
+      if (!CachedData.data[bookIndexKey] || !CachedData.data[bookSummaryKey]) {
+        // Load book data lazily if not already loaded
+        try {
+          console.log(`Book data not found, loading from server...`);
+          await Prefetch.loadBookData(bookName, async () => {
+            CachedData.selectedBook = bookName;
+            GenericBook.populateIndexList();
+            GenericBook.populateCommenatries();
+            //add a delay of 2 seconds
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            if (isBookChanged) setCommentariesLoading(false); // Only set to false if book changed
+            
+            console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
+            console.log(`Commentaries loaded: ${GenericBook.supportedCommentaries?.length}`);
+            
+            // Find the title after data is loaded
+            const title = GenericBook.allTitles?.find(
+              (title: Title) => title.i == titleNumber
+            );
+            if (title) {
+              console.log(`Found title: ${title.i}`);
+              setSelectedTitle(title);
+            } else {
+              console.warn(`Title ${titleNumber} not found in book ${bookName}`);
+            }
+            setIsLoading(false);
+          });
+        } catch (error) {
+          console.error("Error loading book data:", error);
+          setIsLoading(false);
+          if (isBookChanged) setCommentariesLoading(false);
+          // Handle error - could show an error message to user
+        }
+      } else {
+        // Book data already loaded, just initialize
+        console.log(`Book data already loaded for ${bookName}`);
+        CachedData.selectedBook = bookName;
+        GenericBook.populateIndexList();
+        if (isBookChanged) {
+          GenericBook.populateCommenatries();
+          setCommentariesLoading(true); // Force spinner
+        }
+        
+        console.log(`All titles loaded: ${GenericBook.allTitles?.length}`);
+        console.log(`Commentaries loaded: ${GenericBook.supportedCommentaries?.length}`);
+        
+        // Find the title
+        const title = GenericBook.allTitles?.find(
+          (title: Title) => title.i == titleNumber
+        );
+        if (title) {
+          console.log(`Found title: ${title.i}`);
+          setSelectedTitle(title);
+        } else {
+          console.warn(`Title ${titleNumber} not found in book ${bookName}`);
+        }
+        setIsLoading(false);
+        // Add a short delay before hiding spinner for UX, only if book changed
+        if (isBookChanged) setTimeout(() => setCommentariesLoading(false), 300);
+      }
+      // Update previous bookName
+      prevBookNameRef.current = bookName;
+    };
+
+    loadBookData();
+  }, [titleNumber, bookName]);
+
+  // Load audio after selectedTitle is set
+  useEffect(() => {
+    if (selectedTitle && selectedTitle.i) {
+      console.log(`Loading audio for title: ${selectedTitle.i}`);
+      const BASE_URL = ApiEndpoints.availableGithubServerUrls.githubusercontent;
+      const EXTENSION = ".txt";
+      const audioUrl = `${BASE_URL}sutraani/audio/${selectedTitle.i}${EXTENSION}`;
+
+      fetch(audioUrl).then((r) => {
+        r.text().then((d) => {
+          console.log(`Audio loaded for title: ${selectedTitle.i}`);
+          setSelectedAudio(d as any);
+        });
+      }).catch((e) => {
+        console.log("Error fetching audio file:", e); 
+      });
     }
-  }, [titleNumber]);
+  }, [selectedTitle]);
 
   useEffect(() => {
-    const summary = GenericBook.getSummary(selectedTitle?.i);
+    if (!selectedTitle || !selectedTitle.i) return;
+    const summary = GenericBook.getSummary(selectedTitle.i);
     setEditedText(summary ? summary[selectedLanguage] : "");
     if (
       !summary ||
@@ -116,11 +305,12 @@ const DetailPage = () => {
     }
   }, [selectedTitle]);
 
-  const handleChange = (evt) => {
+  // Fix 1: Add types to all function parameters
+  const handleChange = (evt: ContentEditableEvent) => {
     setEditedText(evt.target.value);
   };
 
-  const handleSave = (id) => {
+  const handleSave = (id: string) => {
     GenericBook.updateSummary(
       CachedData.selectedBook + "Summary",
       selectedLanguage,
@@ -135,7 +325,7 @@ const DetailPage = () => {
     setShowFullSummary(false);
   };
 
-  const handleCancel = (id) => {
+  const handleCancel = (id: string) => {
     //TODO:
     //create json object with title number, commentary name
     //preprocess text
@@ -157,6 +347,15 @@ const DetailPage = () => {
         ? GenericBook.getSummary(selectedTitle?.i)[event.target.value]
         : ""
     );
+
+    // Re-check overflow after DOM update
+    setTimeout(() => {
+      if (summaryRef.current) {
+        const isOverflowing =
+          summaryRef.current.scrollHeight > summaryRef.current.clientHeight;
+        setIsOverflowing(isOverflowing);
+      }
+    }, 1000);
   };
 
   const handleCommentaryChange = (key: string) => {
@@ -190,6 +389,9 @@ const DetailPage = () => {
         setIsOverflowing(isOverflowing);
       }
     };
+    if (titleBoxRef.current) {
+      setTitleBoxHeight(titleBoxRef.current.clientHeight);
+    }
 
     const timeoutId = setTimeout(() => {
       checkOverflow();
@@ -214,6 +416,61 @@ const DetailPage = () => {
     setPlayAudio((prevState) => !prevState);
   };
 
+  // Compute summaryText for transliteration logic
+  const summaryObj = GenericBook.getSummary(selectedTitle?.i || "") || {};
+  let summaryText = "";
+  if ((commentaryScript === "kannada" || commentaryScript === "devanagari") && summaryObj.k) {
+    summaryText = summaryObj.k;
+  } else if (commentaryScript === "iast" && summaryObj.e) {
+    summaryText = summaryObj.e;
+  } else if (summaryObj.k) {
+    summaryText = Sanscript.t(summaryObj.k, "kannada", commentaryScript);
+  } else if (summaryObj.e) {
+    summaryText = Sanscript.t(summaryObj.e, "iast", commentaryScript);
+  } else {
+    summaryText = "";
+  }
+  // Label mapping for summary section
+  const summaryLabels: Record<string, string> = {
+    devanagari: 'संक्षेपार्थः',
+    kannada: 'ಸಂಕ್ಷಿಪ್ತ ಅರ್ಥ',
+    tamil: 'சுருக்கமான அர்த்தம்',
+    telugu: 'సంక్షిప್తార్థం',
+    iast: 'Summary',
+    e: 'Summary',
+  };
+
+  // Fetch index label from book metadata and transliterate
+  const bookMeta = CachedData.data.books?.find((b: any) => b.name === bookName);
+  const devLabel = bookMeta?.index || '';
+  const indexLabel = Sanscript.t(devLabel, 'devanagari', commentaryScript || 'devanagari');
+
+  // Utility to adjust font size for Indic scripts
+  function getScriptFontSize(script: string, base: number) {
+    if (script === 'kannada') {
+      return base * 0.85;
+    }
+    if (script === 'tamil' || script === 'telugu') {
+      return base * 0.75;
+    }
+    return base;
+  }
+
+  // Debug: log font size for each script
+  const titleFontSize = getScriptFontSize(commentaryScript, 34);
+  const numberFontSize = getScriptFontSize(commentaryScript, 24);
+  const summaryLabelFontSize = getScriptFontSize(commentaryScript, 24);
+  console.log('Font size for', commentaryScript, {
+    title: titleFontSize,
+    number: numberFontSize,
+    summaryLabel: summaryLabelFontSize
+  });
+
+  // Guard: do not render transliterated content until commentaryScript is defined
+  if (!commentaryScript) {
+    return null; // or a loading spinner if you prefer
+  }
+
   return (
     <Box
       sx={{
@@ -229,10 +486,30 @@ const DetailPage = () => {
         flexDirection: "column",
       }}
     >
+      {/* Commentary Language Selection Dropdown */}
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
+        <Typography sx={{ mr: 2, fontWeight: 500, fontSize: 16, color: '#A74600' }}>
+          Commentary Language:
+        </Typography>
+        <FormControl size="small" sx={{ minWidth: 140, background: '#FCF4CD', borderRadius: 1 }}>
+          <Select
+            value={commentaryScript}
+            onChange={e => setCommentaryScript(e.target.value)}
+          >
+            {commentaryScriptOptions.map(opt => (
+              <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
       {showPlayer && (
         <AudioPlayer
-          selectedTitle={selectedTitle}
-          handleClosePlayer={() => setShowPlayer(false)}
+          selectedTitle={selectedTitle as Title}
+          handleClosePlayer={() => {
+            setShowPlayer(false);
+            // Clear the currently playing title when closing the player
+            dispatch({ type: "setCurrentlyPlayingTitle", title: null });
+          }}
         />
       )}
       {selectedTitle ? (
@@ -246,7 +523,43 @@ const DetailPage = () => {
               borderBottom: "1px solid #BDBDBD",
             }}
           >
-            <div></div>
+            <Box
+              onClick={handleBackToIndex}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                cursor: 'pointer',
+                color: '#BC4501',
+                '&:hover': {
+                  backgroundColor: '#F5F5F5',
+                  borderRadius: 1,
+                },
+                px: 2,
+                py: 1,
+              }}
+              role="button"
+              aria-label="Back to index"
+            >
+              <ArrowBackIcon sx={{ mr: 1, fontSize: '1.2rem' }} />
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontSize: "16px",
+                  fontWeight: "500",
+                }}
+              >
+                {(() => {
+                  const backDestination = navigationHistory.getSmartBackDestination(window.location.pathname);
+                  if (backDestination === '/search') {
+                    return 'Back to Search';
+                  } else if (backDestination !== '/' && backDestination.split('/').filter(part => part.length > 0).length === 1) {
+                    return 'Back to Index';
+                  } else {
+                    return 'Back';
+                  }
+                })()}
+              </Typography>
+            </Box>
             {/* <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />}>
               {breadcrumbs}
             </Breadcrumbs> */}
@@ -259,7 +572,7 @@ const DetailPage = () => {
               onClick={() => setOpenDrawer(true)}
               role="button"
             >
-              <img src={ToC_Icon} width={`18px`} height={`18px`} />
+              <img src={ToC_Icon} width={`18px`} height={`18px`} alt="Table of Contents" />
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -268,15 +581,12 @@ const DetailPage = () => {
                   marginLeft: "10px",
                 }}
               >
-                {
-                  CachedData.data.books.find(
-                    (b) => b.name == state.selectedBook?.name
-                  )?.index
-                }
+                {indexLabel}
               </Typography>
             </div>
           </Box>
           <Box
+            ref={titleBoxRef}
             className="title-box-wrapper"
             sx={{
               pt: 2,
@@ -297,35 +607,59 @@ const DetailPage = () => {
                 onClick={() => handleNavigateTitle("prev")}
               />
 
-              <Container
-                sx={{
-                  minHeight: "60px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  whiteSpace: "pre-line"
-                }}
-              >
-                <Typography fontSize="34px" lineHeight="39.9px" color="#BC4501">
-                {Parser(Formatter.formatVyakhya(selectedTitle?.s))}
-                </Typography>
-              </Container>
+                <Container
+                  sx={{
+                    minHeight: "60px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    whiteSpace: "pre-line",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'normal',
+                      textAlign: 'center',
+                      fontSize: { xs: '1.2rem', md: `${titleFontSize}px` },
+                      lineHeight: 1.2,
+                      maxWidth: '90vw',
+                      margin: '0 auto',
+                      cursor: 'pointer',
+                      color: '#BC4501',
+                    }}
+                    component="div"
+                  >
+                    {Parser(
+                      Sanscript.t(
+                        Formatter.formatVyakhya(selectedTitle?.s || ""),
+                        'devanagari',
+                        commentaryScript || 'devanagari'
+                      )
+                    )}
+                  </Typography>
+                </Container>
 
-              <img
-                src={nextButton}
-                alt="next"
-                style={{
-                  cursor: "pointer",
-                  visibility:
-                    GenericBook.allTitles &&
-                    selectedTitle &&
-                    selectedTitle?.srno <= GenericBook.allTitles.length
-                      ? "visible"
-                      : "hidden",
-                }}
-                onClick={() => handleNavigateTitle("next")}
-              />
-            </Box>
+                <img
+                  src={nextButton}
+                  alt="next"
+                  style={{
+                    cursor: "pointer",
+                    visibility:
+                      GenericBook.allTitles &&
+                      selectedTitle &&
+                      typeof selectedTitle.srno !== 'undefined' &&
+                      selectedTitle.srno < GenericBook.allTitles.length
+                        ? "visible"
+                        : "hidden",
+                  }}
+                  onClick={() => handleNavigateTitle("next")}
+                />
+              </Box>
           </Box>
 
           <Stack
@@ -334,24 +668,43 @@ const DetailPage = () => {
             alignItems="center"
             sx={{ mt: 2, mb: 2 }}
           >
-            <Typography fontSize="24px" fontWeight="400" color="#969696">
-              {CachedData.data.books.find(
-                    (b) => b.name == state.selectedBook?.name
-                  )?.abbrev}
-              {Formatter.toDevanagariNumeral(
-                `${selectedTitle?.a}${selectedTitle?.p !== "" ? "." + selectedTitle?.p : ""}.${selectedTitle?.n}`)}             
+            <Typography fontSize={numberFontSize} fontWeight="400" color="#969696">
+              {Sanscript.t(
+                `${
+                  CachedData.data.books?.find(
+                    (b: any) => b.name == state.selectedBook?.name
+                  )?.abbrev || ''
+                }${
+                  Formatter.toDevanagariNumeral(
+                    `${
+                      selectedTitle?.a && selectedTitle?.a !== ""
+                        ? selectedTitle?.a + "."
+                        : ""
+                    }${
+                      selectedTitle?.p && selectedTitle?.p !== ""
+                        ? selectedTitle?.p + "."
+                        : ""
+                    }${selectedTitle?.n}`
+                  )
+                }`,
+                'devanagari',
+                commentaryScript || 'devanagari'
+              )}
             </Typography>
             <ReactHowler
+              preload={true}
               src={[selectedAudio]}
               playing={playAudio}
               onEnd={() => setPlayAudio(false)}
             />
-            {state.selectedBook?.audio && <img
-              src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
-              alt={playAudio ? "pause" : "play"}
-              style={{ cursor: "pointer" }}
-              onClick={handlePlayPause} // Use a single handler for both play and pause
-            />}
+            {state.selectedBook?.audio && (
+              <img
+                src={playAudio ? pauseButton : playButton} // Conditionally render play/pause icon
+                alt={playAudio ? "pause" : "play"}
+                style={{ cursor: "pointer" }}
+                onClick={handlePlayPause} // Use a single handler for both play and pause
+              />
+            )}
           </Stack>
           <Divider sx={{ borderBottom: "1px solid #BDBDBD" }} />
           <Box
@@ -372,11 +725,11 @@ const DetailPage = () => {
             >
               <Typography
                 fontFamily="Vesper Libre"
-                fontSize="24px"
+                fontSize={summaryLabelFontSize}
                 fontWeight="400"
                 color="#A74600"
               >
-                संक्षेपार्थः
+                {summaryLabels[commentaryScript || 'devanagari'] || summaryLabels.e || summaryLabels.devanagari}
               </Typography>
               <div
                 className={`d-flex ${
@@ -418,20 +771,6 @@ const DetailPage = () => {
                 ) : (
                   <></>
                 )}
-                <FormControl sx={{ minWidth: 120 }} size="small">
-                  <Select
-                    labelId="demo-select-small-label"
-                    id="demo-select-small"
-                    value={selectedLanguage}
-                    onChange={handleLanguageChange}
-                  >
-                    {availableLanguages.map((language) => (
-                      <MenuItem key={language.id} value={language.id}>
-                        {language.label}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
               </div>
             </Stack>
             <ContentEditable
@@ -441,7 +780,7 @@ const DetailPage = () => {
                 showFullSummary ? "editable_full_summary" : "editable_summary"
               }
               tagName="p"
-              html={!editedText?"<html></html>" : editedText} // innerHTML of the editable div
+              html={!editedText ? "<html></html>" : summaryText} // innerHTML of the editable div
               disabled={!editable} // use true to disable edition
               onChange={handleChange} // handle innerHTML change
               //onBlur={sanitize}
@@ -503,55 +842,69 @@ const DetailPage = () => {
               mt: 4,
               position: "sticky",
               background: "white",
-              top: 70,
+              top: titleBoxHeight,
               zIndex: 3,
             }}
             direction="row"
             justifyContent="space-between"
             alignItems="center"
           >
-            <Stack
-              direction="row"
-              spacing={2}
-              divider={<Divider orientation="vertical" flexItem />}
-            >
-              {GenericBook.supportedCommentaries?.map((commentary) => (
-                <Link
-                  // href={`#${commentary.key}`}
-                  key={commentary.key}
-                  onClick={() => handleCommentaryChange(commentary.key)}
-                  sx={{ textDecoration: "none" }}
-                >
+            {/* Commentary Tabs Section */}
+            {commentariesLoading ? (
+              <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 48 }}>
+                <CircularProgress size={24} />
+              </Box>
+            ) : (
+              <Stack
+                direction="row"
+                spacing={2}
+                divider={<Divider orientation="vertical" flexItem />}
+                role="tablist"
+              >
+                {GenericBook.supportedCommentaries?.map((commentary: any) => (
                   <div
-                    key={commentary.name}
+                    key={commentary.key}
                     role="tab"
-                    // aria-selected={selectedCommentary?.name === commentary.name}
                     className={`commentary-tab`}
                     tabIndex={0}
+                    onClick={() => handleCommentaryChange(commentary.key)}
                   >
-                    {commentary.name}
+                    <Link sx={{ textDecoration: "none", color: "inherit" }}>
+                      {Sanscript.t(commentary.name, 'devanagari', commentaryScript || 'devanagari')}
+                    </Link>
                   </div>
-                </Link>
-              ))}
-            </Stack>
+                ))}
+              </Stack>
+            )}
             {/* {!isMobile && (
           <div className="search-box-wrapper">
             <SearchBox onSearch={handleSearch} placeholder={""} />
           </div>
         )} */}
           </Stack>
-          {GenericBook.supportedCommentaries.map((commentary: Commentary) => (
-            <DetailsContent
-              selectedCommentary={commentary}
-              selectedTitle={selectedTitle}
-              key={commentary.key}
-              defaultExpanded={
-                !commentary.hidden || selectedCommentary?.[commentary.key]
-              }
-              isMobile={isMobile}
-              setShowPlayer={() => setShowPlayer((val) => !val)}
-            />
-          ))}
+          {/* Commentary Content Section */}
+          {commentariesLoading ? (
+            <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 80 }}>
+              <CircularProgress size={32} />
+            </Box>
+          ) : (
+            Array.isArray(GenericBook.supportedCommentaries) &&
+              GenericBook.supportedCommentaries.map((commentary: any) => (
+                <DetailsContent
+                  selectedCommentary={commentary}
+                  selectedTitle={selectedTitle as Title}
+                  key={commentary.key}
+                  defaultExpanded={
+                    !commentary.hidden || selectedCommentary?.[commentary.key]
+                  }
+                  isMobile={isMobile}
+                  setShowPlayer={() => setShowPlayer((val) => !val)}
+                  titleBoxHeight={String(titleBoxHeight)}
+                  editContent={() => {}}
+                  commentaryScript={commentaryScript || 'devanagari'}
+                />
+              ))
+          )}
         </>
       ) : (
         <Box
@@ -561,15 +914,22 @@ const DetailPage = () => {
             left: "50%",
           }}
         >
-          <CircularProgress />
+          {isLoading ? (
+            <CircularProgress />
+          ) : (
+            <Typography variant="h6" color="text.secondary">
+              Book not found or data not available.
+            </Typography>
+          )}
         </Box>
       )}
       <DrawerMenu
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         bookName={bookName}
-        selectedTitle={selectedTitle}
+        selectedTitle={selectedTitle as Title}
         titles={GenericBook.allTitles}
+        commentaryScript={commentaryScript}
       />
     </Box>
   );

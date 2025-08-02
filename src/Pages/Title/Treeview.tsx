@@ -13,6 +13,10 @@ import { ExpandLess, ExpandMore } from "@mui/icons-material";
 import { Title } from "../../types/GlobalType.type";
 import { Chapters } from "../../types/Context.type";
 import Formatter from "../../Services/Common/Formatter";
+import Sanscript from '@indic-transliteration/sanscript';
+import { useAppData } from "../../Store/AppContext";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { AudioHighlightingService } from "../../Services/Common/GlobalServices";
 
 interface ListViewProps {
   handleTitleClick: (selectedTitle: Title) => void;
@@ -21,6 +25,7 @@ interface ListViewProps {
   toc: Chapters[] | undefined;
   titles: Title[] | undefined;
   isMobile: boolean;
+  commentaryScript: string;
 }
 
 const TreeView: React.FC<ListViewProps> = ({
@@ -29,6 +34,7 @@ const TreeView: React.FC<ListViewProps> = ({
   titles,
   isMobile,
   selectedTitle,
+  commentaryScript,
 }) => {
   const [closedChapters, setClosedChapters] = useState<{
     [key: string]: boolean;
@@ -36,6 +42,27 @@ const TreeView: React.FC<ListViewProps> = ({
   const [cacheTitle, setCacheTitle] = useState<{ [key: string]: any[] }>({});
   const [loader, setLoader] = useState(false);
   const titleRef = useRef<any>({});
+  const { state } = useAppData();
+
+  // Check if a title is currently playing using generic service
+  const isCurrentlyPlaying = (title: Title) => {
+    return state.currentlyPlayingTitle && state.currentlyPlayingTitle.i === title.i;
+  };
+
+  // Scroll to currently playing title when it changes
+  useEffect(() => {
+    if (state.currentlyPlayingTitle) {
+      const titleElement = titleRef.current[state.currentlyPlayingTitle.i];
+      if (titleElement) {
+        // Ensure the title is visible by scrolling to it
+        titleElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+          inline: 'nearest'
+        });
+      }
+    }
+  }, [state.currentlyPlayingTitle]);
 
   const handleChapterClick = (chapterId: string) => {
     setClosedChapters((prevState) => ({
@@ -45,23 +72,51 @@ const TreeView: React.FC<ListViewProps> = ({
   };
 
   useEffect(() => {
-    const titleObject: any = {};
+    let titleObject: any = {};
     setLoader(true);
     setTimeout(() => {
       setLoader(false);
     }, 1000);
-    tocData?.map((chapter) => {
-      if (chapter.sub) {
-        chapter.sub.map((subchapter) => {
-          titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
-            chapter.n,
-            subchapter.n
-          );
-        });
-      } else {
-        titleObject[`${chapter.n}`] = getTitle(chapter.n, "");
+
+    // Check if there are no chapters OR if chapters exist but no titles match
+    const hasMatchingTitles = () => {
+      if (!tocData || tocData.length === 0) return false;
+      
+      for (const chapter of tocData) {
+        if (chapter.sub && chapter.sub.length > 0) {
+          for (const sub of chapter.sub) {
+            if (getTitle(chapter.n, sub.n).length > 0) {
+              return true;
+            }
+          }
+        } else {
+          if (getTitle(chapter.n, "").length > 0) {
+            return true;
+          }
+        }
       }
-    });
+      return false;
+    };
+
+    if (tocData?.length == 0 || !hasMatchingTitles()) {
+      titleObject = {
+        noTree: true,
+        titles: titles,
+      };
+    } else {
+      tocData?.map((chapter) => {
+        if (chapter.sub) {
+          chapter.sub.map((subchapter) => {
+            titleObject[`${chapter.n}.${subchapter.n}`] = getTitle(
+              chapter.n,
+              subchapter.n
+            );
+          });
+        } else {
+          titleObject[`${chapter.n}`] = getTitle(chapter.n, "");
+        }
+      });
+    }
     setCacheTitle(titleObject);
   }, [tocData]);
 
@@ -91,12 +146,35 @@ const TreeView: React.FC<ListViewProps> = ({
 
   const getTitle = (chapterId: string, subchapterId: string) => {
     const filteredTitle = titles?.filter((data: Title) => {
-      if (data.a == chapterId && data.p == subchapterId) {
-        return data;
+      if (subchapterId) {
+        return data.a == chapterId && data.p == subchapterId;
+      } else {
+        return data.a == chapterId && (data.p === undefined || data.p === "");
       }
     });
     return filteredTitle || [];
   };
+
+  // Check if any titles match the chapter structure
+  const hasMatchingTitles = () => {
+    if (!tocData || tocData.length === 0) return false;
+    
+    for (const chapter of tocData) {
+      if (chapter.sub && chapter.sub.length > 0) {
+        for (const sub of chapter.sub) {
+          if (getTitle(chapter.n, sub.n).length > 0) {
+            return true;
+          }
+        }
+      } else {
+        if (getTitle(chapter.n, "").length > 0) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
 
   return (
     <>
@@ -107,6 +185,54 @@ const TreeView: React.FC<ListViewProps> = ({
         <CircularProgress color="inherit" />
       </Backdrop>
       <List sx={{ borderTop: "1px solid #dddddd", paddingTop: 0 }}>
+        {((!tocData) || tocData.length === 0 || (tocData.length > 0 && !hasMatchingTitles())) && (
+          <List component="div" disablePadding>
+            {titles && titles.map((title) => (
+                <ListItem
+                  sx={{
+                    cursor: "pointer",
+                    borderBottom: "1px solid #dddddd",
+                    pl: {
+                      lg: "60px",
+                      xs: "20px",
+                    },
+                    py: 0.5,
+                    backgroundColor:
+                      title.i == selectedTitle?.i
+                        ? "#DDDDDD"
+                        : isCurrentlyPlaying(title)
+                        ? "#FFF3CD"
+                        : "",
+                    borderLeft: isCurrentlyPlaying(title) ? "4px solid #BC4501" : "none",
+                  }}
+                  key={title.i}
+                  onClick={() => handleTitleClick(title)}
+                  ref={(el) => (titleRef.current[title.i] = el)}
+                >
+                  <ListItemText
+                    primaryTypographyProps={{
+                      // fontFamily: "Vesper Libre",
+                      fontSize: "22px",
+                      color: "#616161",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color: "#787878",
+                        flexShrink: "0",
+                        fontSize: "22px",
+                      }}
+                    >
+                      {Sanscript.t(Formatter.toDevanagariNumeral(`${title?.n}`), 'devanagari', commentaryScript || 'devanagari')} &nbsp;
+                    </span>
+                    <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
+                  </ListItemText>
+                </ListItem>
+              ))}
+          </List>
+        )}
         {tocData?.map((chapter) => (
           <React.Fragment key={chapter.n}>
             <ListItem
@@ -120,13 +246,13 @@ const TreeView: React.FC<ListViewProps> = ({
               className="treeview-list-item"
             >
               <ListItemText
-                primary={`${Formatter.toDevanagariNumeral(chapter.n)}. ${
-                  chapter.name
-                }`}
+                primary={
+                  `${Sanscript.t(Formatter.toDevanagariNumeral(chapter.n), 'devanagari', commentaryScript || 'devanagari')}. ` +
+                  Sanscript.t(chapter.name, 'devanagari', commentaryScript || 'devanagari')
+                }
                 primaryTypographyProps={{
-                  // fontFamily: "Vesper Libre",
                   fontSize: "30px",
-                  color: "#A74600",
+                  color: "A74600",
                 }}
               />
               <IconButton>
@@ -181,14 +307,13 @@ const TreeView: React.FC<ListViewProps> = ({
                               marginRight: "8px",
                               marginLeft: isMobile ? "4px" : "20px",
                               fontFamily: "24px",
-                              // fontFamily: "Vesper Libre",
                             }}
                           >
-                            {Formatter.toDevanagariNumeral(chapter.n)}.
-                            {Formatter.toDevanagariNumeral(subchapter.n)}
+                            {Sanscript.t(Formatter.toDevanagariNumeral(chapter.n), 'devanagari', commentaryScript || 'devanagari')}.
+                            {Sanscript.t(Formatter.toDevanagariNumeral(subchapter.n), 'devanagari', commentaryScript || 'devanagari')}
                           </span>
                           <span style={{ fontSize: "24px" }}>
-                            {subchapter.name}
+                            {Sanscript.t(subchapter.name, 'devanagari', commentaryScript || 'devanagari')}
                           </span>
                         </ListItemText>
                         <IconButton>
@@ -219,7 +344,10 @@ const TreeView: React.FC<ListViewProps> = ({
                                   backgroundColor:
                                     title.i == selectedTitle?.i
                                       ? "#DDDDDD"
+                                      : isCurrentlyPlaying(title)
+                                      ? "#FFF3CD"
                                       : "",
+                                  borderLeft: isCurrentlyPlaying(title) ? "4px solid #BC4501" : "none",
                                 }}
                                 key={title.i}
                                 onClick={() => handleTitleClick(title)}
@@ -236,20 +364,30 @@ const TreeView: React.FC<ListViewProps> = ({
                                 >
                                   <div className="circle-bullet"></div>
                                   &nbsp;
+                                  {isCurrentlyPlaying(title) && (
+                                    <PlayArrowIcon 
+                                      sx={{ 
+                                        color: '#BC4501', 
+                                        fontSize: '20px', 
+                                        mr: 1 
+                                      }} 
+                                    />
+                                  )}
                                   <span
                                     style={{
                                       color: "#787878",
-                                      // fontFamily: "Vesper Libre",
                                       flexShrink: "0",
                                       fontSize: "22px",
                                     }}
                                   >
-                                    {Formatter.toDevanagariNumeral(
-                                      `${title?.a}.${title?.p}.${title?.n}`
-                                    )}{" "}
+                                    {Sanscript.t(
+                                      Formatter.toDevanagariNumeral(`${title?.a}.${title?.p}.${title?.n}`),
+                                      'devanagari',
+                                      commentaryScript || 'devanagari'
+                                    )}
                                     &nbsp;
                                   </span>
-                                  <span>{Formatter.toPlainText(title.s)}</span>
+                                  <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
                                 </ListItemText>
                               </ListItem>
                             )
@@ -271,21 +409,24 @@ const TreeView: React.FC<ListViewProps> = ({
                 <List component="div" disablePadding>
                   {cacheTitle[`${chapter.n}`]?.map((title) => (
                     <ListItem
-                    sx={{
-                      cursor: "pointer",
-                      borderBottom: "1px solid #dddddd",
-                      pl: {
-                        lg: "60px",
-                        xs: "20px",
-                      },
-                      py: 0.5,
-                      backgroundColor:
-                        title.i == selectedTitle?.i
-                          ? "#DDDDDD"
-                          : "",
-                    }}
+                      sx={{
+                        cursor: "pointer",
+                        borderBottom: "1px solid #dddddd",
+                        pl: {
+                          lg: "60px",
+                          xs: "20px",
+                        },
+                        py: 0.5,
+                        backgroundColor:
+                          title.i == selectedTitle?.i
+                            ? "#DDDDDD"
+                            : isCurrentlyPlaying(title)
+                            ? "#FFF3CD"
+                            : "",
+                        borderLeft: isCurrentlyPlaying(title) ? "4px solid #BC4501" : "none",
+                      }}
                       key={title.i}
-                      onClick={() => handleTitleClick(title)}                      
+                      onClick={() => handleTitleClick(title)}
                       ref={(el) => (titleRef.current[title.i] = el)}
                     >
                       <ListItemText
@@ -298,22 +439,32 @@ const TreeView: React.FC<ListViewProps> = ({
                       >
                         <div className="circle-bullet"></div>
                         &nbsp;
+                        {isCurrentlyPlaying(title) && (
+                          <PlayArrowIcon 
+                            sx={{ 
+                              color: '#BC4501', 
+                              fontSize: '20px', 
+                              mr: 1 
+                            }} 
+                          />
+                        )}
                         <span
                           style={{
                             color: "#787878",
-                            // fontFamily: "Vesper Libre",
                             flexShrink: "0",
                             fontSize: "22px",
                           }}
                         >
-                          {Formatter.toDevanagariNumeral(
-                            `${title?.a}${title?.p ? `.${title?.p}` : ""}.${
-                              title?.n
-                            }`
+                          {Sanscript.t(
+                            Formatter.toDevanagariNumeral(
+                              `${title?.a}${title?.p ? `.${title?.p}` : ""}.${title?.n}`
+                            ),
+                            'devanagari',
+                            commentaryScript || 'devanagari'
                           )}
                           &nbsp;
                         </span>
-                        <span>{Formatter.toPlainText(title.s)}</span>
+                        <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
                       </ListItemText>
                     </ListItem>
                   ))}

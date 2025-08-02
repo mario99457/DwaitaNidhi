@@ -5,6 +5,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import SearchIcon from "@mui/icons-material/Search";
 import TreeView from "../Title/Treeview";
 import CachedData from "../../Services/Common/GlobalServices";
+import Sanscript from '@indic-transliteration/sanscript';
 import { Book } from "../../types/Context.type";
 import { Title } from "../../types/GlobalType.type";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,7 @@ interface DrawerMenuProps {
   bookName: string | undefined;
   selectedTitle: Title;
   titles: Title[] | undefined;
+  commentaryScript: string;
 }
 const DrawerMenu: React.FC<DrawerMenuProps> = ({
   open,
@@ -21,6 +23,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
   bookName,
   selectedTitle,
   titles,
+  commentaryScript,
 }) => {
   const [selectedBook, setSlectedBook] = React.useState<Book | null>(null);
   const navigate = useNavigate();
@@ -31,7 +34,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
   };
 
   useEffect(() => {
-    const book = CachedData.data.books.find(
+    const book = CachedData.data.books?.find(
       (book: Book) => book.name == bookName
     );
     if (book) {
@@ -62,20 +65,24 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
             style={{ display: "flex", cursor: "pointer", alignItems: "center" }}
           >
             <img src={listIcon} width={`18px`} height={`18px`} />
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontSize: "22px",
-                fontWeight: "300",
-                marginLeft: "10px",
-              }}
-            >
-              {
-                  CachedData.data.books.find(
-                    (b) => b.name == selectedBook?.name
-                  )?.index
-                }
-            </Typography>
+            {/* Fetch index label from book metadata and transliterate */}
+            {(() => {
+              const bookMeta = CachedData.data.books?.find((b: any) => b.name === bookName);
+              const devLabel = bookMeta?.index || '';
+              const indexLabel = Sanscript.t(devLabel, 'devanagari', commentaryScript || 'devanagari');
+              return (
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontSize: "22px",
+                    fontWeight: "300",
+                    marginLeft: "10px",
+                  }}
+                >
+                  {indexLabel}
+                </Typography>
+              );
+            })()}
           </div>
           <div className="">
             <CloseIcon
@@ -89,6 +96,7 @@ const DrawerMenu: React.FC<DrawerMenuProps> = ({
           handleTitleClick={handleTitleClick}
           selectedTitle={selectedTitle}
           titles={titles}
+          commentaryScript={commentaryScript || 'devanagari'}
         />
       </Box>
     </Drawer>

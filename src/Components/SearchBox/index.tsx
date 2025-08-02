@@ -73,7 +73,8 @@ const SearchBox: React.FC<SearchBoxProps> = ({
         },
       }}
       sx={{
-        width: "410px",
+        width: isMobile ? "100%" : "410px",
+        maxWidth: "100%",
         ...textFieldStyle,
       }}
     />

@@ -1,26 +1,24 @@
-import { ReactNode, useState, useEffect } from "react";
 import {
   Box,
-  CircularProgress,
   LinearProgress,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import TopBar from "../Components/TopBar";
 import TopBarSmall from "../Components/TopBar/TopBarMobile";
-import CachedData, { Prefetch } from "../Services/Common/GlobalServices";
 import NavigationMenu from "../Components/NavigationMenu";
 import NavigationMenuSmall from "../Components/NavigationMenu/NavigationMenuSmall";
-import { useLocation } from "react-router-dom";
-import { useAppData } from "../Store/AppContext";
-import { Outlet } from "react-router";
+import { AppDataProvider, useAppData } from "../Store/AppContext";
+import CachedData, { Prefetch } from "../Services/Common/GlobalServices";
 
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const LayoutWithNav = ({ children }: LayoutProps) => {
-  const [progress, setProgress] = useState(true);
+  const [progress, setProgress] = useState(false);
   const [expandNavigationMenu, setExpandNavigationMenu] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -32,87 +30,23 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
   };
 
   useEffect(() => {
-    const requiredData = [
-      "books"
-    ];
-
-    var keysToPrefetch: string[] = [];
-    var prefetchEndPoints: { [key: string]: string } = {};
-    Prefetch.prefetchRequiredServerData(requiredData, () => {});
-    
-    const path = location.pathname;
-    // if (path && path.split("/").length > 1) {
-    //   bookName = path.split("/")[1];
-    // }
-
-    const checkAllTrue = (fetchDone: { [key: string]: boolean; }) => {
-        let result = true;
-        const keys = Object.keys(fetchDone);
-
-        for (var o = 0; o < keys.length;++o) {
-            result = result && fetchDone[keys[o]];
-        }
-
-        return result;
-    }
-    const timer = setInterval(() => {
-      if(CachedData.data['books']){
-        //if (checkAllTrue(CachedData.fetchDone)){
-        // setProgress(false);
-        // clearInterval(timer);
-        // }
-        // else{
-        if(Object.keys(CachedData.data).length == 1)
-        {
-          CachedData.data.books.map(book => {
-            prefetchEndPoints[book.name + 'index'] = book.name + '/index.txt';
-            prefetchEndPoints[book.name + 'summary'] = book.name + '/summary.txt';
-  
-            if(book.audio) {
-              prefetchEndPoints[book.name + 'audio'] = book.name + '/audio.txt';
-              keysToPrefetch.push(book.name + 'audio')
-            }
-            keysToPrefetch.push(book.name + 'index');
-            keysToPrefetch.push(book.name + 'summary');
-  
-            book.commentaries?.map(c=> {
-              prefetchEndPoints[c.key] = c.data
-              keysToPrefetch.push(c.key)
-            });
-          });
-
-          CachedData.fetchDataForKeys(keysToPrefetch, () => {}, () => {}, prefetchEndPoints);
-        }          
-        
-        const timer1 = setInterval(() => {
-          if (Object.keys(CachedData.data).length == keysToPrefetch.length + 1) {            
-            if (path && path.split("/").length > 1) {
-              const book = path.split("/")[1];
-              if (
-                book &&
-                CachedData?.data?.books &&
-                CachedData?.data.books.find((item: any) => item.name === book)
-              ) {
-                dispatch({
-                  type: "setSelectedBook",
-                  book: CachedData?.data.books.find(
-                    (item: any) => item.name === book
-                  ),
-                });
-              }
-            }
-
+    if(!progress){
+      const fetchData = async () => {
+        setProgress(true);
+        try {
+          // Only load books.json initially - much faster startup
+          await Prefetch.loadInitialData(() => {
+            console.log("Initial books.json loaded. App ready for navigation.");
+            console.log("Available books:", CachedData.data.books);
             setProgress(false);
-            clearInterval(timer);
-            clearInterval(timer1);
-          }
-        }, 200);
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(timer);
-    };
+          });
+        } catch (error) {
+          console.error("Error loading initial data:", error);
+          setProgress(false);
+        }
+      };
+      fetchData();
+    }  
   }, []);
 
   return (
@@ -186,5 +120,3 @@ const LayoutWithNav = ({ children }: LayoutProps) => {
 };
 
 export default LayoutWithNav;
-
-

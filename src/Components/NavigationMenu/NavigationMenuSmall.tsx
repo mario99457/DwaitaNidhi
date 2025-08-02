@@ -85,14 +85,14 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      subMenu: CachedData.data.books.map((book: Book) => {
+      subMenu: CachedData.data.books?.filter((book: Book) => book.type === 'sarvamoola').map((book: Book) => {
         return {
           name: book.name,
           key: book.name,
           label: book.title,
           path: `/${book.name}`,
         };
-      }),
+      }) || [],
     },
     {
       key: "otherBooks",
@@ -101,7 +101,14 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
         <MenuBookTwoToneIcon fontSize="medium" className="menu-icon-book" />
       ),
       path: null,
-      //   subMenu: [],
+      subMenu: CachedData.data.books?.filter((book: Book) => book.type === 'others').map((book: Book) => {
+        return {
+          name: book.name,
+          key: book.name,
+          label: book.title,
+          path: `/${book.name}`,
+        };
+      }) || [],
     },
   ];
 
@@ -110,14 +117,17 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
     setSelectedBook(bookname);
     if (
       bookname &&
-      CachedData.data.books.find((book: Book) => book.name == bookname)
+      CachedData.data.books?.find((book: Book) => book.name == bookname)
     ) {
       CachedData.selectedBook = bookname;
-      GenericBook.populateIndexList();
-      GenericBook.populateCommenatries();
+      // Only populate if data is available
+      if (CachedData.data[bookname + "index"] && CachedData.data[bookname + "summary"]) {
+        GenericBook.populateIndexList();
+        GenericBook.populateCommenatries();
+      }
       dispatch({
         type: "setSelectedBook",
-        book: CachedData?.data.books.find(
+        book: CachedData?.data.books?.find(
           (item: any) => item.name === bookname
         ),
       });
@@ -127,7 +137,7 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
   useEffect(() => {
     if (
       selectedBook &&
-      CachedData.data.books.find((book: Book) => book.name == selectedBook)
+      CachedData.data.books?.find((book: Book) => book.name == selectedBook)
     ) {
       setSelectedMenu("books");
       setExpandedMenu({ books: true });
@@ -363,7 +373,10 @@ const NavigationMenuSmall: React.FC<NavigationMenuProps> = ({
                     justifyContent: expandNavigationMenu ? "initial" : "center",
                     //   px: 2.5,
                   }}
-                  onClick={() => handleMenuItemClick.bind(this)}
+                  onClick={() => {
+                    navigate("/settings");
+                    toggleMenu();
+                  }}
                 >
                   <ListItemIcon
                     sx={{

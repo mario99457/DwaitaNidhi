@@ -39,6 +39,8 @@ export type Book = {
 export interface AppState {
   selectedBook: Book | null;
   showLoader: boolean;
+  currentlyPlayingTitle: any | null;
+  audioCurrentTime: number;
 }
 
 export type AppAction =
@@ -46,7 +48,9 @@ export type AppAction =
   | { type: "added"; id: number; text: string }
   | { type: "deleted"; id: number }
   | { type: "setSelectedBook"; book: Book | null }
-  | { type: "setLoader"; showLoader: boolean };
+  | { type: "setLoader"; showLoader: boolean }
+  | { type: "setCurrentlyPlayingTitle"; title: any | null }
+  | { type: "setAudioCurrentTime"; time: number };
 
 export interface AppContextType {
   state: AppState;
