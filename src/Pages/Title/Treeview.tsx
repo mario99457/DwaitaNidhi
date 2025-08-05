@@ -7,6 +7,7 @@ import {
   IconButton,
   Backdrop,
   CircularProgress,
+  Box,
 } from "@mui/material";
 import { ExpandLess, ExpandMore } from "@mui/icons-material";
 // import tocData from "./treeData.json";
@@ -214,8 +215,6 @@ const TreeView: React.FC<ListViewProps> = ({
                       // fontFamily: "Vesper Libre",
                       fontSize: "22px",
                       color: "#616161",
-                      display: "flex",
-                      alignItems: "center",
                     }}
                   >
                     <span
@@ -227,7 +226,17 @@ const TreeView: React.FC<ListViewProps> = ({
                     >
                       {Sanscript.t(Formatter.toDevanagariNumeral(`${title?.n}`), 'devanagari', commentaryScript || 'devanagari')} &nbsp;
                     </span>
-                    <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
+                    <span
+                      style={{
+                        fontSize: "22px",
+                        whiteSpace: 'pre-line',
+                        lineHeight: 1.4,
+                        display: 'block',
+                        overflow: 'visible',
+                      }}
+                    >
+                      {Sanscript.t(title.s, 'devanagari', commentaryScript || 'devanagari')}
+                    </span>
                   </ListItemText>
                 </ListItem>
               ))}
@@ -286,8 +295,6 @@ const TreeView: React.FC<ListViewProps> = ({
                           primaryTypographyProps={{
                             // fontFamily: "Vesper Libre",
                             fontSize: "24px",
-                            display: "flex",
-                            alignItems: "center",
                           }}
                         >
                           {!isMobile && (
@@ -358,8 +365,6 @@ const TreeView: React.FC<ListViewProps> = ({
                                     // fontFamily: "Vesper Libre",
                                     fontSize: "22px",
                                     color: "#616161",
-                                    display: "flex",
-                                    alignItems: "center",
                                   }}
                                 >
                                   <div className="circle-bullet"></div>
@@ -387,7 +392,10 @@ const TreeView: React.FC<ListViewProps> = ({
                                     )}
                                     &nbsp;
                                   </span>
-                                  <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
+                                  <span style={{ fontSize: "22px", whiteSpace: 'pre-line' }}>
+                                    {Sanscript.t(title.s, 'devanagari', commentaryScript || 'devanagari')}
+                                  </span>
+
                                 </ListItemText>
                               </ListItem>
                             )
@@ -433,8 +441,6 @@ const TreeView: React.FC<ListViewProps> = ({
                         primaryTypographyProps={{
                           fontSize: "22px",
                           color: "#616161",
-                          display: "flex",
-                          alignItems: "center",
                         }}
                       >
                         <div className="circle-bullet"></div>
@@ -464,7 +470,9 @@ const TreeView: React.FC<ListViewProps> = ({
                           )}
                           &nbsp;
                         </span>
-                        <span>{Sanscript.t(Formatter.toPlainText(title.s), 'devanagari', commentaryScript || 'devanagari')}</span>
+                        <span style={{ fontSize: "22px", whiteSpace: 'pre-line' }}>
+                        {Sanscript.t(title.s, 'devanagari', commentaryScript || 'devanagari')}
+                        </span>
                       </ListItemText>
                     </ListItem>
                   ))}

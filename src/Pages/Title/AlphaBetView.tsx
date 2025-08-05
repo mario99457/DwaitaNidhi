@@ -3,18 +3,21 @@ import { List, ListItem, ListItemText } from "@mui/material";
 import { Title } from "../../types/GlobalType.type";
 import { Chapters } from "../../types/Context.type";
 import Formatter from "../../Services/Common/Formatter";
+import Sanscript from "@indic-transliteration/sanscript";
 
 interface ListViewProps {
   handleTitleClick: (selectedTitle: Title) => void;
   toc: Chapters[] | undefined;
   titles: ((t?: any) => any) | undefined;
   allTitles?: Title[];
+  commentaryScript: string;
 }
 
 const AlphaBetView: React.FC<ListViewProps> = ({
   handleTitleClick,
   titles,
   allTitles,
+  commentaryScript
 }) => {
   const titleList = titles && titles("z")?.titles && titles("z")?.titles.length > 0
     ? titles("z")?.titles
@@ -55,9 +58,11 @@ const AlphaBetView: React.FC<ListViewProps> = ({
             <span
               style={{
                 fontSize: "22px",
+                whiteSpace: 'pre-line',
               }}
             >
-              {data.s}
+              {Sanscript.t(data.s, 'devanagari', commentaryScript || 'devanagari')}
+              
             </span>
           </ListItemText>
         </ListItem>

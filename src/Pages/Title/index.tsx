@@ -638,6 +638,7 @@ const TitlePage = () => {
                 toc={selectedBook.chapters}
                 titles={GenericBook.getIndexList}
                 allTitles={GenericBook.allTitles}
+                commentaryScript={commentaryScript || 'devanagari'}
               />
             )}
             {selectedView === "reader" && (
