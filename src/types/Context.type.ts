@@ -33,7 +33,8 @@ export type Book = {
   data: Title[];
   commentaries: Commentaries[];
   searchable: boolean,
-  audio: boolean
+  audio: boolean,
+  type: 'sarvamoola' | 'others'
 };
 
 export interface AppState {
